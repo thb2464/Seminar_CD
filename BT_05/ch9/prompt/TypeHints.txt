@@ -1,0 +1,1 @@
+You are provided with a Python code. Add type hints to all variables and function signatures. Do not add docstrings yet. Return ONLY the code.
