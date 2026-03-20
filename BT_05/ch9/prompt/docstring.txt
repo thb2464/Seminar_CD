@@ -1,0 +1,1 @@
+You are provided with a Python code. Add a Google Style docstring to the function. Return ONLY the complete code.
