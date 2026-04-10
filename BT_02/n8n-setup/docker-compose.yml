@@ -1,0 +1,18 @@
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n_movie_bot
+    restart: always
+    user: root
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=serena-acosmistic-lavelle.ngrok-free.dev
+      - N8N_PROTOCOL=https
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://serena-acosmistic-lavelle.ngrok-free.dev/
+      - GENERIC_TIMEZONE=Asia/Ho_Chi_Minh
+      - N8N_PROXY_HOPS=1
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
+    volumes:
+      - D:/SeminarCD/Seminar_CD/BT2/n8n-setup/n8n_data:/home/node/.local/share/n8n
