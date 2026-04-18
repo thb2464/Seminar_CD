@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1000" width="1500" height="1000" font-family="Segoe UI, Arial, sans-serif">
+  <!-- ============ STYLES ============ -->
+  <defs>
+    <style>
+      .title       { font-size: 22px; font-weight: 700; fill: #1e293b; }
+      .subtitle    { font-size: 14px; fill: #475569; }
+      .domain-label{ font-size: 15px; font-weight: 700; fill: #0f172a; letter-spacing: 1px; }
+      .entity-name { font-size: 14px; font-weight: 700; fill: #ffffff; }
+      .col-pk      { font-size: 11px; font-weight: 700; fill: #b45309; }
+      .col-fk      { font-size: 11px; font-style: italic; fill: #c2410c; }
+      .col-reg     { font-size: 11px; fill: #1f2937; }
+      .col-type    { font-size: 10px; fill: #64748b; }
+      .card-lbl    { font-size: 12px; font-weight: 700; fill: #0f172a; }
+      .rel-lbl     { font-size: 10px; fill: #475569; font-style: italic; }
+      .legend-txt  { font-size: 11px; fill: #1e293b; }
+    </style>
+
+    <!-- Arrow marker (crow's foot = "many") -->
+    <marker id="many" viewBox="0 0 16 16" refX="14" refY="8" markerWidth="16" markerHeight="16" orient="auto">
+      <path d="M0,8 L14,2 M0,8 L14,8 M0,8 L14,14" stroke="#334155" stroke-width="1.6" fill="none"/>
+    </marker>
+    <!-- "one" marker (small bar) -->
+    <marker id="one" viewBox="0 0 8 16" refX="4" refY="8" markerWidth="8" markerHeight="16" orient="auto">
+      <path d="M4,1 L4,15" stroke="#334155" stroke-width="2" fill="none"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1500" height="1000" fill="#f8fafc"/>
+
+  <!-- ============ HEADER ============ -->
+  <text x="750" y="38" text-anchor="middle" class="title">Hình: Entity Relationship Diagram (ERD) — Các bảng chính của TravelTVB</text>
+  <text x="750" y="60" text-anchor="middle" class="subtitle">Lược đồ dữ liệu Strapi v5 / SQLite — gồm 2 miền: Thương mại (Tour &amp; Đặt chỗ) và Nội dung (Bài viết)</text>
+
+  <!-- ============ DOMAIN: COMMERCE ============ -->
+  <rect x="30" y="90" width="1440" height="380" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <text x="50" y="115" class="domain-label">MIỀN THƯƠNG MẠI — Tour &amp; Đặt chỗ</text>
+
+  <!-- ===== tour_category ===== -->
+  <g transform="translate(70, 140)">
+    <rect width="230" height="140" rx="6" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.5"/>
+    <rect width="230" height="28" rx="6" fill="#1e3a8a"/>
+    <rect y="22" width="230" height="6" fill="#1e3a8a"/>
+    <text x="115" y="19" text-anchor="middle" class="entity-name">tour_category</text>
+
+    <text x="12" y="48" class="col-pk">PK  id</text>
+    <text x="200" y="48" class="col-type" text-anchor="end">integer</text>
+
+    <line x1="8" y1="56" x2="222" y2="56" stroke="#e2e8f0"/>
+
+    <text x="12" y="72" class="col-reg">Category_Name</text>
+    <text x="220" y="72" class="col-type" text-anchor="end">string</text>
+
+    <text x="12" y="90" class="col-reg">Category_Slug</text>
+    <text x="220" y="90" class="col-type" text-anchor="end">uid</text>
+
+    <text x="12" y="108" class="col-reg">locale</text>
+    <text x="220" y="108" class="col-type" text-anchor="end">string</text>
+
+    <text x="12" y="126" class="col-reg">published_at</text>
+    <text x="220" y="126" class="col-type" text-anchor="end">datetime</text>
+  </g>
+
+  <!-- ===== tour ===== -->
+  <g transform="translate(420, 140)">
+    <rect width="260" height="300" rx="6" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.5"/>
+    <rect width="260" height="28" rx="6" fill="#1e3a8a"/>
+    <rect y="22" width="260" height="6" fill="#1e3a8a"/>
+    <text x="130" y="19" text-anchor="middle" class="entity-name">tour</text>
+
+    <text x="12" y="48" class="col-pk">PK  id</text>
+    <text x="250" y="48" class="col-type" text-anchor="end">integer</text>
+    <line x1="8" y1="56" x2="252" y2="56" stroke="#e2e8f0"/>
+
+    <text x="12" y="72" class="col-fk">FK  tour_category_id</text>
+    <text x="250" y="72" class="col-type" text-anchor="end">integer</text>
+
+    <text x="12" y="90" class="col-reg">Tour_Name</text>
+    <text x="250" y="90" class="col-type" text-anchor="end">string (i18n)</text>
+
+    <text x="12" y="108" class="col-reg">slug</text>
+    <text x="250" y="108" class="col-type" text-anchor="end">uid (i18n)</text>
+
+    <text x="12" y="126" class="col-reg">Short_Description</text>
+    <text x="250" y="126" class="col-type" text-anchor="end">text (i18n)</text>
+
+    <text x="12" y="144" class="col-reg">Description</text>
+    <text x="250" y="144" class="col-type" text-anchor="end">blocks (i18n)</text>
+
+    <text x="12" y="162" class="col-reg">Price</text>
+    <text x="250" y="162" class="col-type" text-anchor="end">biginteger</text>
+
+    <text x="12" y="180" class="col-reg">Original_Price / Child_Price</text>
+    <text x="250" y="180" class="col-type" text-anchor="end">biginteger</text>
+
+    <text x="12" y="198" class="col-reg">Duration_Days / Duration_Nights</text>
+    <text x="250" y="198" class="col-type" text-anchor="end">integer</text>
+
+    <text x="12" y="216" class="col-reg">Location / Departure_Location</text>
+    <text x="250" y="216" class="col-type" text-anchor="end">string (i18n)</text>
+
+    <text x="12" y="234" class="col-reg">Region</text>
+    <text x="250" y="234" class="col-type" text-anchor="end">enum</text>
+
+    <text x="12" y="252" class="col-reg">Transport_Type</text>
+    <text x="250" y="252" class="col-type" text-anchor="end">enum</text>
+
+    <text x="12" y="270" class="col-reg">Rating / Review_Count</text>
+    <text x="250" y="270" class="col-type" text-anchor="end">decimal / int</text>
+
+    <text x="12" y="288" class="col-reg">Is_Featured</text>
+    <text x="250" y="288" class="col-type" text-anchor="end">boolean</text>
+  </g>
+
+  <!-- ===== booking ===== -->
+  <g transform="translate(820, 140)">
+    <rect width="260" height="300" rx="6" fill="#ffffff" stroke="#b91c1c" stroke-width="1.5"/>
+    <rect width="260" height="28" rx="6" fill="#b91c1c"/>
+    <rect y="22" width="260" height="6" fill="#b91c1c"/>
+    <text x="130" y="19" text-anchor="middle" class="entity-name">booking</text>
+
+    <text x="12" y="48" class="col-pk">PK  id</text>
+    <text x="250" y="48" class="col-type" text-anchor="end">integer</text>
+    <line x1="8" y1="56" x2="252" y2="56" stroke="#e2e8f0"/>
+
+    <text x="12" y="72" class="col-fk">FK  tour_id</text>
+    <text x="250" y="72" class="col-type" text-anchor="end">integer</text>
+
+    <text x="12" y="90" class="col-fk">FK  user_id  (→ up_users)</text>
+    <text x="250" y="90" class="col-type" text-anchor="end">integer</text>
+
+    <text x="12" y="108" class="col-reg">adult_count</text>
+    <text x="250" y="108" class="col-type" text-anchor="end">integer ≥ 1</text>
+
+    <text x="12" y="126" class="col-reg">child_count</text>
+    <text x="250" y="126" class="col-type" text-anchor="end">integer</text>
+
+    <text x="12" y="144" class="col-reg">travel_date</text>
+    <text x="250" y="144" class="col-type" text-anchor="end">date</text>
+
+    <text x="12" y="162" class="col-reg">total_price</text>
+    <text x="250" y="162" class="col-type" text-anchor="end">biginteger</text>
+
+    <text x="12" y="180" class="col-reg">status</text>
+    <text x="250" y="180" class="col-type" text-anchor="end">enum</text>
+    <text x="12" y="194" class="col-type">     Pending | Paid | Failed | Cancelled</text>
+
+    <text x="12" y="212" class="col-reg">payment_ref</text>
+    <text x="250" y="212" class="col-type" text-anchor="end">string</text>
+
+    <text x="12" y="230" class="col-reg">vnpay_transaction_no</text>
+    <text x="250" y="230" class="col-type" text-anchor="end">string</text>
+
+    <text x="12" y="248" class="col-reg">contact_name / email / phone</text>
+    <text x="250" y="248" class="col-type" text-anchor="end">string</text>
+
+    <text x="12" y="266" class="col-reg">refund_amount / refund_status</text>
+    <text x="250" y="266" class="col-type" text-anchor="end">biginteger</text>
+
+    <text x="12" y="284" class="col-reg">booking_date / cancelled_at</text>
+    <text x="250" y="284" class="col-type" text-anchor="end">datetime</text>
+  </g>
+
+  <!-- ===== up_users ===== -->
+  <g transform="translate(1200, 140)">
+    <rect width="240" height="220" rx="6" fill="#ffffff" stroke="#065f46" stroke-width="1.5"/>
+    <rect width="240" height="28" rx="6" fill="#065f46"/>
+    <rect y="22" width="240" height="6" fill="#065f46"/>
+    <text x="120" y="19" text-anchor="middle" class="entity-name">up_users (users-permissions)</text>
+
+    <text x="12" y="48" class="col-pk">PK  id</text>
+    <text x="230" y="48" class="col-type" text-anchor="end">integer</text>
+    <line x1="8" y1="56" x2="232" y2="56" stroke="#e2e8f0"/>
+
+    <text x="12" y="72" class="col-reg">username</text>
+    <text x="230" y="72" class="col-type" text-anchor="end">string</text>
+
+    <text x="12" y="90" class="col-reg">email</text>
+    <text x="230" y="90" class="col-type" text-anchor="end">email, unique</text>
+
+    <text x="12" y="108" class="col-reg">password</text>
+    <text x="230" y="108" class="col-type" text-anchor="end">hashed</text>
+
+    <text x="12" y="126" class="col-reg">provider</text>
+    <text x="230" y="126" class="col-type" text-anchor="end">string</text>
+
+    <text x="12" y="144" class="col-reg">confirmed</text>
+    <text x="230" y="144" class="col-type" text-anchor="end">boolean</text>
+
+    <text x="12" y="162" class="col-reg">blocked</text>
+    <text x="230" y="162" class="col-type" text-anchor="end">boolean</text>
+
+    <text x="12" y="180" class="col-fk">FK  role_id  (→ up_roles)</text>
+    <text x="230" y="180" class="col-type" text-anchor="end">integer</text>
+
+    <text x="12" y="198" class="col-reg">created_at / updated_at</text>
+    <text x="230" y="198" class="col-type" text-anchor="end">datetime</text>
+  </g>
+
+  <!-- ============ COMMERCE RELATIONSHIPS ============ -->
+  <!-- tour_category (1) → (N) tour -->
+  <line x1="300" y1="210" x2="420" y2="210" stroke="#334155" stroke-width="1.8" marker-start="url(#one)" marker-end="url(#many)"/>
+  <text x="310" y="202" class="card-lbl">1</text>
+  <text x="410" y="202" class="card-lbl" text-anchor="end">N</text>
+  <text x="360" y="226" text-anchor="middle" class="rel-lbl">belongs_to</text>
+
+  <!-- tour (1) → (N) booking -->
+  <line x1="680" y1="210" x2="820" y2="210" stroke="#334155" stroke-width="1.8" marker-start="url(#one)" marker-end="url(#many)"/>
+  <text x="690" y="202" class="card-lbl">1</text>
+  <text x="810" y="202" class="card-lbl" text-anchor="end">N</text>
+  <text x="750" y="226" text-anchor="middle" class="rel-lbl">references</text>
+
+  <!-- up_users (1) → (N) booking -->
+  <line x1="1200" y1="230" x2="1080" y2="230" stroke="#334155" stroke-width="1.8" marker-start="url(#one)" marker-end="url(#many)"/>
+  <text x="1190" y="222" class="card-lbl" text-anchor="end">1</text>
+  <text x="1090" y="222" class="card-lbl">N</text>
+  <text x="1140" y="246" text-anchor="middle" class="rel-lbl">places</text>
+
+  <!-- ============ DOMAIN: CONTENT ============ -->
+  <rect x="30" y="500" width="1440" height="470" rx="10" fill="#fef3c7" stroke="#fbbf24" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <text x="50" y="525" class="domain-label">MIỀN NỘI DUNG — Bài viết &amp; Cộng đồng</text>
+
+  <!-- ===== post_category ===== -->
+  <g transform="translate(70, 560)">
+    <rect width="220" height="130" rx="6" fill="#ffffff" stroke="#7c2d12" stroke-width="1.5"/>
+    <rect width="220" height="28" rx="6" fill="#7c2d12"/>
+    <rect y="22" width="220" height="6" fill="#7c2d12"/>
+    <text x="110" y="19" text-anchor="middle" class="entity-name">post_category</text>
+
+    <text x="12" y="48" class="col-pk">PK  id</text>
+    <text x="210" y="48" class="col-type" text-anchor="end">integer</text>
+    <line x1="8" y1="56" x2="212" y2="56" stroke="#e2e8f0"/>
+
+    <text x="12" y="72" class="col-reg">Category_Name</text>
+    <text x="210" y="72" class="col-type" text-anchor="end">string</text>
+
+    <text x="12" y="90" class="col-reg">Category_Slug</text>
+    <text x="210" y="90" class="col-type" text-anchor="end">uid</text>
+
+    <text x="12" y="108" class="col-reg">created_at</text>
+    <text x="210" y="108" class="col-type" text-anchor="end">datetime</text>
+
+    <text x="12" y="124" class="col-reg">published_at</text>
+    <text x="210" y="124" class="col-type" text-anchor="end">datetime</text>
+  </g>
+
+  <!-- ===== single_post ===== -->
+  <g transform="translate(400, 560)">
+    <rect width="270" height="230" rx="6" fill="#ffffff" stroke="#7c2d12" stroke-width="1.5"/>
+    <rect width="270" height="28" rx="6" fill="#7c2d12"/>
+    <rect y="22" width="270" height="6" fill="#7c2d12"/>
+    <text x="135" y="19" text-anchor="middle" class="entity-name">single_post</text>
+
+    <text x="12" y="48" class="col-pk">PK  id</text>
+    <text x="260" y="48" class="col-type" text-anchor="end">integer</text>
+    <line x1="8" y1="56" x2="262" y2="56" stroke="#e2e8f0"/>
+
+    <text x="12" y="72" class="col-fk">FK  post_category_id</text>
+    <text x="260" y="72" class="col-type" text-anchor="end">integer</text>
+
+    <text x="12" y="90" class="col-fk">FK  author_id</text>
+    <text x="260" y="90" class="col-type" text-anchor="end">integer</text>
+
+    <text x="12" y="108" class="col-reg">PostTitle</text>
+    <text x="260" y="108" class="col-type" text-anchor="end">string (i18n)</text>
+
+    <text x="12" y="126" class="col-reg">slug</text>
+    <text x="260" y="126" class="col-type" text-anchor="end">uid (i18n)</text>
+
+    <text x="12" y="144" class="col-reg">Featured_Image</text>
+    <text x="260" y="144" class="col-type" text-anchor="end">media (i18n)</text>
+
+    <text x="12" y="162" class="col-reg">Content</text>
+    <text x="260" y="162" class="col-type" text-anchor="end">blocks (i18n)</text>
+
+    <text x="12" y="180" class="col-reg">PostType</text>
+    <text x="260" y="180" class="col-type" text-anchor="end">enum</text>
+    <text x="12" y="194" class="col-type">     Integer | ThiTruong | TongHop</text>
+
+    <text x="12" y="212" class="col-reg">TinThiTruong_Type / Time_To_Read</text>
+    <text x="260" y="212" class="col-type" text-anchor="end">enum / int</text>
+  </g>
+
+  <!-- ===== author ===== -->
+  <g transform="translate(810, 560)">
+    <rect width="230" height="140" rx="6" fill="#ffffff" stroke="#4338ca" stroke-width="1.5"/>
+    <rect width="230" height="28" rx="6" fill="#4338ca"/>
+    <rect y="22" width="230" height="6" fill="#4338ca"/>
+    <text x="115" y="19" text-anchor="middle" class="entity-name">author</text>
+
+    <text x="12" y="48" class="col-pk">PK  id</text>
+    <text x="220" y="48" class="col-type" text-anchor="end">integer</text>
+    <line x1="8" y1="56" x2="222" y2="56" stroke="#e2e8f0"/>
+
+    <text x="12" y="72" class="col-reg">DisplayName</text>
+    <text x="220" y="72" class="col-type" text-anchor="end">string</text>
+
+    <text x="12" y="90" class="col-reg">AuthorAvatar</text>
+    <text x="220" y="90" class="col-type" text-anchor="end">media</text>
+
+    <text x="12" y="108" class="col-fk">FK  admin_user_id</text>
+    <text x="220" y="108" class="col-type" text-anchor="end">integer</text>
+
+    <text x="12" y="126" class="col-reg">created_at</text>
+    <text x="220" y="126" class="col-type" text-anchor="end">datetime</text>
+  </g>
+
+  <!-- ===== single_community_post ===== -->
+  <g transform="translate(1170, 560)">
+    <rect width="290" height="230" rx="6" fill="#ffffff" stroke="#7c2d12" stroke-width="1.5"/>
+    <rect width="290" height="28" rx="6" fill="#7c2d12"/>
+    <rect y="22" width="290" height="6" fill="#7c2d12"/>
+    <text x="145" y="19" text-anchor="middle" class="entity-name">single_community_post</text>
+
+    <text x="12" y="48" class="col-pk">PK  id</text>
+    <text x="280" y="48" class="col-type" text-anchor="end">integer</text>
+    <line x1="8" y1="56" x2="282" y2="56" stroke="#e2e8f0"/>
+
+    <text x="12" y="72" class="col-fk">FK  post_category_id</text>
+    <text x="280" y="72" class="col-type" text-anchor="end">integer</text>
+
+    <text x="12" y="90" class="col-fk">FK  author_id</text>
+    <text x="280" y="90" class="col-type" text-anchor="end">integer</text>
+
+    <text x="12" y="108" class="col-reg">PostTitle</text>
+    <text x="280" y="108" class="col-type" text-anchor="end">string (i18n)</text>
+
+    <text x="12" y="126" class="col-reg">slug</text>
+    <text x="280" y="126" class="col-type" text-anchor="end">uid (i18n)</text>
+
+    <text x="12" y="144" class="col-reg">Featured_Image</text>
+    <text x="280" y="144" class="col-type" text-anchor="end">media (i18n)</text>
+
+    <text x="12" y="162" class="col-reg">Content</text>
+    <text x="280" y="162" class="col-type" text-anchor="end">blocks (i18n)</text>
+
+    <text x="12" y="180" class="col-reg">Iframe_Url</text>
+    <text x="280" y="180" class="col-type" text-anchor="end">string (i18n)</text>
+
+    <text x="12" y="198" class="col-reg">PostType</text>
+    <text x="280" y="198" class="col-type" text-anchor="end">enum</text>
+    <text x="12" y="212" class="col-type">     Podcast | PhanTichBinhLuan | ChuyenMucHoiDap</text>
+  </g>
+
+  <!-- ===== newsletter_email_submisson (standalone) ===== -->
+  <g transform="translate(810, 820)">
+    <rect width="230" height="110" rx="6" fill="#ffffff" stroke="#0f766e" stroke-width="1.5"/>
+    <rect width="230" height="28" rx="6" fill="#0f766e"/>
+    <rect y="22" width="230" height="6" fill="#0f766e"/>
+    <text x="115" y="19" text-anchor="middle" class="entity-name">newsletter_email_submisson</text>
+
+    <text x="12" y="48" class="col-pk">PK  id</text>
+    <text x="220" y="48" class="col-type" text-anchor="end">integer</text>
+    <line x1="8" y1="56" x2="222" y2="56" stroke="#e2e8f0"/>
+
+    <text x="12" y="72" class="col-reg">UsersEmail</text>
+    <text x="220" y="72" class="col-type" text-anchor="end">email, required</text>
+
+    <text x="12" y="90" class="col-reg">created_at</text>
+    <text x="220" y="90" class="col-type" text-anchor="end">datetime</text>
+
+    <text x="12" y="105" class="col-type" text-anchor="middle">(bảng độc lập — không có quan hệ)</text>
+  </g>
+
+  <!-- ============ CONTENT RELATIONSHIPS ============ -->
+  <!-- post_category (1) → (N) single_post -->
+  <line x1="290" y1="620" x2="400" y2="620" stroke="#334155" stroke-width="1.8" marker-start="url(#one)" marker-end="url(#many)"/>
+  <text x="300" y="612" class="card-lbl">1</text>
+  <text x="390" y="612" class="card-lbl" text-anchor="end">N</text>
+  <text x="345" y="636" text-anchor="middle" class="rel-lbl">belongs_to</text>
+
+  <!-- author (1) → (N) single_post -->
+  <line x1="810" y1="620" x2="670" y2="620" stroke="#334155" stroke-width="1.8" marker-start="url(#one)" marker-end="url(#many)"/>
+  <text x="800" y="612" class="card-lbl" text-anchor="end">1</text>
+  <text x="680" y="612" class="card-lbl">N</text>
+  <text x="740" y="636" text-anchor="middle" class="rel-lbl">writes</text>
+
+  <!-- author (1) → (N) single_community_post -->
+  <line x1="1040" y1="620" x2="1170" y2="620" stroke="#334155" stroke-width="1.8" marker-start="url(#one)" marker-end="url(#many)"/>
+  <text x="1050" y="612" class="card-lbl">1</text>
+  <text x="1160" y="612" class="card-lbl" text-anchor="end">N</text>
+  <text x="1105" y="636" text-anchor="middle" class="rel-lbl">writes</text>
+
+  <!-- post_category (1) → (N) single_community_post (curved arc) -->
+  <path d="M 180,690 Q 180,830 600,830 Q 1315,830 1315,790" fill="none" stroke="#334155" stroke-width="1.8" stroke-dasharray="4,3" marker-start="url(#one)" marker-end="url(#many)"/>
+  <text x="200" y="720" class="card-lbl">1</text>
+  <text x="1305" y="810" class="card-lbl" text-anchor="end">N</text>
+  <text x="700" y="822" text-anchor="middle" class="rel-lbl">belongs_to (community posts)</text>
+
+  <!-- ============ LEGEND ============ -->
+  <g transform="translate(40, 950)">
+    <rect width="1420" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="14" y="25" class="legend-txt" font-weight="700">Chú thích:</text>
+
+    <text x="100" y="25" class="col-pk">PK</text>
+    <text x="125" y="25" class="legend-txt">= Khóa chính</text>
+
+    <text x="230" y="25" class="col-fk">FK</text>
+    <text x="255" y="25" class="legend-txt">= Khóa ngoại</text>
+
+    <line x1="380" y1="22" x2="430" y2="22" stroke="#334155" stroke-width="1.8" marker-start="url(#one)" marker-end="url(#many)"/>
+    <text x="438" y="25" class="legend-txt">= Quan hệ 1 — N</text>
+
+    <text x="560" y="25" class="legend-txt">(i18n) = trường được bản địa hóa theo locale vi / en / zh</text>
+
+    <text x="880" y="25" class="legend-txt">Kho dữ liệu: SQLite (better-sqlite3) — bảng do Strapi v5 tự sinh theo content-type.</text>
+  </g>
+</svg>

@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_button_terms_and_services",
+  "info": {
+    "displayName": "Terms_and_Services"
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

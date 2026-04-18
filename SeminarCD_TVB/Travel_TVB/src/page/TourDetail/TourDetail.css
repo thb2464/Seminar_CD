@@ -1,0 +1,355 @@
+.tour-detail-page {
+  padding-top: 5rem;
+}
+
+.tour-detail-loading {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: #666;
+  font-size: 1.1rem;
+  padding-top: 100px;
+}
+
+/* Hero */
+.tour-detail-hero {
+  width: 100%;
+  height: 450px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.tour-detail-hero-overlay {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.3) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 2rem clamp(1rem, 5vw, 4rem);
+}
+
+.tour-back-link-hero {
+  display: none;
+  position: absolute;
+  top: 1.5rem;
+  left: clamp(1rem, 5vw, 4rem);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.tour-back-link-hero:hover {
+  opacity: 1;
+}
+
+.tour-back-link {
+  color: #4a90d9;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.tour-back-link:hover {
+  text-decoration: underline;
+}
+
+.tour-detail-hero-content {
+  max-width: 800px;
+}
+
+.tour-detail-category {
+  display: inline-block;
+  background: rgba(74, 144, 217, 0.85);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+}
+
+.tour-detail-title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 0.75rem;
+  line-height: 1.2;
+}
+
+.tour-detail-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.95rem;
+}
+
+.tour-detail-hero-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Container */
+.tour-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem clamp(1rem, 3vw, 2rem);
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
+}
+
+.tour-detail-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.tour-detail-section {
+  margin-bottom: 2.5rem;
+}
+
+.tour-detail-section h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* Highlights */
+.tour-highlights-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 0.75rem;
+}
+
+.tour-highlight-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+/* Rich text */
+.rich-text-content p {
+  margin-bottom: 1rem;
+  line-height: 1.8;
+  color: #444;
+}
+
+.rich-text-content h2,
+.rich-text-content h3,
+.rich-text-content h4 {
+  margin: 1.5rem 0 0.75rem;
+  color: #1a1a2e;
+}
+
+.rich-text-content ul,
+.rich-text-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.rich-text-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.7;
+  color: #444;
+}
+
+.rich-text-content .content-image {
+  width: 100%;
+  border-radius: 12px;
+  margin: 1rem 0;
+}
+
+.tour-itinerary h3 {
+  color: #4a90d9;
+}
+
+/* Gallery */
+.tour-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.tour-gallery-item {
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+}
+
+.tour-gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.tour-gallery-item:hover img {
+  transform: scale(1.05);
+}
+
+/* Sidebar */
+.tour-detail-sidebar {
+  width: 360px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 100px;
+  align-self: flex-start;
+}
+
+.tour-sidebar-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+  border: 1px solid #f0f0f0;
+}
+
+.tour-sidebar-price {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.tour-sidebar-original-price {
+  display: block;
+  font-size: 0.95rem;
+  color: #999;
+  text-decoration: line-through;
+  margin-bottom: 0.25rem;
+}
+
+.tour-sidebar-current-price {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #e74c3c;
+}
+
+.tour-sidebar-per-person {
+  font-size: 0.9rem;
+  color: #888;
+  margin-left: 4px;
+}
+
+.tour-sidebar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.tour-sidebar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.tour-sidebar-label {
+  font-size: 0.875rem;
+  color: #888;
+  font-weight: 500;
+}
+
+.tour-sidebar-value {
+  font-size: 0.9rem;
+  color: #333;
+  font-weight: 600;
+  text-align: right;
+}
+
+.tour-sidebar-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tour-sidebar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tour-sidebar-btn {
+  display: block;
+  width: 100%;
+  padding: 0.85rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.1s ease, opacity 0.2s ease;
+}
+
+.tour-sidebar-btn:active {
+  transform: translateY(1px);
+}
+
+.tour-sidebar-btn.primary {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+.tour-sidebar-btn.primary:hover {
+  opacity: 0.9;
+}
+
+.tour-sidebar-btn.secondary {
+  background: #fff;
+  color: #1a1a2e;
+  border: 1.5px solid #1a1a2e;
+}
+
+.tour-sidebar-btn.secondary:hover {
+  background: #f8f9fa;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .tour-detail-container {
+    flex-direction: column;
+  }
+
+  .tour-detail-sidebar {
+    width: 100%;
+    position: static;
+  }
+
+  .tour-detail-hero {
+    height: 350px;
+  }
+}
+
+@media (max-width: 600px) {
+  .tour-detail-hero {
+    height: 280px;
+  }
+
+  .tour-highlights-list {
+    grid-template-columns: 1fr;
+  }
+
+  .tour-gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

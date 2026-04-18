@@ -1,0 +1,155 @@
+/* MainService.css */
+
+.main-service-container {
+  background-color: white;
+  width: 100%;
+  max-width: 1400px;
+  margin: 4rem auto;
+  padding: 0 2rem;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-service-title {
+  font-size: 3rem;
+  color: black;
+  margin-bottom: 2.5rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.main-service-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  width: 100%;
+}
+
+.main-service-card {
+  position: relative;
+  height: 350px;
+  border-radius: 16px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  color: white;
+  text-decoration: none;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+
+.main-service-card-content {
+  position: relative;
+  z-index: 2;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.main-service-card-text h3 {
+  font-size: 1.75rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+
+.main-service-card-text p {
+  font-size: 1rem;
+  margin: 0;
+  opacity: 1;
+}
+
+.main-service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+
+  .main-service-card-text{
+    color: white;
+}
+}
+
+.main-service-card-arrow-wrapper {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.main-service-card-arrow {
+  font-size: 1.5rem;
+  line-height: 1;
+  transition: transform 0.3s ease;
+}
+
+.main-service-card:hover .main-service-card-arrow {
+  transform: translateX(5px);
+}
+
+.pagination-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #d1d1d1;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.dot.active {
+  background-color: black;
+}
+
+.error-message {
+    color: #cc0000;
+    font-size: 1.2rem;
+}
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) {
+  .main-service-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .main-service-title {
+    font-size: 2rem;
+  }
+  
+  .main-service-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .main-service-card {
+    height: 300px;
+  }
+
+  .main-card-text h3 {
+    font-size: 1.5rem;
+  }
+}

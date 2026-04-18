@@ -1,0 +1,254 @@
+/* Main section container with grid background */
+.journey-section {
+    padding: clamp(3rem, 8vw, 5rem) clamp(1rem, 4vw, 2rem);
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background-color: #f8f9fa;
+    background-color: white;
+}
+
+/* Centered content container */
+.journey-container {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* "History" highlight box */
+.journey-highlight {
+    background-color: #fffae6;
+    color: #333;
+    padding: clamp(0.375rem, 1vw, 0.5rem) clamp(1rem, 2vw, 1.25rem);
+    border-radius: 1rem;
+    font-size: clamp(0.875rem, 1.5vw, 1rem);
+    font-weight: 500;
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+/* "Hành Trình Phát Triển" title */
+.journey-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 500;
+    color: #1a202c;
+    margin-bottom: clamp(2rem, 6vw, 4rem);
+    text-align: center;
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out 0.2s forwards;
+}
+
+/* Timeline grid layout */
+.journey-timeline {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+.timeline-item {
+    display: grid;
+    grid-template-columns: auto 60px 1fr;
+    gap: clamp(1rem, 3vw, 2rem);
+    align-items: center;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.timeline-item.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Date styling with animation */
+.timeline-date {
+  grid-column: 1 / 2;
+  text-align: right; /* CHANGED: Aligns text to the right, closer to the line */
+  font-weight: 600;
+  color: #4a5568;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.4;
+  /* min-width is now handled by inline style from React */
+  justify-self: end; /* CHANGED: Aligns the entire box to the end (right) of the grid area */
+  transform: translateX(-30px);
+  transition: transform 0.6s ease-out 0.2s;
+
+  /* ADD THESE LINES to prevent pushing */
+  max-width: 100%; 
+  overflow-wrap: break-word; 
+}
+
+/* Connector container for dot and line */
+.timeline-connector {
+    grid-column: 2 / 3;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    min-height: clamp(4rem, 8vw, 6rem);
+}
+
+/* The vertical line connecting dots */
+.timeline-line {
+    position: absolute;
+    top: calc(60% + clamp(0.625rem, 1.25vw, 1rem));
+    width: 4px;
+    background-color: #000000;
+    height: calc(60% + clamp(1rem, 1.25vw, 1.5rem));
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.8s ease-out 0.4s;
+}
+
+.timeline-item.visible .timeline-line {
+    transform: scaleY(1);
+}
+
+/* The dot on the timeline */
+.timeline-dot {
+    width: clamp(1.25rem, 2.5vw, 1.75rem);
+    height: clamp(1.25rem, 2.5vw, 1.75rem);
+    border-radius: 50%;
+    background-color: white;
+    border: clamp(3px, 0.5vw, 5px) solid;
+    z-index: 1;
+    box-sizing: border-box;
+    transform: scale(0);
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.3s;
+}
+
+.timeline-item.visible .timeline-dot {
+    transform: scale(1);
+}
+
+/* Achievement card styling */
+.timeline-card {
+    grid-column: 3 / 4;
+    padding: clamp(1rem, 3vw, 1.75rem) clamp(1.25rem, 3vw, 2rem);
+    border-radius: clamp(0.75rem, 1.5vw, 1rem);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    align-self: center;
+    min-height: 150px;
+    transform: translateX(50px) scale(0.9);
+    opacity: 0;
+    transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s;
+}
+
+.timeline-item.visible .timeline-card {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+}
+
+.timeline-card h3 {
+    margin: 0 0 clamp(0.5rem, 1vw, 0.75rem) 0;
+    font-size: clamp(1.125rem, 2.5vw, 2rem);
+    font-weight: 600;
+    text-align: left;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.5s ease-out 0.7s;
+}
+
+.timeline-item.visible .timeline-card h3 {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.timeline-card p {
+    margin: 0;
+    font-size: clamp(0.875rem, 2vw, 1.125rem);
+    text-align: left;
+    line-height: 1.6;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease-out 0.9s;
+}
+
+.timeline-item.visible .timeline-card p {
+    transform: translateY(0);
+    opacity: 0.9;
+}
+
+/* Keyframe animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes drawLine {
+    from {
+        height: 0;
+    }
+    to {
+        height: calc(clamp(3rem, 6vw, 4rem) + clamp(1rem, 1.25vw, 1.5rem));
+    }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .timeline-item {
+        grid-template-columns: 1fr;
+        gap: clamp(0.5rem, 2vw, 1rem);
+        text-align: center;
+    }
+    
+    .timeline-date {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        text-align: center;
+        margin-bottom: 0.5rem;
+        transform: translateY(-20px);
+    }
+
+    .timeline-item.visible .timeline-date {
+        transform: translateY(0);
+    }
+    
+    .timeline-connector {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        height: 2rem;
+        min-height: 2rem;
+    }
+    
+    .timeline-line {
+        display: none;
+    }
+    
+    .timeline-card {
+        grid-column: 1 / -1;
+        grid-row: 3;
+        margin: 0 auto;
+        max-width: 100%;
+        min-width: 100%;
+        transform: translateY(30px) scale(0.95);
+    }
+
+    .timeline-item.visible .timeline-card {
+        transform: translateY(0) scale(1);
+    }
+
+    .timeline-dot {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .journey-section {
+        padding: clamp(2rem, 6vw, 3rem) clamp(0.75rem, 3vw, 1rem);
+    }
+    
+    .timeline-item {
+        gap: clamp(0.25rem, 1vw, 0.5rem);
+    }
+}

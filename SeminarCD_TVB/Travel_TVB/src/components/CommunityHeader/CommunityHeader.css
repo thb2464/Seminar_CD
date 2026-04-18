@@ -1,0 +1,217 @@
+/* src/components/CommunityHeader/CommunityHeader.css */
+
+.header-wrapper {
+  width: 100%;
+  min-height: 60vh;
+  background: linear-gradient(180deg, #d1e6fc, #fffff6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1.5rem;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  font-family: 'Be Vietnam Pro', sans-serif; 
+}
+
+.header-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.8) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Main Layout */
+.community-post-header {
+  display: flex;
+  margin-top: 5%;
+  gap: 3rem;
+  max-width: 1200px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  text-align: left; 
+}
+
+/* Left & Right Column Sizing */
+.community-header-left {
+  flex: 1;
+  min-width: 320px;
+}
+
+.community-header-right {
+  flex: 1.2;
+  min-width: 320px;
+}
+
+/* Left Column Content Styling */
+.community-main-title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 700; 
+  color: #0d2c54;
+  line-height: 1.1;
+  margin: 0 0 1rem 0;
+}
+
+.community-subtitle {
+  font-size: clamp(1rem, 1.2vw, 1.1rem);
+  color: #333;
+  line-height: 1.6;
+  max-width: 500px;
+  margin-bottom: 2rem;
+}
+
+/* Newsletter Form */
+.community-newsletter-section {
+  margin-bottom: 2rem;
+}
+
+.community-newsletter-section label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.75rem;
+}
+
+.community-newsletter-form {
+  display: flex;
+  max-width: 400px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 0.3rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e0e0e0;
+}
+
+.community-newsletter-form input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  padding: 0.75rem;
+  font-size: 1rem;
+  background: transparent;
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.community-newsletter-form button {
+  background-color: #fff0b9;
+  border: none;
+  padding: 12px 24px;
+  min-width: 150px;
+  margin-left: 2%;
+  font-size: clamp(0.9rem, 0.85rem + 0.5vw, 1rem);
+  font-weight: 500;
+  color: #04284c;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius:8px;
+  transition: background-color 0.3s ease;
+}
+
+.community-newsletter-form button:focus{
+    outline: none;
+}
+
+.community-newsletter-form button:hover {
+  background-color: #e0a300;
+}
+
+.community-newsletter-form .arrow {
+  margin-left: 0.5rem;
+  font-size: 0.7rem;
+}
+
+/* Social Follow Styles */
+.social-follow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: clamp(0.9rem, 0.5vw + 0.8rem, 1.1rem);
+  color: black;
+  font-weight: 600;
+}
+
+.social-icons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.social-icons a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: transparent;
+  color: #0d2c54;
+  font-size: 0;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  padding: 0;
+  border: none;
+}
+
+.social-icons .social-icon-svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: brightness(0);
+  transition: filter 0.2s ease;
+}
+
+.social-icons a:hover {
+  background-color: #0d2c54;
+}
+
+.social-icons a:hover .social-icon-svg {
+  filter: brightness(0) invert(1);
+}
+
+/* Featured Image Card Styles */
+.community-featured-card {
+  display: block;
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.community-featured-card-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.community-featured-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .community-post-header {
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+  .community-header-left, .community-header-right {
+    flex-basis: 100%;
+    max-width: 600px;
+  }
+}

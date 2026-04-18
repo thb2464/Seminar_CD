@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 950" width="1500" height="950" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <style>
+      .title     { font-size: 22px; font-weight: 700; fill: #0f172a; }
+      .subtitle  { font-size: 13px; fill: #475569; }
+      .stage-hdr { font-size: 13px; font-weight: 700; fill: #ffffff; text-anchor: middle; letter-spacing: 1px; }
+      .job-name  { font-size: 13px; font-weight: 700; fill: #0f172a; text-anchor: middle; }
+      .step      { font-size: 11px; fill: #1e293b; }
+      .step-cmd  { font-size: 10px; fill: #475569; font-family: 'Consolas','Courier New',monospace; }
+      .cond      { font-size: 10px; fill: #be185d; font-style: italic; text-anchor: middle; }
+      .icon-txt  { font-size: 10px; fill: #475569; text-anchor: middle; }
+      .lane-lbl  { font-size: 14px; font-weight: 700; fill: #0f172a; letter-spacing: 1px; }
+      .note      { font-size: 11px; fill: #334155; }
+    </style>
+    <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M0,0 L10,6 L0,12 z" fill="#0f172a"/>
+    </marker>
+  </defs>
+
+  <rect width="1500" height="950" fill="#f8fafc"/>
+
+  <!-- Header -->
+  <text x="750" y="36" text-anchor="middle" class="title">Hình 4.5: Pipeline CI/CD trên GitHub Actions</text>
+
+  <!-- ========== TRIGGER ========== -->
+  <g>
+    <rect x="40" y="120" width="180" height="100" rx="8" fill="#1e3a8a"/>
+    <text x="130" y="145" class="stage-hdr">TRIGGER</text>
+    <text x="130" y="170" class="step" style="fill:#ffffff" text-anchor="middle">push / pull_request</text>
+    <text x="130" y="188" class="step-cmd" style="fill:#ffffff" text-anchor="middle">branches: [main, dev]</text>
+    <text x="130" y="206" class="step-cmd" style="fill:#ffffff" text-anchor="middle">paths-ignore: ['docs/**']</text>
+  </g>
+
+  <!-- Arrow to Setup -->
+  <line x1="220" y1="170" x2="260" y2="170" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ========== SETUP ========== -->
+  <g>
+    <rect x="270" y="120" width="200" height="100" rx="8" fill="#0369a1"/>
+    <text x="370" y="145" class="stage-hdr">SETUP JOB</text>
+    <text x="370" y="166" class="step" style="fill:#ffffff" text-anchor="middle">• actions/checkout@v4</text>
+    <text x="370" y="182" class="step" style="fill:#ffffff" text-anchor="middle">• setup-node@v4 (Node 20)</text>
+    <text x="370" y="198" class="step" style="fill:#ffffff" text-anchor="middle">• Cache node_modules</text>
+    <text x="370" y="214" class="step-cmd" style="fill:#ffffff" text-anchor="middle">ubuntu-latest</text>
+  </g>
+
+  <!-- Split arrow to 2 parallel jobs -->
+  <line x1="470" y1="170" x2="520" y2="170" stroke="#0f172a" stroke-width="2"/>
+  <line x1="520" y1="100" x2="520" y2="520" stroke="#0f172a" stroke-width="2"/>
+  <line x1="520" y1="100" x2="580" y2="100" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="520" y1="260" x2="580" y2="260" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="520" y1="430" x2="580" y2="430" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+
+
+  <!-- ========== JOB 1: FRONTEND CI ========== -->
+  <g>
+    <rect x="590" y="60" width="320" height="160" rx="8" fill="#ffffff" stroke="#0369a1" stroke-width="2"/>
+    <rect x="590" y="60" width="320" height="28" rx="8" fill="#0369a1"/>
+    <rect x="590" y="82" width="320" height="6" fill="#0369a1"/>
+    <text x="750" y="80" class="stage-hdr">JOB · frontend-ci</text>
+
+    <text x="750" y="108" class="job-name">Travel_TVB/</text>
+
+    <text x="605" y="128" class="step">1. npm ci</text>
+    <text x="605" y="144" class="step">2. npm run lint  </text><tspan x="685" y="144" class="step-cmd">(ESLint)</tspan>
+    <text x="605" y="160" class="step">3. npm run test  </text><tspan x="685" y="160" class="step-cmd">(Vitest + RTL, coverage ≥ 70%)</tspan>
+    <text x="605" y="176" class="step">4. npm run build  </text><tspan x="695" y="176" class="step-cmd">(Vite → dist/)</tspan>
+    <text x="605" y="192" class="step">5. upload-artifact: </text><tspan x="720" y="192" class="step-cmd">fe-dist</tspan>
+    <text x="605" y="208" class="step-cmd" fill="#be185d">⏱ ~3 phút</text>
+  </g>
+
+  <!-- ========== JOB 2: BACKEND CI ========== -->
+  <g>
+    <rect x="590" y="230" width="320" height="160" rx="8" fill="#ffffff" stroke="#166534" stroke-width="2"/>
+    <rect x="590" y="230" width="320" height="28" rx="8" fill="#166534"/>
+    <rect x="590" y="252" width="320" height="6" fill="#166534"/>
+    <text x="750" y="250" class="stage-hdr">JOB · backend-ci</text>
+
+    <text x="750" y="278" class="job-name">Travel_TVB_Server/</text>
+
+    <text x="605" y="298" class="step">1. npm ci</text>
+    <text x="605" y="314" class="step">2. Lint </text><tspan x="645" y="314" class="step-cmd">(ESLint + Prettier)</tspan>
+    <text x="605" y="330" class="step">3. npm test </text><tspan x="665" y="330" class="step-cmd">(Jest — vnpay-helpers, booking.controller)</tspan>
+    <text x="605" y="346" class="step">4. npm run build </text><tspan x="703" y="346" class="step-cmd">(Strapi admin)</tspan>
+    <text x="605" y="362" class="step">5. upload-artifact: </text><tspan x="720" y="362" class="step-cmd">be-build</tspan>
+    <text x="605" y="378" class="step-cmd" fill="#be185d">⏱ ~5 phút</text>
+  </g>
+
+  <!-- ========== JOB 3: SECURITY SCAN ========== -->
+  <g>
+    <rect x="590" y="400" width="320" height="120" rx="8" fill="#ffffff" stroke="#b91c1c" stroke-width="2"/>
+    <rect x="590" y="400" width="320" height="28" rx="8" fill="#b91c1c"/>
+    <rect x="590" y="422" width="320" height="6" fill="#b91c1c"/>
+    <text x="750" y="420" class="stage-hdr">JOB · security-scan</text>
+
+    <text x="605" y="450" class="step">1. npm audit --audit-level=high</text>
+    <text x="605" y="466" class="step">2. SecretScanner: </text><tspan x="710" y="466" class="step-cmd">gitleaks</tspan>
+    <text x="605" y="482" class="step">3. CodeQL analysis </text><tspan x="722" y="482" class="step-cmd">(JavaScript)</tspan>
+    <text x="605" y="498" class="step">4. Dependabot check</text>
+    <text x="605" y="514" class="step-cmd" fill="#be185d">⏱ ~2 phút · fails pipeline khi có CVE high/critical</text>
+  </g>
+
+  <!-- Merge arrows -->
+  <line x1="910" y1="140" x2="960" y2="140" stroke="#0f172a" stroke-width="2"/>
+  <line x1="910" y1="310" x2="960" y2="310" stroke="#0f172a" stroke-width="2"/>
+  <line x1="910" y1="460" x2="960" y2="460" stroke="#0f172a" stroke-width="2"/>
+  <line x1="960" y1="140" x2="960" y2="460" stroke="#0f172a" stroke-width="2"/>
+  <line x1="960" y1="300" x2="1000" y2="300" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ========== GATE ========== -->
+  <g>
+    <polygon points="1010,240 1090,300 1010,360 930,300" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+    <text x="1010" y="290" class="step" text-anchor="middle" font-weight="700">Branch?</text>
+    <text x="1010" y="308" class="step-cmd" text-anchor="middle">main?</text>
+  </g>
+
+  <!-- Gate arrows -->
+  <line x1="1090" y1="300" x2="1130" y2="300" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <line x1="1010" y1="360" x2="1010" y2="680" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ========== JOB 4: DEPLOY STAGING ========== -->
+  <g>
+    <rect x="1130" y="90" width="320" height="140" rx="8" fill="#ffffff" stroke="#be185d" stroke-width="2"/>
+    <rect x="1130" y="90" width="320" height="28" rx="8" fill="#be185d"/>
+    <rect x="1130" y="112" width="320" height="6" fill="#be185d"/>
+    <text x="1290" y="110" class="stage-hdr">JOB · deploy-staging</text>
+
+    <text x="1145" y="140" class="step">• download-artifact: fe-dist + be-build</text>
+    <text x="1145" y="158" class="step">• Deploy Frontend → Vercel (preview)</text>
+    <text x="1145" y="176" class="step">• Deploy Backend → Railway / Render</text>
+    <text x="1145" y="194" class="step">• Run DB migrations</text>
+    <text x="1145" y="212" class="step">• Seed ChromaDB (indexTours.js)</text>
+    <text x="1145" y="226" class="step-cmd" fill="#be185d">needs: [frontend-ci, backend-ci, security-scan]</text>
+  </g>
+
+  <!-- ========== JOB 5: E2E TESTS ========== -->
+  <g>
+    <rect x="1130" y="250" width="320" height="120" rx="8" fill="#ffffff" stroke="#7c2d12" stroke-width="2"/>
+    <rect x="1130" y="250" width="320" height="28" rx="8" fill="#7c2d12"/>
+    <rect x="1130" y="272" width="320" height="6" fill="#7c2d12"/>
+    <text x="1290" y="270" class="stage-hdr">JOB · e2e-tests</text>
+
+    <text x="1145" y="300" class="step">• Playwright: smoke test trên staging</text>
+    <text x="1145" y="318" class="step">• Kiểm tra: /tours, /booking, /chatbot</text>
+    <text x="1145" y="336" class="step">• VNPay sandbox payment (mock)</text>
+    <text x="1145" y="354" class="step">• Upload HTML report artifact</text>
+    <text x="1145" y="368" class="step-cmd" fill="#be185d">⏱ ~4 phút</text>
+  </g>
+
+  <line x1="1290" y1="230" x2="1290" y2="250" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ========== MANUAL APPROVAL ========== -->
+  <g>
+    <rect x="1130" y="390" width="320" height="80" rx="8" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+    <text x="1290" y="418" class="job-name">Manual Approval Gate</text>
+    <text x="1290" y="438" class="step" text-anchor="middle">Reviewer approves trên GitHub UI</text>
+    <text x="1290" y="456" class="step-cmd" text-anchor="middle">environment: production</text>
+  </g>
+
+  <line x1="1290" y1="370" x2="1290" y2="390" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ========== JOB 6: DEPLOY PRODUCTION ========== -->
+  <g>
+    <rect x="1130" y="490" width="320" height="140" rx="8" fill="#ffffff" stroke="#15803d" stroke-width="2"/>
+    <rect x="1130" y="490" width="320" height="28" rx="8" fill="#15803d"/>
+    <rect x="1130" y="512" width="320" height="6" fill="#15803d"/>
+    <text x="1290" y="510" class="stage-hdr">JOB · deploy-production</text>
+
+    <text x="1145" y="538" class="step">• Chỉ chạy khi tag `v*.*.*` được push</text>
+    <text x="1145" y="556" class="step">• Blue-green deployment</text>
+    <text x="1145" y="574" class="step">• Run smoke test post-deploy</text>
+    <text x="1145" y="592" class="step">• Notify Slack #deploy</text>
+    <text x="1145" y="610" class="step">• Rollback tự động nếu health check fail</text>
+    <text x="1145" y="626" class="step-cmd" fill="#be185d">environment: production-live</text>
+  </g>
+
+  <line x1="1290" y1="470" x2="1290" y2="490" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ========== STOP / FAIL ========== -->
+  <g>
+    <rect x="900" y="660" width="220" height="80" rx="8" fill="#fee2e2" stroke="#b91c1c" stroke-width="2"/>
+    <text x="1010" y="688" class="job-name">STOP · báo lỗi</text>
+    <text x="1010" y="708" class="step" text-anchor="middle">Gửi email / Slack alert</text>
+    <text x="1010" y="724" class="step" text-anchor="middle">Block merge PR</text>
+  </g>
+
+  <!-- ========== NOTES ========== -->
+  <g transform="translate(40, 620)">
+    <rect width="830" height="290" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="14" y="24" font-size="14" font-weight="700" fill="#0f172a">Ghi chú triển khai</text>
+
+    <text x="14" y="54" font-size="12" font-weight="700" fill="#0369a1">Secrets (.github/secrets)</text>
+    <text x="14" y="72" class="note">GOOGLE_AI_API_KEY · VNPAY_HASH_SECRET · STRAPI_JWT_SECRET · APP_KEYS · DATABASE_URL · VERCEL_TOKEN · RAILWAY_TOKEN</text>
+
+    <text x="14" y="102" font-size="12" font-weight="700" fill="#166534">Strategy · matrix</text>
+    <text x="14" y="120" class="note">frontend-ci và backend-ci dùng `strategy.matrix.node-version: [20, 22]` để test đa phiên bản Node.</text>
+
+    <text x="14" y="150" font-size="12" font-weight="700" fill="#b91c1c">Caching</text>
+    <text x="14" y="168" class="note">`actions/cache` cache `~/.npm` theo hash của package-lock.json → giảm install từ 90s → 10s.</text>
+
+    <text x="14" y="198" font-size="12" font-weight="700" fill="#92400e">Artifacts</text>
+    <text x="14" y="216" class="note">`fe-dist` (retention 7 ngày) · `be-build` (retention 7 ngày) · `playwright-report` (retention 30 ngày).</text>
+
+    <text x="14" y="246" font-size="12" font-weight="700" fill="#be185d">Tổng thời gian pipeline</text>
+    <text x="14" y="264" class="note">≈ 10–14 phút end-to-end (setup 30s · CI song song 5' · security 2' · deploy staging 2' · E2E 4')</text>
+  </g>
+
+  <!-- Lifecycle label at top -->
+  <text x="130" y="105" class="lane-lbl" fill="#1e3a8a" text-anchor="middle">① EVENT</text>
+  <text x="370" y="105" class="lane-lbl" fill="#0369a1" text-anchor="middle">② SETUP</text>
+  <text x="750" y="48" class="lane-lbl" fill="#166534" text-anchor="middle">③ JOBS SONG SONG</text>
+  <text x="1010" y="220" class="lane-lbl" fill="#92400e" text-anchor="middle">④ GATE</text>
+  <text x="1290" y="75" class="lane-lbl" fill="#be185d" text-anchor="middle">⑤ DEPLOY</text>
+</svg>

@@ -1,0 +1,192 @@
+/* src/components/Footer/Footer.css */
+
+.site-footer {
+  background-color: #04284c;
+  color: #ffffff;
+  padding: clamp(2.5rem, 5vw, 3.75rem) 0 clamp(1rem, 2vw, 1.25rem) 0;
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 1.25rem);
+}
+
+/* --- Upper Footer --- */
+.footer-upper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: clamp(1.25rem, 3vw, 1.875rem);
+}
+
+.footer-col, .footer-col-main {
+  min-width: 0; /* Prevents overflow issues */
+}
+
+/* Main column with logo and quote */
+.footer-col-main {
+  display: flex;
+  flex-direction: column;
+  grid-column: span 1;
+}
+
+.footer-logo {
+  max-width: clamp(20px, 8vw,  160px); /* <-- Increased values */
+  margin-bottom: clamp(0.75rem, 2vw, 1rem);
+}
+
+.footer-quote {
+  text-align: left;
+  font-size: clamp(0.875rem, 2.5vw, 0.8rem);
+  font-style: italic;
+  margin-bottom: clamp(1rem, 3vw, 1.25rem);
+  line-height: 1.4;
+}
+
+.quote-highlight {
+  color: #f39c12;
+}
+
+/* General column styling */
+.footer-title {
+  text-align: left;
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  font-weight: bold;
+  margin-bottom: clamp(1rem, 2.5vw, 1.25rem);
+  color: #bdc3c7;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.footer-links li {
+  margin-bottom: clamp(0.5rem, 1.5vw, 0.625rem);
+}
+
+.footer-links a, .footer-legal-links a {
+  color: #ffffff; 
+  text-decoration: none;
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover, .footer-legal-links a:hover {
+  color: #f39c12;
+}
+
+.footer-info p {
+  margin: 0 0 clamp(0.5rem, 1.5vw, 0.75rem) 0;
+  line-height: 1.4;
+  text-align: left;
+  color: #ffffff;
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
+}
+
+/* Orange styling for info labels */
+.info-label {
+  color: #f39c12;
+  font-weight: 500;
+}
+
+/* --- Divider --- */
+.footer-divider {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: clamp(1.5rem, 3vw, 2rem) 0;
+}
+
+/* --- Lower Footer --- */
+.footer-lower {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: clamp(0.75rem, 2vw, 1rem);
+  padding-top: clamp(1rem, 2vw, 1.25rem);
+  font-size: clamp(0.75rem, 1.8vw, 0.875rem);
+  color: #bdc3c7;
+}
+
+.footer-copyright {
+  margin: 0;
+}
+
+.footer-lamweb{
+  margin: 0;
+}
+
+.footer-legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+.footer-legal-links a {
+  font-size: clamp(0.75rem, 1.8vw, 0.875rem);
+}
+
+/* --- Responsive Design --- */
+
+/* Tablet adjustments */
+@media (max-width: 768px) {
+  .footer-upper {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: clamp(1rem, 4vw, 1.5rem);
+  }
+  
+  .footer-col-main {
+    grid-column: span 1;
+    order: -1; /* Moves logo column to top on mobile */
+  }
+  
+  .footer-lower {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .footer-legal-links {
+    justify-content: center;
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .footer-upper {
+    grid-template-columns: 1fr;
+    gap: clamp(1.5rem, 5vw, 2rem);
+  }
+  
+  .footer-col-main {
+    text-align: center;
+  }
+  
+  .footer-quote, 
+  .footer-title, 
+  .footer-links, 
+  .footer-info p {
+    text-align: center;
+  }
+  
+  
+  .footer-legal-links {
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.5rem, 2vw, 0.75rem);
+  }
+}
+
+/* Very small screens */
+@media (max-width: 320px) {
+  .footer-container {
+    padding: 0 1rem;
+  }
+  
+  .site-footer {
+    padding: 2rem 0 1rem 0;
+  }
+}

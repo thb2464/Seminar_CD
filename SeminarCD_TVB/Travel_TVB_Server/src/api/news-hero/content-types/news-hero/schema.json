@@ -1,0 +1,66 @@
+{
+  "kind": "singleType",
+  "collectionName": "news_heroes",
+  "info": {
+    "singularName": "news-hero",
+    "pluralName": "news-heroes",
+    "displayName": "News Hero"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "News_MainTitle": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "News_subTitle": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "NewsletterLabel": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "followUsText": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "Social_Link": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "button.social-link",
+      "repeatable": true
+    },
+    "Featured_New": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::single-post.single-post"
+    }
+  }
+}

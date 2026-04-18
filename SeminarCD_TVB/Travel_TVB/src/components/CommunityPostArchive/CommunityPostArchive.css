@@ -1,0 +1,388 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary-font: 'Montserrat', sans-serif;
+    --text-color-dark: #222;
+    --text-color-light: #666;
+    --border-color: #e0e0e0;
+    --background-color: #f9f9f9;
+    --card-background: #ffffff;
+    --active-tab-bg: #333;
+    --active-tab-text: #fff;
+}
+
+.cpa-wrapper{
+  background: linear-gradient(180deg, #fffff6, white);
+}
+
+.cpa-container {
+    width: 100%;
+    max-width: 1240px;
+    margin: 2rem auto;
+    margin-top: 0;
+    padding: 0 1.5rem;
+    font-family: var(--primary-font);
+    box-sizing: border-box;
+}
+
+/* --- Header & Tabs --- */
+.cpa-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    gap: 1rem; 
+}
+
+.cpa-header-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-color-dark);
+    flex: 1; 
+    min-width: 0; 
+}
+
+.cpa-header-title h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.cpa-tabs {
+    display: flex;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0; 
+}
+
+
+.cpa-tab-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    background-color: var(--background-color);
+    color: var(--text-color-light);
+    font-family: var(--primary-font);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    border-radius: 0;
+    flex: 1;
+    text-align: center;
+    white-space: nowrap; 
+}
+
+.cpa-tab-btn:focus {
+    outline: none;
+}
+
+.cpa-tab-btn:not(:last-of-type) {
+    border-right: 1px solid var(--border-color);
+}
+
+.cpa-tab-btn.active {
+    background-color: var(--active-tab-bg);
+    color: var(--active-tab-text);
+}
+
+/* --- Search Bar Styles --- */
+.cpa-search-form {
+    display: flex;
+    flex: 1; 
+    justify-content: flex-end; 
+    min-width: 200px; 
+}
+
+.cpa-search-form .cpa-search-input {
+    border: 1px solid var(--border-color);
+    border-right: none;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    font-family: var(--primary-font);
+    color: var(--text-color-dark);
+    flex-grow: 1;
+    max-width: 300px;
+    background-color: var(--card-background);
+    border-radius: 8px 0 0 8px;
+    transition: box-shadow 0.2s ease;
+}
+
+.cpa-search-form .cpa-search-btn {
+    padding: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-color-light);
+    transition: color 0.2s;
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+}
+
+.cpa-search-form:focus-within .cpa-search-input,
+.cpa-search-form:focus-within .cpa-search-btn {
+    border-color: var(--border-color);
+}
+
+
+.cpa-search-form .cpa-search-btn:hover {
+    color: var(--active-tab-bg);
+}
+
+/* --- MODIFICATION: Ensure no outline/shadow on focus/active --- */
+.cpa-search-form .cpa-search-input:focus,
+.cpa-search-form .cpa-search-input:active,
+.cpa-search-form .cpa-search-btn:focus,
+.cpa-search-form .cpa-search-btn:active {
+    outline: none !important;
+    box-shadow: none !important; /* Explicitly remove any box-shadow */
+}
+/* --- END MODIFICATION --- */
+
+
+/* --- Content & Grid --- */
+.cpa-content {
+    min-height: 400px;
+}
+
+.cpa-message {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--text-color-light);
+    padding: 4rem 0;
+}
+
+.cpa-message.error {
+    color: #d9534f;
+}
+
+.cpa-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+/* --- Post Card --- */
+.cpa-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--card-background);
+    border-radius: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--text-color-dark);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cpa-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.cpa-card:hover .cpa-card-title {
+    color: #666;
+}
+
+.cpa-card-image {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+}
+
+.cpa-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.cpa-card:hover .cpa-card-image img {
+    transform: scale(1.05);
+}
+
+.cpa-card-content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    text-align: left;
+}
+
+.cpa-card-category {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-color-light);
+    margin-bottom: 0.5rem;
+}
+
+.cpa-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0 0 1rem 0;
+    flex-grow: 1;
+}
+
+.cpa-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-color-light);
+}
+
+.cpa-card-author {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.cpa-card-author-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.cpa-card-time {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+}
+
+/* --- Play/Pause Button Style --- */
+.cpa-play-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-background);
+    color: var(--text-color-dark);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    flex-shrink: 0 !important;
+}
+
+.cpa-play-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+.cpa-card-date {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cpa-play-btn:hover {
+    background-color: var(--active-tab-bg);
+    color: var(--active-tab-text);
+    border-color: var(--active-tab-bg);
+}
+
+/* --- Pagination --- */
+.cpa-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 3rem;
+}
+
+.cpa-page-btn {
+    font-family: var(--primary-font);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.6rem;
+    min-width: 40px;
+    height: 40px;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-background);
+    color: var(--text-color-light);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cpa-page-btn.next {
+    padding: 0.6rem 1rem;
+}
+
+.cpa-page-btn:hover {
+    border-color: #aaa;
+    color: var(--text-color-dark);
+}
+
+.cpa-page-btn.active {
+    background-color: var(--active-tab-bg);
+    color: var(--active-tab-text);
+    border-color: var(--active-tab-bg);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 992px) {
+    .cpa-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .cpa-container {
+        padding: 0 1rem;
+    }
+    .cpa-header {
+        flex-direction: column;
+        align-items: center; 
+        gap: 1.5rem; 
+    }
+    .cpa-header-title {
+        justify-content: center; 
+    }
+    .cpa-tabs {
+        width: 100%;
+        justify-content: center;
+    }
+    .cpa-tab-btn {
+        font-size: 0.85rem; 
+        padding: 0.5rem;
+    }
+    .cpa-search-form {
+        width: 100%;
+        justify-content: center; 
+    }
+    .cpa-search-form .cpa-search-input {
+        max-width: none; 
+    }
+}
+
+@media (max-width: 576px) {
+    .cpa-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cpa-tabs {
+        flex-direction: column;
+        border-radius: 8px;
+    }
+    .cpa-tab-btn {
+        border-right: none !important;
+    }
+    .cpa-tab-btn:not(:last-of-type) {
+        border-bottom: 1px solid var(--border-color);
+    }
+}

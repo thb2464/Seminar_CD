@@ -1,0 +1,80 @@
+{
+  "kind": "collectionType",
+  "collectionName": "bookings",
+  "info": {
+    "singularName": "booking",
+    "pluralName": "bookings",
+    "displayName": "Booking"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "tour": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::tour.tour"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "adult_count": {
+      "type": "integer",
+      "required": true,
+      "min": 1
+    },
+    "child_count": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "travel_date": {
+      "type": "date",
+      "required": true
+    },
+    "total_price": {
+      "type": "biginteger",
+      "required": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["Pending", "Paid", "Failed", "Cancelled"],
+      "default": "Pending",
+      "required": true
+    },
+    "payment_ref": {
+      "type": "string"
+    },
+    "vnpay_transaction_no": {
+      "type": "string"
+    },
+    "booking_date": {
+      "type": "datetime"
+    },
+    "contact_name": {
+      "type": "string",
+      "required": true
+    },
+    "contact_email": {
+      "type": "string",
+      "required": true
+    },
+    "contact_phone": {
+      "type": "string",
+      "required": true
+    },
+    "refund_amount": {
+      "type": "biginteger",
+      "default": "0"
+    },
+    "cancelled_at": {
+      "type": "datetime"
+    },
+    "refund_status": {
+      "type": "string"
+    }
+  }
+}

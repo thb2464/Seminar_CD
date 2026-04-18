@@ -1,0 +1,288 @@
+.header-wrapper {
+  width: 100%;
+  min-height: 60vh;
+  background: linear-gradient(180deg, #d1e6fc, #fffff6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1.5rem;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  /* FONT: Applied Be Vietnam Pro to all text inside */
+  font-family: 'Be Vietnam Pro', sans-serif; 
+}
+
+.header-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.8) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Main Layout */
+.post-header {
+  display: flex;
+  margin-top: 5%;
+  gap: 3rem;
+  max-width: 1200px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  /* ALIGNMENT: Ensures text defaults to left */
+  text-align: left; 
+}
+
+/* Left & Right Column Sizing */
+.news-header-left {
+  flex: 1;
+  min-width: 320px;
+}
+
+.news-header-right {
+  flex: 1.2;
+  min-width: 320px;
+}
+
+/* Left Column Content Styling */
+.news-main-title {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  /* WEIGHT: Changed from 800 to 500 */
+  font-weight: 600; 
+  color: #0d2c54;
+  line-height: 1.1;
+  margin: 0 0 1rem 0;
+}
+
+.news-subtitle {
+  font-size: clamp(1rem, 1.2vw, 1.1rem);
+  color: #333;
+  line-height: 1.6;
+  max-width: 500px;
+  margin-bottom: 2rem;
+}
+
+/* Newsletter Form */
+.news-newsletter-section {
+  margin-bottom: 2rem;
+}
+
+/* LAYOUT: 'display: block' places the label on its own line, above the form */
+.news-newsletter-section label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.75rem;
+}
+
+.news-newsletter-form {
+  display: flex;
+  max-width: 400px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 0.3rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e0e0e0;
+}
+
+.news-newsletter-form input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  padding: 0.75rem;
+  font-size: 1rem;
+  background: transparent;
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.news-newsletter-form button {
+  background-color: #fff0b9; /* Button background color */
+  border: none;
+  padding: 12px 24px;
+  min-width: 150px;
+  margin-left: 2%;
+  /* clamp(MIN, PREFERRED, MAX) */
+  font-size: clamp(0.9rem, 0.85rem + 0.5vw, 1rem);
+  font-weight: 500;
+  color: #04284c;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between text and icon */
+  border-radius:8px; /* Rounded corners on the right */
+  transition: background-color 0.3s ease;
+}
+
+.news-newsletter-form button:focus{
+    outline: none;
+}
+
+.news-newsletter-form button:hover {
+  background-color: #e0a300;
+}
+
+.news-newsletter-form .arrow {
+  margin-left: 0.5rem;
+  font-size: 0.7rem;
+}
+
+/* Social Follow Styles */
+.social-follow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: clamp(0.9rem, 0.5vw + 0.8rem, 1.1rem);
+  color: black;
+  font-weight: 600;
+}
+
+.social-icons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center; /* Ensures icons are vertically aligned */
+}
+
+.social-icons a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; /* Adjust as needed */
+  height: 32px; /* Adjust as needed */
+  border-radius: 50%; /* Makes them circular if width/height are equal */
+  background-color: transparent; /* Changed to transparent */
+  color: #0d2c54; /* Dark blue from your title for consistency, or black #000 */
+  font-size: 0; /* Hide any default text inside the <a> if images are used */
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  padding: 0; /* Remove padding */
+  border: none; /* Ensure no border */
+}
+
+/* Styling for the actual SVG/Image social icons */
+.social-icons .social-icon-svg {
+  width: 100%; /* Make the SVG fill the anchor */
+  height: 100%; /* Make the SVG fill the anchor */
+  object-fit: contain; /* Ensure the SVG scales correctly */
+  filter: brightness(0); /* This makes black SVG icons black by default */
+  transition: filter 0.2s ease; /* Smooth transition for color change */
+}
+
+.social-icons a:hover {
+  background-color: #0d2c54; /* Dark blue background on hover */
+  color: white; /* Text color white if there was any */
+}
+
+/* Hover effect for the SVG/Image: turns it white */
+.social-icons a:hover .social-icon-svg {
+  filter: brightness(0) invert(1); /* Makes the black icon white on hover */
+}
+
+/* Featured Post Card Styles */
+.featured-card {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  color: #111;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.featured-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.featured-card-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.featured-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.featured-card:hover .featured-card-image img {
+  transform: scale(1.05);
+}
+
+.featured-card-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.featured-card-title {
+  font-size: clamp(1.25rem, 1.8vw, 1.75rem);
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 1rem 0;
+  flex-grow: 1;
+}
+
+.featured-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: black;
+}
+
+.featured-card-author {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.featured-card-author-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.featured-card-time {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: black;
+}
+
+.reading-time {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .post-header {
+    flex-direction: column;
+    gap: 2.5rem;
+    /* ALIGNMENT: Removed 'text-align: center' */
+  }
+  .news-header-left, .news-header-right {
+    flex-basis: 100%;
+    max-width: 600px;
+  }
+}

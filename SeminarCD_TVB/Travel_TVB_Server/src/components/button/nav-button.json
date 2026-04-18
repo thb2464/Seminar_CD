@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_button_nav_buttons",
+  "info": {
+    "displayName": "Nav_button"
+  },
+  "options": {},
+  "attributes": {
+    "Url": {
+      "type": "string"
+    },
+    "Text": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

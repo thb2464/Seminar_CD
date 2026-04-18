@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_card_tour_highlights",
+  "info": {
+    "displayName": "TourHighlight"
+  },
+  "options": {},
+  "attributes": {
+    "Highlight_Text": {
+      "type": "string",
+      "required": true
+    },
+    "Highlight_Icon": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    }
+  }
+}

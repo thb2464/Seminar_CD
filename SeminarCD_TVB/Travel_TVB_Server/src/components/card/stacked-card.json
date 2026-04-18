@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_card_stacked_cards",
+  "info": {
+    "displayName": "StackedCard"
+  },
+  "options": {},
+  "attributes": {
+    "CardTitle": {
+      "type": "string"
+    },
+    "Descriptions": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}
