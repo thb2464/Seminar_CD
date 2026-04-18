@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 2200" width="1500" height="2200" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <style>
+      .title     { font-size: 22px; font-weight: 700; fill: #0f172a; }
+      .subtitle  { font-size: 13px; fill: #475569; }
+      .tree      { font-family: 'Cascadia Mono','Consolas','Courier New',monospace; font-size: 13px; fill: #0f172a; }
+      .root      { font-weight: 700; fill: #0f172a; }
+      .folder-fe { fill: #0369a1; font-weight: 700; }
+      .folder-be { fill: #166534; font-weight: 700; }
+      .folder-doc{ fill: #92400e; font-weight: 700; }
+      .folder    { fill: #1e293b; font-weight: 600; }
+      .file      { fill: #334155; }
+      .comment   { fill: #64748b; font-style: italic; }
+      .section   { font-size: 14px; font-weight: 700; letter-spacing: 1px; }
+    </style>
+  </defs>
+
+  <rect width="1500" height="2200" fill="#f8fafc"/>
+
+  <!-- Header -->
+  <text x="750" y="36" text-anchor="middle" class="title">Hình 4.1: Cấu trúc thư mục dự án TravelTVB</text>
+  <text x="750" y="58" text-anchor="middle" class="subtitle">Tổ chức mã nguồn theo kiến trúc monorepo: Frontend (React + Vite) · Backend (Strapi) · Docs</text>
+
+  <!-- Legend bar -->
+  <g transform="translate(40, 80)">
+    <rect width="1420" height="36" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+    <circle cx="20" cy="18" r="6" fill="#0369a1"/>
+    <text x="34" y="23" font-size="12" fill="#0f172a">Frontend (Travel_TVB)</text>
+
+    <circle cx="220" cy="18" r="6" fill="#166534"/>
+    <text x="234" y="23" font-size="12" fill="#0f172a">Backend (Travel_TVB_Server)</text>
+
+    <circle cx="440" cy="18" r="6" fill="#92400e"/>
+    <text x="454" y="23" font-size="12" fill="#0f172a">Tài liệu (docs)</text>
+
+    <text x="560" y="23" font-size="12" fill="#64748b">// thư mục</text>
+    <text x="660" y="23" font-size="12" fill="#334155">file.js</text>
+    <text x="740" y="23" font-size="12" fill="#64748b" font-style="italic">— chú giải</text>
+
+    <text x="1050" y="23" font-size="12" fill="#0f172a" font-weight="700">node_modules/ và .git/ được bỏ qua</text>
+  </g>
+
+  <!-- ============ TREE CONTENT ============ -->
+  <!-- Using tspan-style: text lines stacked with y offsets -->
+
+  <g class="tree" transform="translate(50, 140)">
+    <text>
+      <tspan x="0" dy="0" class="root">DACN_TourGuideWeb/</tspan><tspan class="comment">                                                           ── Monorepo gốc</tspan>
+      <tspan x="0" dy="22">│</tspan>
+      <tspan x="0" dy="22">├── </tspan><tspan class="folder-fe">Travel_TVB/</tspan><tspan class="comment">                                                    ── Frontend · React 19.1 + Vite 7.0 + React Router 7.8</tspan>
+      <tspan x="0" dy="22">│   ├── </tspan><tspan class="folder">public/</tspan><tspan class="comment">                                                    ── Static assets (favicon, robots.txt)</tspan>
+      <tspan x="0" dy="22">│   ├── </tspan><tspan class="folder">src/</tspan>
+      <tspan x="0" dy="22">│   │   ├── </tspan><tspan class="folder">assets/</tspan><tspan class="comment">                                                ── Hình ảnh, logo, icon nội bộ</tspan>
+      <tspan x="0" dy="22">│   │   ├── </tspan><tspan class="folder">components/</tspan><tspan class="comment">                                            ── 30+ UI components tái sử dụng</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">BookingForm/</tspan><tspan class="comment">                                      ── Form nhập thông tin đặt tour</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">ChatbotWidget/</tspan><tspan class="comment">                                    ── Giao diện chatbot RAG (nổi)</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">HeroSlider/</tspan><tspan class="comment">                                       ── Slider trang chủ (Framer Motion)</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">Layout/</tspan><tspan class="comment">                                           ── Header · Footer · Navbar</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">TourCard/</tspan><tspan class="comment">                                         ── Thẻ hiển thị tour</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">PriceRangeSlider/</tspan><tspan class="comment">                                 ── Bộ lọc theo khoảng giá</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">ProtectedRoute/</tspan><tspan class="comment">                                   ── HOC kiểm tra đăng nhập</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">Single-Post/ · SingleCommunityPost/</tspan><tspan class="comment">               ── Render bài viết &amp; podcast</tspan>
+      <tspan x="0" dy="22">│   │   │   └── </tspan><tspan class="comment">... (FAQ, Team, Statistic, Journey, Map, ... )</tspan>
+      <tspan x="0" dy="22">│   │   ├── </tspan><tspan class="folder">page/</tspan><tspan class="comment">                                                  ── Route-level pages (1 folder/URL)</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">Home/</tspan><tspan class="comment">                                             ── Trang chủ</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">Tours/ · TourDetail/</tspan><tspan class="comment">                              ── Danh sách &amp; chi tiết tour</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">BookingTicket/ · PaymentReturn/</tspan><tspan class="comment">                   ── Đặt tour &amp; callback VNPay</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">Login/ · Register/ · Profile/</tspan><tspan class="comment">                     ── Xác thực &amp; tài khoản</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">News/ · Individual-Post/</tspan><tspan class="comment">                          ── Blog tin thị trường</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">Community/ · Individual-CommunityPost/</tspan><tspan class="comment">            ── Podcast &amp; phân tích</tspan>
+      <tspan x="0" dy="22">│   │   │   └── </tspan><tspan class="folder">AboutUS/ · Service/ · Contact/</tspan><tspan class="comment">                    ── Trang phụ trợ</tspan>
+      <tspan x="0" dy="22">│   │   ├── </tspan><tspan class="folder">context/</tspan><tspan class="comment">                                               ── React Context (global state)</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="file">AuthContext.jsx</tspan><tspan class="comment">                                   ── JWT, user, login/logout</tspan>
+      <tspan x="0" dy="22">│   │   │   └── </tspan><tspan class="file">LanguageContext.jsx</tspan><tspan class="comment">                               ── i18n (vi / en / zh)</tspan>
+      <tspan x="0" dy="22">│   │   ├── </tspan><tspan class="folder">hooks/</tspan><tspan class="comment">                                                 ── Custom hooks</tspan>
+      <tspan x="0" dy="22">│   │   │   └── </tspan><tspan class="file">useCountUp.js</tspan><tspan class="comment">                                     ── Hook số đếm tăng dần</tspan>
+      <tspan x="0" dy="22">│   │   ├── </tspan><tspan class="folder">config/</tspan>
+      <tspan x="0" dy="22">│   │   │   └── </tspan><tspan class="file">strapi.js</tspan><tspan class="comment">                                         ── API client + base URL</tspan>
+      <tspan x="0" dy="22">│   │   ├── </tspan><tspan class="folder">test/ · utils/</tspan>
+      <tspan x="0" dy="22">│   │   ├── </tspan><tspan class="file">App.jsx</tspan><tspan class="comment">                                                ── Router + Layout wrapper</tspan>
+      <tspan x="0" dy="22">│   │   └── </tspan><tspan class="file">main.jsx</tspan><tspan class="comment">                                               ── Vite entry point</tspan>
+      <tspan x="0" dy="22">│   ├── </tspan><tspan class="file">index.html</tspan>
+      <tspan x="0" dy="22">│   ├── </tspan><tspan class="file">vite.config.js</tspan><tspan class="comment">                                                ── Vite bundler config</tspan>
+      <tspan x="0" dy="22">│   ├── </tspan><tspan class="file">vitest.config.js</tspan><tspan class="comment">                                              ── Unit test (Vitest + RTL)</tspan>
+      <tspan x="0" dy="22">│   ├── </tspan><tspan class="file">eslint.config.js</tspan>
+      <tspan x="0" dy="22">│   └── </tspan><tspan class="file">package.json</tspan>
+      <tspan x="0" dy="22">│</tspan>
+      <tspan x="0" dy="22">├── </tspan><tspan class="folder-be">Travel_TVB_Server/</tspan><tspan class="comment">                                             ── Backend · Strapi 5.36 (Headless CMS) + SQLite</tspan>
+      <tspan x="0" dy="22">│   ├── </tspan><tspan class="folder">config/</tspan><tspan class="comment">                                                    ── Cấu hình Strapi</tspan>
+      <tspan x="0" dy="22">│   │   ├── </tspan><tspan class="file">database.js</tspan><tspan class="comment">                                           ── better-sqlite3 12.4</tspan>
+      <tspan x="0" dy="22">│   │   ├── </tspan><tspan class="file">server.js · middlewares.js · plugins.js</tspan>
+      <tspan x="0" dy="22">│   │   ├── </tspan><tspan class="file">api.js · admin.js</tspan>
+      <tspan x="0" dy="22">│   │   └── </tspan><tspan class="file">cron-tasks.js</tspan>
+      <tspan x="0" dy="22">│   ├── </tspan><tspan class="folder">database/migrations/</tspan><tspan class="comment">                                       ── SQL migrations</tspan>
+      <tspan x="0" dy="22">│   ├── </tspan><tspan class="folder">src/</tspan>
+      <tspan x="0" dy="22">│   │   ├── </tspan><tspan class="folder">admin/</tspan><tspan class="comment">                                                 ── Custom Strapi Admin UI</tspan>
+      <tspan x="0" dy="22">│   │   ├── </tspan><tspan class="folder">api/</tspan><tspan class="comment">                                                   ── 20+ content-types (mỗi folder = 1 entity)</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">tour/ · tour-category/</tspan><tspan class="comment">                             ── Nghiệp vụ tour</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">booking/</tspan><tspan class="comment">                                          ── Tích hợp VNPay · 5 custom routes</tspan>
+      <tspan x="0" dy="22">│   │   │   │   ├── </tspan><tspan class="folder">content-types/booking/schema.json</tspan>
+      <tspan x="0" dy="22">│   │   │   │   ├── </tspan><tspan class="folder">controllers/</tspan><tspan class="file">booking.js</tspan><tspan class="comment">                  ── createPaymentUrl, vnpayReturn</tspan>
+      <tspan x="0" dy="22">│   │   │   │   ├── </tspan><tspan class="folder">routes/</tspan><tspan class="file">01-custom-booking.js</tspan>
+      <tspan x="0" dy="22">│   │   │   │   ├── </tspan><tspan class="folder">services/</tspan><tspan class="file">booking.js</tspan>
+      <tspan x="0" dy="22">│   │   │   │   └── </tspan><tspan class="folder">utils/</tspan><tspan class="file">vnpay-helpers.js</tspan><tspan class="comment">                   ── HMAC-SHA512 + test</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">chatbot/</tspan><tspan class="comment">                                          ── RAG Pipeline (Gemini + ChromaDB)</tspan>
+      <tspan x="0" dy="22">│   │   │   │   ├── </tspan><tspan class="folder">controllers/</tspan><tspan class="file">chatbot.js</tspan><tspan class="comment">                  ── POST /api/chatbot/chat</tspan>
+      <tspan x="0" dy="22">│   │   │   │   ├── </tspan><tspan class="folder">routes/</tspan><tspan class="file">chatbot.js</tspan>
+      <tspan x="0" dy="22">│   │   │   │   ├── </tspan><tspan class="folder">services/</tspan>
+      <tspan x="0" dy="22">│   │   │   │   │   ├── </tspan><tspan class="file">chatbot.js</tspan><tspan class="comment">                            ── Orchestration + prompt building</tspan>
+      <tspan x="0" dy="22">│   │   │   │   │   └── </tspan><tspan class="file">vectorStore.js</tspan><tspan class="comment">                        ── ChromaDB + Gemini embedding-001</tspan>
+      <tspan x="0" dy="22">│   │   │   │   └── </tspan><tspan class="folder">scripts/</tspan><tspan class="file">indexTours.js</tspan><tspan class="comment">                    ── Offline indexing vào ChromaDB</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">single-post/ · single-community-post/</tspan><tspan class="comment">              ── Blog &amp; podcast</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">post-category/ · author/</tspan>
+      <tspan x="0" dy="22">│   │   │   ├── </tspan><tspan class="folder">newsletter-email-submisson/</tspan><tspan class="comment">                        ── Đăng ký nhận tin</tspan>
+      <tspan x="0" dy="22">│   │   │   └── </tspan><tspan class="comment">... (about-hero, faq, layout-footer, home-slider, ...)</tspan>
+      <tspan x="0" dy="22">│   │   ├── </tspan><tspan class="folder">components/</tspan><tspan class="comment">                                            ── Reusable content components (card, slide, button, …)</tspan>
+      <tspan x="0" dy="22">│   │   └── </tspan><tspan class="folder">extensions/users-permissions/</tspan><tspan class="comment">                          ── Tuỳ chỉnh JWT &amp; auth</tspan>
+      <tspan x="0" dy="22">│   ├── </tspan><tspan class="folder">public/</tspan><tspan class="comment">                                                    ── Media upload (ảnh tour, ảnh bài viết)</tspan>
+      <tspan x="0" dy="22">│   ├── </tspan><tspan class="folder">types/generated/</tspan><tspan class="comment">                                           ── TypeScript types tự sinh</tspan>
+      <tspan x="0" dy="22">│   ├── </tspan><tspan class="folder">scripts/</tspan>
+      <tspan x="0" dy="22">│   ├── </tspan><tspan class="file">package.json</tspan>
+      <tspan x="0" dy="22">│   └── </tspan><tspan class="file">jsconfig.json</tspan>
+      <tspan x="0" dy="22">│</tspan>
+      <tspan x="0" dy="22">└── </tspan><tspan class="folder-doc">docs/</tspan><tspan class="comment">                                                          ── Tài liệu báo cáo DACN + diagrams</tspan>
+      <tspan x="0" dy="22">    ├── </tspan><tspan class="file">Hinh_1.1_Kien_truc_tong_quan.svg</tspan>
+      <tspan x="0" dy="22">    ├── </tspan><tspan class="file">Hinh_3.2_UseCase_TongQuat.svg</tspan>
+      <tspan x="0" dy="22">    ├── </tspan><tspan class="file">Hinh_3.3_UseCase_KhachVangLai.svg</tspan>
+      <tspan x="0" dy="22">    ├── </tspan><tspan class="file">Hinh_3.4_UseCase_KhachDangNhap.svg</tspan>
+      <tspan x="0" dy="22">    ├── </tspan><tspan class="file">Hinh_3.5_UseCase_QuanTriVien.svg</tspan>
+      <tspan x="0" dy="22">    ├── </tspan><tspan class="file">Hinh_3.6_Sequence_VNPay.svg</tspan>
+      <tspan x="0" dy="22">    ├── </tspan><tspan class="file">Hinh_3.7_Sequence_ChatbotRAG.svg</tspan>
+      <tspan x="0" dy="22">    ├── </tspan><tspan class="file">Hinh_3.8_Sequence_DangNhap.svg</tspan>
+      <tspan x="0" dy="22">    ├── </tspan><tspan class="file">Hinh_4.1_Cau_Truc_Thu_Muc.svg</tspan><tspan class="comment">                     ── (hình này)</tspan>
+      <tspan x="0" dy="22">    ├── </tspan><tspan class="file">Hinh_ERD.svg</tspan>
+      <tspan x="0" dy="22">    ├── </tspan><tspan class="file">Hinh_RAG_Pipeline.svg</tspan>
+      <tspan x="0" dy="22">    └── </tspan><tspan class="file">Hinh_VNPay_Payment_Flow.svg</tspan>
+    </text>
+  </g>
+
+  <!-- Footer summary -->
+  <g transform="translate(50, 2130)">
+    <rect width="1400" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="14" y="18" font-size="12" font-weight="700" fill="#0f172a">Tổng quan:</text>
+    <text x="14" y="34" font-size="11" fill="#334155">
+      2 ứng dụng độc lập · Frontend chạy cổng 5173 (Vite dev) · Backend chạy cổng 1337 (Strapi) · SQLite file-based · ChromaDB chạy riêng cổng 8000 · Giao tiếp qua REST API (axios)
+    </text>
+  </g>
+</svg>

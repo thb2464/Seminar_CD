@@ -1,0 +1,106 @@
+/* src/components/Commitment/Commitment.css */
+
+.commitment-section {
+  padding: 80px 20px; /* Add vertical and horizontal padding */
+  background-color: #ffffff; /* White background for the section */
+}
+
+.commitment-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 60px; /* Space between text and image columns */
+  max-width: 1360px;
+  margin: 0 auto; /* Center the container */
+}
+
+/* Left Column: Text Content */
+.commitment-content {
+  flex: 1; /* Takes up half the space */
+  max-width: 580px; /* Limit width for better readability */
+  text-align: left;
+}
+
+.commitment-pre-title {
+  display: block;
+  font-size: clamp(1rem, 2vw, 1.125rem); /* 16px to 18px */
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 12px; /* Slightly increased margin */
+}
+
+.commitment-title {
+  font-size: clamp(2.5rem, 5vw, 4.5rem); /* 40px to 64px - made bigger */
+  font-weight: 600;
+  color: #0d2344; /* Dark blue color from image */
+  margin-bottom: 32px; /* Increased from 24px */
+  line-height: 1.2; /* Added for better spacing */
+}
+
+.commitment-description {
+  font-size: clamp(1.125rem, 2.5vw, 1.375rem); /* 18px to 22px */
+  color: #333;
+  line-height: 1.7; /* Increased from 1.6 for better readability */
+  margin-bottom: 20px; /* Increased from 16px */
+}
+
+.commitment-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  padding: 16px 32px; /* Increased padding */
+  border: none;
+  border-radius: 8px;
+  font-size: clamp(1rem, 2vw, 1.125rem); /* 16px to 18px */
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  margin-top: 24px; /* Increased from 20px */
+}
+
+.commitment-button:hover {
+  background-color: #D2E7FC;
+  color: #0d2344;
+  transform: translateY(-2px);
+}
+
+.btn-arrow {
+  font-size: clamp(1.25rem, 2vw, 3rem); /* 20px to 22px */
+  font-weight: 900;
+  transition: transform 0.3s ease;
+}
+
+.commitment-button:hover .arrow-icon {
+  transform: translateX(4px);
+}
+
+/* Right Column: Image */
+.commitment-image-wrapper {
+  flex: 1; /* Takes up the other half of the space */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.commitment-image-wrapper img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 992px) {
+  .commitment-container {
+    flex-direction: column; /* Stack columns vertically */
+    gap: 40px;
+  }
+
+  .commitment-content {
+    max-width: 100%;
+    text-align: center; /* Center text on smaller screens */
+  }
+}

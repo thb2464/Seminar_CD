@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_button_navigation_buttons",
+  "info": {
+    "displayName": "navigationButtons"
+  },
+  "options": {},
+  "attributes": {
+    "navigationText": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

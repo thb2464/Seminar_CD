@@ -1,0 +1,36 @@
+/* CSS Reset to remove default browser margins and padding */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+#root {
+  width: 100%;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* Force hero container to top of screen */
+.hero-container {
+  margin-top: 0 !important;
+  position: relative;
+  top: 0;
+}
+
+/* If your app uses flexbox, this prevents gaps */
+body, #root {
+  display: block;
+}
+
+/* Additional reset for any potential parent containers */
+.hero-container:first-child {
+  margin-top: 0 !important;
+}

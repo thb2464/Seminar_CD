@@ -1,0 +1,402 @@
+/* Defines the animation for the progress bar */
+@keyframes fill-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+/* Navigation areas for mobile touch interaction */
+.hero-nav-left,
+.hero-nav-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 30%;
+  z-index: 3;
+  cursor: pointer;
+  display: none; /* Hidden by default, shown only on mobile */
+}
+
+.hero-nav-left {
+  left: 0;
+}
+
+.hero-nav-right {
+  right: 0;
+}
+
+/* Optional: Add subtle visual feedback on touch (you can remove this if you prefer invisible) */
+.hero-nav-left:active,
+.hero-nav-right:active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Main container for the hero section */
+.hero-container {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  color: white;
+  background-size: cover;
+  background-position: center;
+  transition: background-image 1s ease-in-out;
+  padding: 8vh 5vw 6vh 5vw;
+  box-sizing: border-box;
+}
+
+/* Dark overlay for better text readability */
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  margin-left: 10%;
+  text-align: left;
+  animation: fadeIn 1.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Main title styling */
+.hero-title {
+  font-size: clamp(2rem, 7vw, 5rem);
+  font-weight: 500;
+  line-height: 1.2;
+  margin-top: 15vh;
+  margin-bottom: 4vh;
+  max-width: min(90vw, 500px);
+}
+
+/* Call-to-action button styling */
+.hero-cta-button {
+  background-color: #D2E7FC;
+  color: #04284b;
+  border: none;
+  border-radius: 10px;
+  padding: max(1.2vh, 10px) max(2.4vw, 20px);
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: max(1vw, 6px);
+  transition: background-color 0.3s;
+}
+
+.btn-arrow {
+    display: flex; align-items: center; justify-content: center; width: 32px; height: 32px;
+    background: white; color: #1a1a1a; border-radius: 50%; transition: all 0.3s ease;
+}
+
+.hero-cta-button:hover {
+  background-color: #04284b;
+  color: #D2E7FC;
+  .btn-arrow{
+    background-color: #04284b;
+    color: #D2E7FC;
+  }
+}
+
+
+
+.hero-cta-button svg {
+  width: clamp(18px, 3vw, 24px);
+  height: clamp(18px, 3vw, 24px);
+}
+
+.hero-cta-link {
+  text-decoration: none;
+}
+
+/* Navigation container at the bottom */
+.hero-nav {
+  position: absolute;
+  bottom: 4vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(90vw, 1100px);
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2vw;
+}
+
+/* Individual navigation item */
+.hero-nav-item {
+  position: relative;
+  cursor: pointer;
+  padding-top: 2vh;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.3s;
+}
+
+.hero-nav-item:hover {
+  color: white;
+}
+
+.hero-nav-item p {
+  margin: 0;
+  font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+  line-height: 1.4;
+}
+
+/* Progress bar styling (the grey background) */
+.progress-bar {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: clamp(120px, 25vw, 200px);
+  width: 100%;
+  height: clamp(2px, 0.5vh, 3px);
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+/* The white, animated part of the progress bar */
+.progress-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background-color: white;
+  border-radius: 2px;
+}
+
+/* Animate the progress bar ONLY for the active item */
+.hero-nav-item.active .progress-bar::before {
+  animation: fill-progress 7s linear forwards;
+}
+
+.hero-nav-item.active {
+  color: white;
+}
+
+/* Tablet breakpoint */
+@media (max-width: 768px) {
+  .hero-container {
+    height: 90vh;
+    padding: 6vh 4vw 5vh 4vw;
+  }
+
+  /* Center content on tablets and smaller screens */
+  .hero-content {
+    text-align: center;
+    margin-left: 0;
+  }
+
+  .hero-title {
+    margin-top: 2vh;
+    margin-bottom: 3vh;
+    /* Add auto margins to center the block */
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-cta-button {
+    padding: max(1.5vh, 10px) max(3vw, 20px);
+    gap: max(1.5vw, 8px);
+  }
+
+  /* Show navigation areas on mobile */
+  .hero-nav-left,
+  .hero-nav-right {
+    display: block;
+  }
+
+  .hero-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    bottom: 3vh;
+    overflow: hidden;
+    pointer-events: none; /* Disable clicking on nav items on mobile */
+  }
+
+  .hero-nav-item {
+    padding-top: 1.5vh;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.5s ease-in-out;
+    position: absolute;
+    text-align: center;
+    width: 60vw;
+    max-width: 300px;
+    cursor: default;
+  }
+
+  .hero-nav-item.active {
+    opacity: 1;
+    transform: translateX(0);
+    position: relative;
+  }
+
+  .hero-nav-item p {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+  }
+
+  .progress-bar {
+    max-width: clamp(120px, 35vw, 200px);
+  }
+}
+
+/* Mobile breakpoint */
+@media (max-width: 480px) {
+  .hero-container {
+    height: 85vh;
+    padding: 5vh 3vw 4vh 3vw;
+  }
+
+  .hero-title {
+    max-width: 95vw;
+    margin-top: 1vh;
+    margin-bottom: 4vh;
+  }
+
+  .hero-cta-button {
+    padding: max(1.8vh, 12px) max(4vw, 24px);
+    gap: max(2vw, 8px);
+  }
+
+  /* Show navigation areas on mobile */
+  .hero-nav-left,
+  .hero-nav-right {
+    display: block;
+  }
+
+  .hero-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    bottom: 2vh;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .hero-nav-item {
+    padding-top: 1.2vh;
+    text-align: center;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.5s ease-in-out;
+    position: absolute;
+    width: 70vw;
+    max-width: 250px;
+    cursor: default;
+  }
+
+  .hero-nav-item.active {
+    opacity: 1;
+    transform: translateX(0);
+    position: relative;
+  }
+
+  .hero-nav-item p {
+    font-size: clamp(0.9rem, 2.8vw, 1.2rem);
+  }
+
+  .progress-bar {
+    max-width: clamp(100px, 45vw, 180px);
+  }
+}
+
+/* Extra small mobile breakpoint */
+@media (max-width: 320px) {
+  .hero-container {
+    height: 80vh;
+    padding: 4vh 2vw 3vh 2vw;
+  }
+
+  .hero-title {
+    margin-top: 1vh;
+    margin-bottom: 3vh;
+  }
+
+  .hero-cta-button {
+    padding: max(1.5vh, 8px) max(3vw, 16px);
+    font-size: 0.875rem;
+    gap: max(1.5vw, 6px);
+  }
+
+  .hero-nav {
+    width: 100%;
+    bottom: 1.5vh;
+  }
+
+  .hero-nav-item {
+    padding-top: 1vh;
+    width: 80vw;
+    max-width: 200px;
+  }
+
+  .hero-nav-item p {
+    font-size: clamp(0.9rem, 3vw, 1.1rem);
+  }
+
+  .progress-bar {
+    max-width: clamp(80px, 50vw, 120px);
+  }
+}
+
+/* LOADING STATE STYLING */
+.hero-loading,
+.hero-error,
+.hero-empty {
+  background-color: #f5f5f5;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-spinner {
+  font-size: 1.2rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.loading-spinner::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #666;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message,
+.empty-message {
+  font-size: 1.2rem;
+  color: #888;
+  text-align: center;
+  padding: 2vh 3vw;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 5px;
+}

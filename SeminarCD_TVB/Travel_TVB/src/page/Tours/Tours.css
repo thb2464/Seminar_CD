@@ -1,0 +1,245 @@
+.tours-page {
+  padding-top: 0;
+}
+
+.tours-hero {
+  background: linear-gradient(180deg, #d1e6fc, #fffff6);
+  padding: 8rem 2rem 3rem;
+  text-align: center;
+  color: #1a1a2e;
+  position: relative;
+}
+
+.tours-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.8) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tours-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.tours-hero-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  color: #1a1a2e;
+}
+
+.tours-hero-subtitle {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: #444;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.tours-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem clamp(1rem, 3vw, 2rem);
+}
+
+.tours-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.tours-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tours-tab-btn {
+  padding: 0.5rem 1.25rem;
+  border: 1.5px solid #e0e0e0;
+  background: #fff;
+  border-radius: 25px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #555;
+}
+
+.tours-tab-btn:hover {
+  border-color: #4a90d9;
+  color: #4a90d9;
+}
+
+.tours-tab-btn.active {
+  background: #1a1a2e;
+  color: #fff;
+  border-color: #1a1a2e;
+}
+
+.tours-controls-right {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tours-search-form {
+  display: flex;
+  flex: 1;
+  min-width: 200px;
+  max-width: 350px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.tours-search-form:focus-within {
+  border-color: #4a90d9;
+}
+
+.tours-search-input {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.tours-search-btn {
+  padding: 0.6rem 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+}
+
+.tours-search-btn:hover {
+  color: #4a90d9;
+}
+
+.tours-sort {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #555;
+}
+
+.tours-sort label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tours-sort select {
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  outline: none;
+  cursor: pointer;
+  background: #fff;
+}
+
+.tours-sort select:focus {
+  border-color: #4a90d9;
+}
+
+.tours-content {
+  min-height: 400px;
+}
+
+.tours-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.tours-message {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+  color: #888;
+}
+
+.tours-message.error {
+  color: #d32f2f;
+}
+
+.tours-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2.5rem;
+  padding-bottom: 1rem;
+}
+
+.tours-page-btn {
+  padding: 0.5rem 1rem;
+  border: 1.5px solid #e0e0e0;
+  background: #fff;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #555;
+}
+
+.tours-page-btn:hover {
+  border-color: #4a90d9;
+  color: #4a90d9;
+}
+
+.tours-page-btn.active {
+  background: #1a1a2e;
+  color: #fff;
+  border-color: #1a1a2e;
+}
+
+.tours-page-btn.prev,
+.tours-page-btn.next {
+  font-weight: 600;
+}
+
+.tours-page-ellipsis {
+  padding: 0.5rem;
+  color: #999;
+}
+
+@media (max-width: 900px) {
+  .tours-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .tours-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tours-controls-right {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tours-search-form {
+    max-width: 100%;
+  }
+
+  .tours-hero {
+    padding: 3rem 1.5rem 2rem;
+  }
+}

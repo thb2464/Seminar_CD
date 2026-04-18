@@ -1,0 +1,340 @@
+/* src/components/NewsPostArchive/NewsPostArchive.css */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+:root {
+  --npa-primary-font: 'Montserrat', sans-serif;
+  --npa-text-dark: #222;
+  --npa-text-light: #666;
+  --npa-border: black;
+  --npa-background-light: #f9f9f9;
+  --npa-background-white: #ffffff;
+  --npa-active-blue: #333; 
+  --npa-active-text: #fff;
+}
+
+/* --- CHANGE: Added rule to remove focus outline globally within the component --- */
+.npa-tab-btn:focus,
+
+.npa-search-btn:focus,
+.npa-page-btn:focus {
+    outline: none;
+}
+
+
+.npa-search-input:focus{
+  border: transparent solid 2px;
+  outline: none;
+}
+.npa-wrapper{
+  background: linear-gradient(180deg, #fffff6, white);
+}
+
+.npa-container {
+  width: 100%;
+  max-width: 1240px;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+  margin-top: 0;
+  font-family: var(--npa-primary-font);
+  box-sizing: border-box;
+}
+
+/* --- Header & Controls --- */
+.npa-header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--npa-border);
+}
+
+.npa-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.npa-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--npa-text-dark);
+}
+
+.npa-header-title h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.npa-header-icon {
+  height: 32px;
+  width: 32px;
+}
+
+.npa-tabs {
+  display: flex;
+  /* --- CHANGE: Added gap between tab buttons --- */
+  gap: 0.5rem; 
+}
+
+.npa-tab-btn {
+  padding: 0.6rem 1.2rem;
+  background-color: var(--npa-background-light);
+  color: var(--npa-text-light);
+  font-family: var(--npa-primary-font);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  /* --- CHANGE: Styled individual buttons instead of the container --- */
+  border: 3px solid var(--npa-border);
+  border-radius: 8px;
+}
+
+.npa-tab-btn:hover{
+    border-color: #666;
+}
+
+
+.npa-tab-btn.active {
+  background-color: var(--npa-active-blue);
+  color: var(--npa-active-text);
+  border-color: var(--npa-active-blue);
+}
+
+.npa-search-form {
+    display: flex;
+    align-items: center;
+    border: 1px none var(--npa-border);
+    border-radius: 8px;
+    overflow: hidden;
+    /* --- CHANGE: Added focus-within for a better user experience --- */
+    transition: box-shadow 0.2s ease;
+}
+
+.npa-search-form:focus-within {
+    border: none;
+}
+
+.npa-search-input {
+    border: none;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    font-family: var(--npa-primary-font);
+    color: var(--npa-text-dark);
+    flex-grow: 1;
+    background-color: transparent; /* Ensure input has no background */
+}
+
+.npa-search-btn {
+    padding: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--npa-text-light);
+    transition: color 0.2s;
+    /* --- CHANGE: Made search button background transparent for a cleaner look --- */
+    background-color: transparent;
+}
+
+.npa-search-btn:hover {
+    color: var(--npa-active-blue);
+}
+
+/* --- Content & Grid --- */
+.npa-content {
+  min-height: 500px;
+}
+
+.npa-message {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--npa-text-light);
+  padding: 5rem 0;
+}
+
+.npa-message.error {
+  color: #d9534f;
+}
+
+.npa-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+/* --- Post Card (using npa- prefix) --- */
+.npa-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--npa-background-white);
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--npa-text-dark);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.npa-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.npa-card-image {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+.npa-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.npa-card:hover .npa-card-image img {
+  transform: scale(1.05);
+}
+
+.npa-card-content {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  text-align: left;
+}
+
+.npa-card-category {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--npa-active-blue);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.npa-card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 1rem 0;
+  color: black;
+  flex-grow: 1;
+}
+
+.npa-card-title:hover{
+    color: #333;
+}
+
+.npa-card-meta {
+    margin-top: auto;
+    font-size: 0.85rem;
+    color: var(--npa-text-light);
+}
+
+.npa-card-author-date {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.npa-card-author {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.npa-card-author-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.npa-reading-time {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--npa-border);
+}
+
+/* --- Pagination --- */
+.npa-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 3.5rem;
+}
+
+.npa-page-btn {
+  font-family: var(--npa-primary-font);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.6rem;
+  min-width: 44px;
+  height: 44px;
+  border: 1px solid var(--npa-border);
+  background-color: var(--npa-background-white);
+  color: var(--npa-text-light);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.npa-page-btn.next, .npa-page-btn.prev {
+  padding: 0.6rem 1.2rem;
+}
+
+.npa-page-btn:hover {
+  border-color: #999;
+  color: var(--npa-text-dark);
+}
+
+.npa-page-btn.active {
+  background-color: var(--npa-active-blue);
+  color: var(--npa-active-text);
+  border-color: var(--npa-active-blue);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 1200px) {
+    .npa-header-top {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+
+@media (max-width: 992px) {
+  .npa-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .npa-container {
+    padding: 0 1rem;
+  }
+  .npa-header-top {
+    gap: 1.5rem;
+  }
+  .npa-tabs, .npa-search-form {
+      width: 100%;
+  }
+  .npa-tabs {
+    justify-content: space-around;
+  }
+}
+
+@media (max-width: 576px) {
+  .npa-grid {
+    grid-template-columns: 1fr;
+  }
+}

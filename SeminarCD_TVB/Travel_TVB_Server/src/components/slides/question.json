@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_slides_questions",
+  "info": {
+    "displayName": "Question"
+  },
+  "options": {},
+  "attributes": {
+    "Question": {
+      "type": "string"
+    },
+    "Answer": {
+      "type": "blocks"
+    }
+  },
+  "config": {}
+}

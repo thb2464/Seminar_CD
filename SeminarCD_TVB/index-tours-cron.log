@@ -1,0 +1,232 @@
+[2026-04-11 06:09:45] ========== INDEX STARTED ==========
+[2026-04-11 06:09:45] Running indexTours.js...
+=== Tour Indexing Script ===
+Strapi URL: http://localhost:1337
+ChromaDB URL: http://localhost:8200
+Locales: vi, en, zh
+
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+[VectorStore] Connected to ChromaDB at http://localhost:8200, collection: tour_embeddings
+[Indexer] Clearing existing collection...
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+[VectorStore] Collection tour_embeddings cleared and recreated.
+[Indexer] Fetching tours for locale 'vi' from: http://localhost:1337/api/tours?populate[Highlights]=true&populate[tour_category]=true&pagination[pageSize]=100&locale=vi
+[Indexer] Error fetching tours for locale 'vi': fetch failed
+[Indexer] Fetching tours for locale 'en' from: http://localhost:1337/api/tours?populate[Highlights]=true&populate[tour_category]=true&pagination[pageSize]=100&locale=en
+[Indexer] Error fetching tours for locale 'en': fetch failed
+[Indexer] Fetching tours for locale 'zh' from: http://localhost:1337/api/tours?populate[Highlights]=true&populate[tour_category]=true&pagination[pageSize]=100&locale=zh
+[Indexer] Error fetching tours for locale 'zh': fetch failed
+
+=== Indexing Complete ===
+Indexed 0 tours, 0 chunks total
+Locales processed: vi, en, zh
+
+Done! You can now use the chatbot.
+[2026-04-11 06:09:46] Indexing completed successfully
+[2026-04-11 06:09:46] ========== INDEX FINISHED ==========
+[2026-04-11 06:10:05] ========== INDEX STARTED ==========
+[2026-04-11 06:10:05] Running indexTours.js...
+=== Tour Indexing Script ===
+Strapi URL: http://localhost:3010
+ChromaDB URL: http://localhost:8200
+Locales: vi, en, zh
+
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+[VectorStore] Connected to ChromaDB at http://localhost:8200, collection: tour_embeddings
+[Indexer] Clearing existing collection...
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+[VectorStore] Collection tour_embeddings cleared and recreated.
+[Indexer] Fetching tours for locale 'vi' from: http://localhost:3010/api/tours?populate[Highlights]=true&populate[tour_category]=true&pagination[pageSize]=100&locale=vi
+[Indexer] Found 3 tours for locale 'vi'
+  - Khám Phá Vẻ Đẹp Miền Bắc: Hà Nội - Hạ Long - Sapa: 4 chunks
+  - Hành Trình Di Sản Miền Trung: Đà Nẵng - Hội An - Huế: 3 chunks
+  - Khám phá Miền Tây Sông Nước & Thiên Đường Đảo Ngọc Phú Quốc: 4 chunks
+[Indexer] Fetching tours for locale 'en' from: http://localhost:3010/api/tours?populate[Highlights]=true&populate[tour_category]=true&pagination[pageSize]=100&locale=en
+[Indexer] Found 3 tours for locale 'en'
+  - Discover Northern Beauty: Hanoi - Ha Long - Sapa: 4 chunks
+  - Central Heritage Journey: Da Nang - Hoi An - Hue: 3 chunks
+  - Mekong Delta Waterways & Phu Quoc Paradise Island: 4 chunks
+[Indexer] Fetching tours for locale 'zh' from: http://localhost:3010/api/tours?populate[Highlights]=true&populate[tour_category]=true&pagination[pageSize]=100&locale=zh
+[Indexer] Found 3 tours for locale 'zh'
+  - 探索北部之美：河内 - 下龙 - 沙坝: 4 chunks
+  - 中部遗产之旅：岘港 - 会安 - 顺化: 3 chunks
+  - 探索湄公河三角洲与富国岛天堂: 4 chunks
+
+[Indexer] Upserting 33 chunks into ChromaDB...
+[VectorStore] Upserted batch 1: 5 documents (total: 5)
+[VectorStore] Upserted batch 2: 5 documents (total: 10)
+[VectorStore] Upserted batch 3: 5 documents (total: 15)
+[VectorStore] Upserted batch 4: 5 documents (total: 20)
+[VectorStore] Upserted batch 5: 5 documents (total: 25)
+[VectorStore] Upserted batch 6: 5 documents (total: 30)
+[VectorStore] Upserted batch 7: 3 documents (total: 33)
+
+=== Indexing Complete ===
+Indexed 9 tours, 33 chunks total
+Locales processed: vi, en, zh
+
+Done! You can now use the chatbot.
+[2026-04-11 06:10:47] Indexing completed successfully
+[2026-04-11 06:10:47] ========== INDEX FINISHED ==========
+[2026-04-11 07:00:01] ========== INDEX STARTED ==========
+[2026-04-11 07:00:01] Running indexTours.js...
+=== Tour Indexing Script ===
+Strapi URL: http://localhost:3010
+ChromaDB URL: http://localhost:8200
+Locales: vi, en, zh
+
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+[VectorStore] Connected to ChromaDB at http://localhost:8200, collection: tour_embeddings
+[Indexer] Clearing existing collection...
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+[VectorStore] Collection tour_embeddings cleared and recreated.
+[Indexer] Fetching tours for locale 'vi' from: http://localhost:3010/api/tours?populate[Highlights]=true&populate[tour_category]=true&pagination[pageSize]=100&locale=vi
+[Indexer] Found 3 tours for locale 'vi'
+  - Khám Phá Vẻ Đẹp Miền Bắc: Hà Nội - Hạ Long - Sapa: 4 chunks
+  - Hành Trình Di Sản Miền Trung: Đà Nẵng - Hội An - Huế: 3 chunks
+  - Khám phá Miền Tây Sông Nước & Thiên Đường Đảo Ngọc Phú Quốc: 4 chunks
+[Indexer] Fetching tours for locale 'en' from: http://localhost:3010/api/tours?populate[Highlights]=true&populate[tour_category]=true&pagination[pageSize]=100&locale=en
+[Indexer] Found 3 tours for locale 'en'
+  - Discover Northern Beauty: Hanoi - Ha Long - Sapa: 4 chunks
+  - Central Heritage Journey: Da Nang - Hoi An - Hue: 3 chunks
+  - Mekong Delta Waterways & Phu Quoc Paradise Island: 4 chunks
+[Indexer] Fetching tours for locale 'zh' from: http://localhost:3010/api/tours?populate[Highlights]=true&populate[tour_category]=true&pagination[pageSize]=100&locale=zh
+[Indexer] Found 3 tours for locale 'zh'
+  - 探索北部之美：河内 - 下龙 - 沙坝: 4 chunks
+  - 中部遗产之旅：岘港 - 会安 - 顺化: 3 chunks
+  - 探索湄公河三角洲与富国岛天堂: 4 chunks
+
+[Indexer] Upserting 33 chunks into ChromaDB...
+[VectorStore] Upserted batch 1: 5 documents (total: 5)
+[VectorStore] Upserted batch 2: 5 documents (total: 10)
+[VectorStore] Upserted batch 3: 5 documents (total: 15)
+[VectorStore] Upserted batch 4: 5 documents (total: 20)
+[VectorStore] Upserted batch 5: 5 documents (total: 25)
+[VectorStore] Upserted batch 6: 5 documents (total: 30)
+[VectorStore] Upserted batch 7: 3 documents (total: 33)
+
+=== Indexing Complete ===
+Indexed 9 tours, 33 chunks total
+Locales processed: vi, en, zh
+
+Done! You can now use the chatbot.
+[2026-04-11 07:00:44] Indexing completed successfully
+[2026-04-11 07:00:44] ========== INDEX FINISHED ==========
+[2026-04-11 19:00:01] ========== INDEX STARTED ==========
+[2026-04-11 19:00:01] Running indexTours.js...
+=== Tour Indexing Script ===
+Strapi URL: http://localhost:3010
+ChromaDB URL: http://localhost:8200
+Locales: vi, en, zh
+
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+[VectorStore] Connected to ChromaDB at http://localhost:8200, collection: tour_embeddings
+[Indexer] Clearing existing collection...
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+[VectorStore] Collection tour_embeddings cleared and recreated.
+[Indexer] Fetching tours for locale 'vi' from: http://localhost:3010/api/tours?populate[Highlights]=true&populate[tour_category]=true&pagination[pageSize]=100&locale=vi
+[Indexer] Found 3 tours for locale 'vi'
+  - Khám Phá Vẻ Đẹp Miền Bắc: Hà Nội - Hạ Long - Sapa: 4 chunks
+  - Hành Trình Di Sản Miền Trung: Đà Nẵng - Hội An - Huế: 3 chunks
+  - Khám phá Miền Tây Sông Nước & Thiên Đường Đảo Ngọc Phú Quốc: 4 chunks
+[Indexer] Fetching tours for locale 'en' from: http://localhost:3010/api/tours?populate[Highlights]=true&populate[tour_category]=true&pagination[pageSize]=100&locale=en
+[Indexer] Found 3 tours for locale 'en'
+  - Discover Northern Beauty: Hanoi - Ha Long - Sapa: 4 chunks
+  - Central Heritage Journey: Da Nang - Hoi An - Hue: 3 chunks
+  - Mekong Delta Waterways & Phu Quoc Paradise Island: 4 chunks
+[Indexer] Fetching tours for locale 'zh' from: http://localhost:3010/api/tours?populate[Highlights]=true&populate[tour_category]=true&pagination[pageSize]=100&locale=zh
+[Indexer] Found 3 tours for locale 'zh'
+  - 探索北部之美：河内 - 下龙 - 沙坝: 4 chunks
+  - 中部遗产之旅：岘港 - 会安 - 顺化: 3 chunks
+  - 探索湄公河三角洲与富国岛天堂: 4 chunks
+
+[Indexer] Upserting 33 chunks into ChromaDB...
+[VectorStore] Upserted batch 1: 5 documents (total: 5)
+[VectorStore] Upserted batch 2: 5 documents (total: 10)
+[VectorStore] Upserted batch 3: 5 documents (total: 15)
+[VectorStore] Upserted batch 4: 5 documents (total: 20)
+[VectorStore] Upserted batch 5: 5 documents (total: 25)
+[VectorStore] Upserted batch 6: 5 documents (total: 30)
+[VectorStore] Upserted batch 7: 3 documents (total: 33)
+
+=== Indexing Complete ===
+Indexed 9 tours, 33 chunks total
+Locales processed: vi, en, zh
+
+Done! You can now use the chatbot.
+[2026-04-11 19:00:43] Indexing completed successfully
+[2026-04-11 19:00:43] ========== INDEX FINISHED ==========
+[2026-04-12 07:00:01] ========== INDEX STARTED ==========
+[2026-04-12 07:00:01] Running indexTours.js...
+=== Tour Indexing Script ===
+Strapi URL: http://localhost:3010
+ChromaDB URL: http://localhost:8200
+Locales: vi, en, zh
+
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+[VectorStore] Connected to ChromaDB at http://localhost:8200, collection: tour_embeddings
+[Indexer] Clearing existing collection...
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+Cannot instantiate a collection with the DefaultEmbeddingFunction. Please install @chroma-core/default-embed, or provide a different embedding function
+[VectorStore] Collection tour_embeddings cleared and recreated.
+[Indexer] Fetching tours for locale 'vi' from: http://localhost:3010/api/tours?populate[Highlights]=true&populate[tour_category]=true&pagination[pageSize]=100&locale=vi
+[Indexer] Found 3 tours for locale 'vi'
+  - Khám Phá Vẻ Đẹp Miền Bắc: Hà Nội - Hạ Long - Sapa: 4 chunks
+  - Hành Trình Di Sản Miền Trung: Đà Nẵng - Hội An - Huế: 3 chunks
+  - Khám phá Miền Tây Sông Nước & Thiên Đường Đảo Ngọc Phú Quốc: 4 chunks
+[Indexer] Fetching tours for locale 'en' from: http://localhost:3010/api/tours?populate[Highlights]=true&populate[tour_category]=true&pagination[pageSize]=100&locale=en
+[Indexer] Found 3 tours for locale 'en'
+  - Discover Northern Beauty: Hanoi - Ha Long - Sapa: 4 chunks
+  - Central Heritage Journey: Da Nang - Hoi An - Hue: 3 chunks
+  - Mekong Delta Waterways & Phu Quoc Paradise Island: 4 chunks
+[Indexer] Fetching tours for locale 'zh' from: http://localhost:3010/api/tours?populate[Highlights]=true&populate[tour_category]=true&pagination[pageSize]=100&locale=zh
+[Indexer] Found 3 tours for locale 'zh'
+  - 探索北部之美：河内 - 下龙 - 沙坝: 4 chunks
+  - 中部遗产之旅：岘港 - 会安 - 顺化: 3 chunks
+  - 探索湄公河三角洲与富国岛天堂: 4 chunks
+
+[Indexer] Upserting 33 chunks into ChromaDB...
+[VectorStore] Upserted batch 1: 5 documents (total: 5)
+[VectorStore] Upserted batch 2: 5 documents (total: 10)
+[VectorStore] Upserted batch 3: 5 documents (total: 15)
+[VectorStore] Upserted batch 4: 5 documents (total: 20)
+[VectorStore] Upserted batch 5: 5 documents (total: 25)
+[VectorStore] Upserted batch 6: 5 documents (total: 30)
+[VectorStore] Upserted batch 7: 3 documents (total: 33)
+
+=== Indexing Complete ===
+Indexed 9 tours, 33 chunks total
+Locales processed: vi, en, zh
+
+Done! You can now use the chatbot.
+[2026-04-12 07:00:44] Indexing completed successfully
+[2026-04-12 07:00:44] ========== INDEX FINISHED ==========

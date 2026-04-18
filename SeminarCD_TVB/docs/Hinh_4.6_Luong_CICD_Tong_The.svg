@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 900" width="1500" height="900" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <style>
+      .title     { font-size: 22px; font-weight: 700; fill: #0f172a; }
+      .subtitle  { font-size: 13px; fill: #475569; }
+      .lane-lbl  { font-size: 13px; font-weight: 700; fill: #ffffff; text-anchor: middle; letter-spacing: 1px; }
+      .lane-sub  { font-size: 11px; fill: #e2e8f0; text-anchor: middle; }
+      .step-hdr  { font-size: 13px; font-weight: 700; fill: #0f172a; text-anchor: middle; }
+      .step-desc { font-size: 11px; fill: #334155; text-anchor: middle; }
+      .step-num  { font-size: 14px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
+      .arr-lbl   { font-size: 10px; fill: #334155; font-style: italic; }
+      .time-lbl  { font-size: 10px; fill: #be185d; font-weight: 700; text-anchor: middle; }
+    </style>
+    <marker id="arr" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M0,0 L10,6 L0,12 z" fill="#0f172a"/>
+    </marker>
+  </defs>
+
+  <rect width="1500" height="900" fill="#f8fafc"/>
+
+  <!-- Header -->
+  <text x="750" y="36" text-anchor="middle" class="title">Hình 4.6: Luồng CI/CD tổng thể — từ `git push` đến người dùng cuối</text>
+  <text x="750" y="58" text-anchor="middle" class="subtitle">Swimlane theo 5 actor: Developer · GitHub · GitHub Actions · Hosting · End User — kèm thời gian từng giai đoạn</text>
+
+  <!-- ========== SWIMLANES ========== -->
+  <!-- Lane backgrounds -->
+  <rect x="40" y="100" width="1420" height="120" fill="#eff6ff" stroke="#93c5fd"/>
+  <rect x="40" y="220" width="1420" height="120" fill="#f0fdf4" stroke="#86efac"/>
+  <rect x="40" y="340" width="1420" height="180" fill="#fef3c7" stroke="#fcd34d"/>
+  <rect x="40" y="520" width="1420" height="140" fill="#fce7f3" stroke="#f9a8d4"/>
+  <rect x="40" y="660" width="1420" height="120" fill="#f1f5f9" stroke="#cbd5e1"/>
+
+  <!-- Lane label boxes -->
+  <rect x="40" y="100" width="180" height="120" fill="#1e3a8a"/>
+  <text x="130" y="150" class="lane-lbl">👤 DEVELOPER</text>
+  <text x="130" y="170" class="lane-sub">Tuan / Van / Bao</text>
+  <text x="130" y="190" class="lane-sub">(IDE, Git)</text>
+
+  <rect x="40" y="220" width="180" height="120" fill="#166534"/>
+  <text x="130" y="270" class="lane-lbl">📦 GITHUB</text>
+  <text x="130" y="290" class="lane-sub">github.com</text>
+  <text x="130" y="310" class="lane-sub">(Repo + PR)</text>
+
+  <rect x="40" y="340" width="180" height="180" fill="#92400e"/>
+  <text x="130" y="410" class="lane-lbl">⚙ GITHUB</text>
+  <text x="130" y="428" class="lane-lbl">ACTIONS</text>
+  <text x="130" y="450" class="lane-sub">CI/CD Runner</text>
+  <text x="130" y="468" class="lane-sub">(ubuntu-latest)</text>
+
+  <rect x="40" y="520" width="180" height="140" fill="#be185d"/>
+  <text x="130" y="580" class="lane-lbl">☁ HOSTING</text>
+  <text x="130" y="600" class="lane-sub">Vercel / Railway /</text>
+  <text x="130" y="618" class="lane-sub">Render · ChromaDB</text>
+
+  <rect x="40" y="660" width="180" height="120" fill="#334155"/>
+  <text x="130" y="710" class="lane-lbl">🌐 END USER</text>
+  <text x="130" y="730" class="lane-sub">Khách hàng /</text>
+  <text x="130" y="748" class="lane-sub">Admin TravelTVB</text>
+
+  <!-- ========== STEPS ========== -->
+
+  <!-- Step 1: Developer commits + push (lane Developer) -->
+  <g>
+    <rect x="250" y="120" width="150" height="80" rx="6" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.5"/>
+    <circle cx="265" cy="135" r="11" fill="#1e3a8a"/>
+    <text x="265" y="139" class="step-num">1</text>
+    <text x="325" y="150" class="step-hdr">Commit &amp; Push</text>
+    <text x="325" y="168" class="step-desc">git push origin feat/*</text>
+    <text x="325" y="184" class="step-desc">husky pre-commit: lint</text>
+  </g>
+
+  <!-- Arrow 1 → 2 (down to GitHub) -->
+  <line x1="325" y1="200" x2="325" y2="245" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="335" y="222" class="arr-lbl">webhook</text>
+
+  <!-- Step 2: GitHub receives + creates PR -->
+  <g>
+    <rect x="250" y="245" width="150" height="80" rx="6" fill="#ffffff" stroke="#166534" stroke-width="1.5"/>
+    <circle cx="265" cy="260" r="11" fill="#166534"/>
+    <text x="265" y="264" class="step-num">2</text>
+    <text x="325" y="275" class="step-hdr">PR Created</text>
+    <text x="325" y="293" class="step-desc">Review · Code Owner</text>
+    <text x="325" y="309" class="step-desc">Branch protection</text>
+  </g>
+
+  <!-- Arrow 2 → 3 (down to Actions) -->
+  <line x1="325" y1="325" x2="325" y2="375" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="335" y="350" class="arr-lbl">trigger workflow</text>
+
+  <!-- Step 3: CI Tests (Actions) -->
+  <g>
+    <rect x="250" y="375" width="150" height="120" rx="6" fill="#ffffff" stroke="#92400e" stroke-width="1.5"/>
+    <circle cx="265" cy="390" r="11" fill="#92400e"/>
+    <text x="265" y="394" class="step-num">3</text>
+    <text x="325" y="405" class="step-hdr">CI: Test &amp; Build</text>
+    <text x="325" y="423" class="step-desc">• Vitest (Frontend)</text>
+    <text x="325" y="439" class="step-desc">• Jest (Backend)</text>
+    <text x="325" y="455" class="step-desc">• ESLint · npm audit</text>
+    <text x="325" y="471" class="step-desc">• Build artifacts</text>
+    <text x="325" y="489" class="time-lbl">⏱ ~8 phút</text>
+  </g>
+
+  <!-- Arrow 3 → 4 (right to step 4) -->
+  <line x1="400" y1="435" x2="450" y2="435" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <!-- Step 4: Test passes? (decision) -->
+  <g>
+    <polygon points="530,390 610,435 530,480 450,435" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+    <text x="530" y="430" class="step-hdr">All pass?</text>
+    <text x="530" y="448" class="step-desc">coverage ≥ 70%</text>
+  </g>
+
+  <!-- Arrow 4 → rejected (up, fail back to developer) -->
+  <line x1="530" y1="390" x2="530" y2="165" stroke="#b91c1c" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+  <text x="540" y="275" class="arr-lbl" fill="#b91c1c">FAIL · gửi thông báo</text>
+  <text x="540" y="290" class="arr-lbl" fill="#b91c1c">fix &amp; push lại</text>
+
+  <!-- Arrow 4 → 5 (right, continue if pass) -->
+  <line x1="610" y1="435" x2="660" y2="435" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="625" y="425" class="arr-lbl">PASS</text>
+
+  <!-- Step 5: Merge to main -->
+  <g>
+    <rect x="660" y="245" width="160" height="80" rx="6" fill="#ffffff" stroke="#166534" stroke-width="1.5"/>
+    <circle cx="675" cy="260" r="11" fill="#166534"/>
+    <text x="675" y="264" class="step-num">5</text>
+    <text x="740" y="275" class="step-hdr">Merge to main</text>
+    <text x="740" y="293" class="step-desc">Squash commit</text>
+    <text x="740" y="309" class="step-desc">Tag release v1.x.0</text>
+  </g>
+
+  <!-- Connector: from decision 4 up to step 5 -->
+  <line x1="660" y1="435" x2="740" y2="435" stroke="#0f172a" stroke-width="1.8"/>
+  <line x1="740" y1="435" x2="740" y2="325" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <!-- Step 6: CD - Deploy to Staging -->
+  <g>
+    <rect x="660" y="375" width="160" height="120" rx="6" fill="#ffffff" stroke="#92400e" stroke-width="1.5"/>
+    <circle cx="675" cy="390" r="11" fill="#92400e"/>
+    <text x="675" y="394" class="step-num">6</text>
+    <text x="740" y="405" class="step-hdr">Deploy Staging</text>
+    <text x="740" y="423" class="step-desc">• Build Docker image</text>
+    <text x="740" y="439" class="step-desc">• Push to registry</text>
+    <text x="740" y="455" class="step-desc">• Run migrations</text>
+    <text x="740" y="471" class="step-desc">• Seed ChromaDB</text>
+    <text x="740" y="489" class="time-lbl">⏱ ~3 phút</text>
+  </g>
+
+  <!-- Arrow 5 → 6 (down) -->
+  <line x1="740" y1="325" x2="740" y2="375" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <!-- Arrow 6 → 7 (down to hosting lane staging) -->
+  <line x1="740" y1="495" x2="740" y2="555" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <!-- Step 7: Staging environment -->
+  <g>
+    <rect x="660" y="555" width="160" height="90" rx="6" fill="#ffffff" stroke="#be185d" stroke-width="1.5"/>
+    <circle cx="675" cy="570" r="11" fill="#be185d"/>
+    <text x="675" y="574" class="step-num">7</text>
+    <text x="740" y="585" class="step-hdr">Staging Live</text>
+    <text x="740" y="603" class="step-desc">staging.traveltvb.com</text>
+    <text x="740" y="619" class="step-desc">E2E Playwright test</text>
+    <text x="740" y="635" class="step-desc">QA manual review</text>
+  </g>
+
+  <!-- Arrow 7 → 8 (right to approval gate) -->
+  <line x1="820" y1="600" x2="880" y2="600" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <!-- Step 8: Manual Approval Gate -->
+  <g>
+    <polygon points="960,555 1040,600 960,645 880,600" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+    <text x="960" y="595" class="step-hdr">Approve?</text>
+    <text x="960" y="613" class="step-desc">Maintainer OK?</text>
+  </g>
+
+  <!-- Arrow 8 → reject back -->
+  <line x1="960" y1="555" x2="960" y2="165" stroke="#b91c1c" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+  <text x="970" y="330" class="arr-lbl" fill="#b91c1c">REJECT · mở</text>
+  <text x="970" y="345" class="arr-lbl" fill="#b91c1c">issue mới</text>
+
+  <!-- Arrow 8 → 9 right (APPROVED) -->
+  <line x1="1040" y1="600" x2="1090" y2="600" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <!-- Step 9: Deploy to Production (back in Actions lane) -->
+  <g>
+    <rect x="1090" y="375" width="170" height="120" rx="6" fill="#ffffff" stroke="#92400e" stroke-width="1.5"/>
+    <circle cx="1105" cy="390" r="11" fill="#92400e"/>
+    <text x="1105" y="394" class="step-num">9</text>
+    <text x="1175" y="405" class="step-hdr">Deploy Production</text>
+    <text x="1175" y="423" class="step-desc">Blue-Green strategy</text>
+    <text x="1175" y="439" class="step-desc">Rolling update</text>
+    <text x="1175" y="455" class="step-desc">Health check + smoke</text>
+    <text x="1175" y="471" class="step-desc">Rollback nếu fail</text>
+    <text x="1175" y="489" class="time-lbl">⏱ ~2 phút</text>
+  </g>
+
+  <!-- Arrow from 8 up to 9 -->
+  <line x1="1090" y1="600" x2="1175" y2="600" stroke="#0f172a" stroke-width="1.8"/>
+  <line x1="1175" y1="600" x2="1175" y2="495" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <!-- Step 10: Production live -->
+  <g>
+    <rect x="1090" y="555" width="170" height="90" rx="6" fill="#ffffff" stroke="#be185d" stroke-width="1.5"/>
+    <circle cx="1105" cy="570" r="11" fill="#be185d"/>
+    <text x="1105" y="574" class="step-num">10</text>
+    <text x="1175" y="585" class="step-hdr">Production Live</text>
+    <text x="1175" y="603" class="step-desc">www.traveltvb.com</text>
+    <text x="1175" y="619" class="step-desc">Sentry monitoring</text>
+    <text x="1175" y="635" class="step-desc">Slack alert #deploy</text>
+  </g>
+
+  <line x1="1175" y1="495" x2="1175" y2="555" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <!-- Step 11: End user (bottom lane) -->
+  <g>
+    <rect x="1090" y="685" width="170" height="80" rx="6" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+    <circle cx="1105" cy="700" r="11" fill="#334155"/>
+    <text x="1105" y="704" class="step-num">11</text>
+    <text x="1175" y="715" class="step-hdr">User truy cập</text>
+    <text x="1175" y="733" class="step-desc">Duyệt tour · đặt chỗ</text>
+    <text x="1175" y="749" class="step-desc">Chat với bot RAG</text>
+  </g>
+
+  <line x1="1175" y1="645" x2="1175" y2="685" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <!-- Feedback loop: from user back to developer (monitoring) -->
+  <path d="M 1260,725 Q 1400,725 1400,125 Q 1400,105 1380,105 L 400,140" fill="none" stroke="#be185d" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arr)"/>
+  <text x="1420" y="420" class="arr-lbl" fill="#be185d" transform="rotate(-90 1420 420)">Feedback · telemetry · bug reports</text>
+
+  <!-- ========== SUMMARY BOX ========== -->
+  <g transform="translate(40, 800)">
+    <rect width="1420" height="80" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="14" y="22" font-size="13" font-weight="700" fill="#0f172a">Tóm tắt thời gian end-to-end (từ `git push` đến user):</text>
+
+    <text x="14" y="44" font-size="11" fill="#334155">① Push: &lt;5s   →   ② PR: &lt;10s   →   ③ CI (test+build): ~8'   →   ④ Review PR (human): thay đổi   →   ⑤ Merge: &lt;5s</text>
+    <text x="14" y="60" font-size="11" fill="#334155">⑥ Deploy Staging: ~3'   →   ⑦ E2E + QA: ~10'   →   ⑧ Approve: thay đổi   →   ⑨ Deploy Prod: ~2'   →   ⑩ Live + monitor   →   ⑪ User tiếp cận</text>
+    <text x="14" y="74" font-size="11" font-weight="700" fill="#be185d">Tổng thời gian máy: ~13 phút   |   Tổng (bao gồm human review): thường 1–2 giờ cho PR nhỏ</text>
+  </g>
+</svg>

@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tour_categories",
+  "info": {
+    "singularName": "tour-category",
+    "pluralName": "tour-categories",
+    "displayName": "Tour-Category"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "Category_Name": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": { "localized": true }
+      }
+    },
+    "Category_Slug": {
+      "type": "uid",
+      "targetField": "Category_Name"
+    },
+    "tours": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::tour.tour",
+      "mappedBy": "tour_category"
+    }
+  }
+}

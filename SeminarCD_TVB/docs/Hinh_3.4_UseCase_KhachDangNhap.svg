@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 900" width="1300" height="900" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <style>
+      .title     { font-size: 22px; font-weight: 700; fill: #0f172a; }
+      .subtitle  { font-size: 13px; fill: #475569; }
+      .actor-lbl { font-size: 13px; font-weight: 700; fill: #0f172a; text-anchor: middle; }
+      .ext-lbl   { font-size: 12px; font-weight: 700; fill: #0f172a; text-anchor: middle; }
+      .uc-lbl    { font-size: 12px; fill: #0f172a; text-anchor: middle; }
+      .uc-lbl-sm { font-size: 11px; fill: #0f172a; text-anchor: middle; }
+      .sys-lbl   { font-size: 16px; font-weight: 700; fill: #166534; }
+      .stereo    { font-size: 10px; fill: #475569; font-style: italic; text-anchor: middle; }
+      .group-lbl { font-size: 12px; font-weight: 700; fill: #166534; letter-spacing: 1px; }
+    </style>
+    <symbol id="actor" viewBox="-30 0 60 80">
+      <circle cx="0" cy="12" r="10" fill="#fef3c7" stroke="#0f172a" stroke-width="1.6"/>
+      <line x1="0" y1="22" x2="0" y2="50" stroke="#0f172a" stroke-width="1.6"/>
+      <line x1="-15" y1="32" x2="15" y2="32" stroke="#0f172a" stroke-width="1.6"/>
+      <line x1="0" y1="50" x2="-12" y2="72" stroke="#0f172a" stroke-width="1.6"/>
+      <line x1="0" y1="50" x2="12" y2="72" stroke="#0f172a" stroke-width="1.6"/>
+    </symbol>
+  </defs>
+
+  <rect width="1300" height="900" fill="#f8fafc"/>
+
+  <text x="650" y="40" text-anchor="middle" class="title">Hình 3.4: Sơ đồ Use Case chi tiết — Khách hàng đã đăng nhập (Customer)</text>
+  <text x="650" y="62" text-anchor="middle" class="subtitle">Các chức năng bổ sung dành cho người dùng sau khi đăng nhập: đặt tour, thanh toán, quản lý đặt chỗ</text>
+
+  <!-- System boundary -->
+  <rect x="260" y="100" width="900" height="750" rx="10" fill="#ffffff" stroke="#166534" stroke-width="2"/>
+  <text x="710" y="128" text-anchor="middle" class="sys-lbl">Hệ thống TravelTVB — Khu vực yêu cầu đăng nhập</text>
+  <line x1="280" y1="140" x2="1140" y2="140" stroke="#cbd5e1"/>
+
+  <!-- Actors: Customer + inherited Guest -->
+  <use href="#actor" x="70" y="400" width="60" height="80"/>
+  <text x="100" y="498" class="actor-lbl">Khách hàng</text>
+  <text x="100" y="514" class="actor-lbl">đã đăng nhập</text>
+  <text x="100" y="530" class="actor-lbl" font-weight="400" font-size="11">(Customer)</text>
+
+  <use href="#actor" x="70" y="170" width="60" height="80"/>
+  <text x="100" y="268" class="actor-lbl">Khách vãng lai</text>
+  <text x="100" y="284" class="actor-lbl" font-weight="400" font-size="11">(Guest)</text>
+
+  <!-- Generalization: Customer → Guest -->
+  <line x1="100" y1="400" x2="100" y2="295" stroke="#0f172a" stroke-width="1.5"/>
+  <polygon points="100,285 94,300 106,300" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+  <text x="115" y="345" class="stereo" text-anchor="start">kế thừa toàn</text>
+  <text x="115" y="357" class="stereo" text-anchor="start">bộ chức năng</text>
+  <text x="115" y="369" class="stereo" text-anchor="start">của Guest</text>
+
+  <!-- External: VNPay -->
+  <rect x="1175" y="490" width="110" height="80" rx="4" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.5"/>
+  <text x="1230" y="518" class="ext-lbl">«external»</text>
+  <text x="1230" y="538" class="ext-lbl" font-size="11">VNPay</text>
+  <text x="1230" y="554" class="ext-lbl" font-size="11">Sandbox</text>
+
+  <!-- External: Email service -->
+  <rect x="1175" y="600" width="110" height="70" rx="4" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.5"/>
+  <text x="1230" y="628" class="ext-lbl">«external»</text>
+  <text x="1230" y="648" class="ext-lbl" font-size="11">Email SMTP</text>
+
+  <!-- ======= GROUP A: Đặt tour & thanh toán ======= -->
+  <rect x="290" y="160" width="850" height="280" rx="8" fill="#ecfccb" stroke="#84cc16" stroke-dasharray="4,3"/>
+  <text x="310" y="180" class="group-lbl">A. ĐẶT TOUR &amp; THANH TOÁN</text>
+
+  <ellipse cx="400" cy="225" rx="90" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="400" y="229" class="uc-lbl">Chọn tour &amp; ngày khởi hành</text>
+
+  <ellipse cx="620" cy="225" rx="100" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="620" y="229" class="uc-lbl">Kiểm tra chỗ còn trống</text>
+
+  <ellipse cx="840" cy="225" rx="100" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="840" y="223" class="uc-lbl">Nhập thông tin</text>
+  <text x="840" y="237" class="uc-lbl">liên hệ &amp; số khách</text>
+
+  <ellipse cx="1040" cy="225" rx="85" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="1040" y="229" class="uc-lbl">Tạo booking</text>
+
+  <ellipse cx="400" cy="310" rx="100" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="400" y="314" class="uc-lbl">Tạo URL thanh toán</text>
+
+  <ellipse cx="620" cy="310" rx="95" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="620" y="314" class="uc-lbl">Chuyển tới VNPay</text>
+
+  <ellipse cx="840" cy="310" rx="105" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="840" y="314" class="uc-lbl">Xác thực chữ ký HMAC</text>
+
+  <ellipse cx="1040" cy="310" rx="85" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="1040" y="314" class="uc-lbl">Cập nhật trạng thái</text>
+
+  <ellipse cx="500" cy="395" rx="100" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="500" y="399" class="uc-lbl">Nhận email xác nhận</text>
+
+  <ellipse cx="740" cy="395" rx="105" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="740" y="399" class="uc-lbl">Xem biên lai thanh toán</text>
+
+  <!-- include: Tạo booking → Tạo URL thanh toán -->
+  <line x1="1020" y1="248" x2="450" y2="288" stroke="#475569" stroke-width="1.1" stroke-dasharray="4,3"/>
+  <polygon points="452,288 458,283 458,291" fill="#475569"/>
+  <text x="700" y="262" class="stereo">«include»</text>
+
+  <!-- include: Tạo URL → Chuyển tới VNPay -->
+  <line x1="500" y1="310" x2="525" y2="310" stroke="#475569" stroke-width="1.1" stroke-dasharray="4,3"/>
+  <polygon points="523,310 517,306 517,314" fill="#475569"/>
+
+  <!-- include: Chuyển tới VNPay → Xác thực chữ ký -->
+  <line x1="715" y1="310" x2="735" y2="310" stroke="#475569" stroke-width="1.1" stroke-dasharray="4,3"/>
+  <polygon points="733,310 727,306 727,314" fill="#475569"/>
+
+  <!-- include: Xác thực → Cập nhật trạng thái -->
+  <line x1="945" y1="310" x2="955" y2="310" stroke="#475569" stroke-width="1.1" stroke-dasharray="4,3"/>
+  <polygon points="953,310 947,306 947,314" fill="#475569"/>
+
+  <!-- extend: Cập nhật → Email xác nhận -->
+  <line x1="1000" y1="334" x2="560" y2="378" stroke="#475569" stroke-width="1.1" stroke-dasharray="4,3"/>
+  <polygon points="562,378 568,373 568,381" fill="#475569"/>
+  <text x="780" y="345" class="stereo">«extend» khi Paid</text>
+
+  <!-- ======= GROUP B: Quản lý đặt tour ======= -->
+  <rect x="290" y="470" width="500" height="240" rx="8" fill="#ecfccb" stroke="#84cc16" stroke-dasharray="4,3"/>
+  <text x="310" y="490" class="group-lbl">B. QUẢN LÝ BOOKING CÁ NHÂN</text>
+
+  <ellipse cx="400" cy="530" rx="95" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="400" y="534" class="uc-lbl">Xem lịch sử đặt tour</text>
+
+  <ellipse cx="620" cy="530" rx="90" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="620" y="534" class="uc-lbl">Xem chi tiết booking</text>
+
+  <ellipse cx="400" cy="605" rx="80" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="400" y="609" class="uc-lbl">Hủy đặt tour</text>
+
+  <ellipse cx="620" cy="605" rx="85" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="620" y="603" class="uc-lbl">Nhận hoàn tiền</text>
+  <text x="620" y="617" class="uc-lbl-sm">(refund)</text>
+
+  <ellipse cx="510" cy="675" rx="110" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="510" y="673" class="uc-lbl">Kiểm tra điều kiện hủy</text>
+  <text x="510" y="687" class="uc-lbl-sm">(chính sách &amp; thời hạn)</text>
+
+  <!-- include: Hủy → Kiểm tra điều kiện -->
+  <line x1="420" y1="628" x2="480" y2="655" stroke="#475569" stroke-width="1.1" stroke-dasharray="4,3"/>
+  <polygon points="478,655 474,649 482,650" fill="#475569"/>
+  <text x="435" y="650" class="stereo">«include»</text>
+
+  <!-- extend: Hủy → Nhận hoàn tiền -->
+  <line x1="480" y1="605" x2="540" y2="605" stroke="#475569" stroke-width="1.1" stroke-dasharray="4,3"/>
+  <polygon points="538,605 532,601 532,609" fill="#475569"/>
+  <text x="510" y="595" class="stereo">«extend»</text>
+
+  <!-- ======= GROUP C: Quản lý tài khoản ======= -->
+  <rect x="810" y="470" width="330" height="240" rx="8" fill="#ecfccb" stroke="#84cc16" stroke-dasharray="4,3"/>
+  <text x="830" y="490" class="group-lbl">C. TÀI KHOẢN</text>
+
+  <ellipse cx="975" cy="530" rx="110" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="975" y="534" class="uc-lbl">Xem/sửa thông tin cá nhân</text>
+
+  <ellipse cx="975" cy="600" rx="90" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="975" y="604" class="uc-lbl">Đổi mật khẩu</text>
+
+  <ellipse cx="975" cy="670" rx="80" ry="24" fill="#dcfce7" stroke="#166534"/>
+  <text x="975" y="674" class="uc-lbl">Đăng xuất</text>
+
+  <!-- ======= GROUP D: Tính năng nâng cao ======= -->
+  <rect x="290" y="740" width="850" height="100" rx="8" fill="#ecfccb" stroke="#84cc16" stroke-dasharray="4,3"/>
+  <text x="310" y="760" class="group-lbl">D. TÍNH NĂNG NÂNG CAO</text>
+
+  <ellipse cx="430" cy="800" rx="105" ry="22" fill="#dcfce7" stroke="#166534"/>
+  <text x="430" y="804" class="uc-lbl">Chatbot cá nhân hóa</text>
+
+  <ellipse cx="700" cy="800" rx="120" ry="22" fill="#dcfce7" stroke="#166534"/>
+  <text x="700" y="804" class="uc-lbl">Lưu tour yêu thích (wishlist)</text>
+
+  <ellipse cx="970" cy="800" rx="120" ry="22" fill="#dcfce7" stroke="#166534"/>
+  <text x="970" y="804" class="uc-lbl">Đánh giá tour đã đi (review)</text>
+
+  <!-- ======= ACTOR ASSOCIATIONS (Customer) ======= -->
+  <g stroke="#166534" stroke-width="1.1" fill="none">
+    <!-- Group A -->
+    <line x1="130" y1="430" x2="320" y2="225"/>
+    <line x1="130" y1="430" x2="530" y2="225"/>
+    <line x1="130" y1="430" x2="750" y2="225"/>
+    <line x1="130" y1="430" x2="965" y2="225"/>
+    <line x1="130" y1="440" x2="310" y2="310"/>
+    <line x1="130" y1="440" x2="410" y2="395"/>
+    <line x1="130" y1="440" x2="645" y2="395"/>
+    <!-- Group B -->
+    <line x1="130" y1="450" x2="315" y2="530"/>
+    <line x1="130" y1="450" x2="540" y2="530"/>
+    <line x1="130" y1="455" x2="330" y2="605"/>
+    <line x1="130" y1="455" x2="545" y2="605"/>
+    <line x1="130" y1="460" x2="410" y2="675"/>
+    <!-- Group C -->
+    <line x1="130" y1="460" x2="875" y2="530"/>
+    <line x1="130" y1="465" x2="895" y2="600"/>
+    <line x1="130" y1="470" x2="905" y2="670"/>
+    <!-- Group D -->
+    <line x1="130" y1="480" x2="335" y2="800"/>
+    <line x1="130" y1="480" x2="590" y2="800"/>
+    <line x1="130" y1="480" x2="860" y2="800"/>
+  </g>
+
+  <!-- Links to VNPay (external) -->
+  <line x1="720" y1="310" x2="1180" y2="510" stroke="#b91c1c" stroke-width="1.2" stroke-dasharray="5,4"/>
+  <text x="990" y="395" class="stereo">«include» VNPay API</text>
+  <line x1="700" y1="605" x2="1180" y2="540" stroke="#b91c1c" stroke-width="1.2" stroke-dasharray="5,4"/>
+
+  <!-- Email xác nhận → Email SMTP -->
+  <line x1="600" y1="395" x2="1180" y2="635" stroke="#b91c1c" stroke-width="1.2" stroke-dasharray="5,4"/>
+
+  <!-- Legend -->
+  <g transform="translate(1175, 160)">
+    <rect width="110" height="320" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="10" y="20" font-size="11" font-weight="700">Chú thích</text>
+
+    <ellipse cx="26" cy="50" rx="14" ry="8" fill="#dcfce7" stroke="#166534"/>
+    <text x="46" y="54" font-size="10">UC mới của</text>
+    <text x="46" y="66" font-size="10">Customer</text>
+
+    <line x1="12" y1="88" x2="40" y2="88" stroke="#0f172a" stroke-width="1.2"/>
+    <polygon points="40,83 40,93 47,88" fill="#ffffff" stroke="#0f172a" stroke-width="1.2"/>
+    <text x="56" y="92" font-size="10">Kế thừa</text>
+    <text x="56" y="104" font-size="10">Guest</text>
+
+    <line x1="12" y1="125" x2="40" y2="125" stroke="#475569" stroke-width="1.2" stroke-dasharray="4,3"/>
+    <text x="46" y="129" font-size="10">«include»</text>
+    <text x="46" y="141" font-size="10">«extend»</text>
+
+    <text x="10" y="170" font-size="10" font-weight="700">UC kế thừa:</text>
+    <text x="10" y="184" font-size="10" fill="#475569">(xem Hình 3.3)</text>
+
+    <text x="10" y="215" font-size="10" font-weight="700">UC mới: 16</text>
+
+    <text x="10" y="238" font-size="10">• Đặt tour &amp; TT: 10</text>
+    <text x="10" y="254" font-size="10">• Quản lý BK: 5</text>
+    <text x="10" y="270" font-size="10">• Tài khoản: 3</text>
+    <text x="10" y="286" font-size="10">• Nâng cao: 3</text>
+  </g>
+</svg>

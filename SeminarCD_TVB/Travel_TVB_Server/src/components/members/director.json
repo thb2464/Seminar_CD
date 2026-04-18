@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_members_directors",
+  "info": {
+    "displayName": "Director"
+  },
+  "options": {},
+  "attributes": {
+    "Director_Name": {
+      "type": "string"
+    },
+    "Director_Position": {
+      "type": "string"
+    },
+    "Director_Email": {
+      "type": "email"
+    },
+    "Director_Image": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "Director_Descriptions": {
+      "type": "text"
+    }
+  },
+  "config": {}
+}

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" width="1200" height="760" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <style>
+      .title     { font-size: 22px; font-weight: 700; fill: #0f172a; }
+      .subtitle  { font-size: 13px; fill: #475569; }
+      .actor-lbl { font-size: 13px; font-weight: 700; fill: #0f172a; text-anchor: middle; }
+      .ext-lbl   { font-size: 12px; font-weight: 700; fill: #0f172a; text-anchor: middle; }
+      .uc-lbl    { font-size: 13px; fill: #0f172a; text-anchor: middle; }
+      .sys-lbl   { font-size: 16px; font-weight: 700; fill: #92400e; }
+      .stereo    { font-size: 11px; fill: #475569; font-style: italic; text-anchor: middle; }
+    </style>
+    <symbol id="actor" viewBox="-30 0 60 80">
+      <circle cx="0" cy="12" r="10" fill="#fef3c7" stroke="#0f172a" stroke-width="1.6"/>
+      <line x1="0" y1="22" x2="0" y2="50" stroke="#0f172a" stroke-width="1.6"/>
+      <line x1="-15" y1="32" x2="15" y2="32" stroke="#0f172a" stroke-width="1.6"/>
+      <line x1="0" y1="50" x2="-12" y2="72" stroke="#0f172a" stroke-width="1.6"/>
+      <line x1="0" y1="50" x2="12" y2="72" stroke="#0f172a" stroke-width="1.6"/>
+    </symbol>
+  </defs>
+
+  <rect width="1200" height="760" fill="#f8fafc"/>
+
+  <text x="600" y="40" text-anchor="middle" class="title">Hình 3.5: Sơ đồ Use Case chi tiết — Quản trị viên (Admin)</text>
+  <text x="600" y="62" text-anchor="middle" class="subtitle">Các chức năng quản trị chính của Admin trên Strapi Admin Panel</text>
+
+  <!-- System boundary -->
+  <rect x="260" y="100" width="720" height="600" rx="10" fill="#ffffff" stroke="#92400e" stroke-width="2"/>
+  <text x="620" y="128" text-anchor="middle" class="sys-lbl">Strapi Admin Panel — TravelTVB</text>
+  <line x1="280" y1="140" x2="960" y2="140" stroke="#cbd5e1"/>
+
+  <!-- Actor -->
+  <use href="#actor" x="100" y="340" width="60" height="80"/>
+  <text x="130" y="438" class="actor-lbl">Quản trị viên</text>
+  <text x="130" y="454" class="actor-lbl" font-weight="400" font-size="11">(Admin)</text>
+
+  <!-- External: VNPay -->
+  <rect x="1010" y="290" width="150" height="70" rx="4" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.5"/>
+  <text x="1085" y="318" class="ext-lbl">«external»</text>
+  <text x="1085" y="338" class="ext-lbl" font-size="12">VNPay Refund API</text>
+
+  <!-- External: ChromaDB + Gemini -->
+  <rect x="1010" y="420" width="150" height="80" rx="4" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.5"/>
+  <text x="1085" y="448" class="ext-lbl">«external»</text>
+  <text x="1085" y="468" class="ext-lbl" font-size="12">ChromaDB +</text>
+  <text x="1085" y="484" class="ext-lbl" font-size="12">Gemini Embedding</text>
+
+  <!-- ======= MAIN USE CASES (7 UC) ======= -->
+
+  <!-- 1. Đăng nhập Admin -->
+  <ellipse cx="450" cy="200" rx="110" ry="30" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="450" y="205" class="uc-lbl" font-weight="700">Đăng nhập Admin Panel</text>
+
+  <!-- 2. Quản lý Tour -->
+  <ellipse cx="770" cy="200" rx="120" ry="30" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="770" y="197" class="uc-lbl" font-weight="700">Quản lý Tour</text>
+  <text x="770" y="214" class="uc-lbl" font-size="11">(CRUD + i18n + ảnh)</text>
+
+  <!-- 3. Quản lý Bài viết -->
+  <ellipse cx="450" cy="320" rx="120" ry="30" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="450" y="317" class="uc-lbl" font-weight="700">Quản lý Bài viết</text>
+  <text x="450" y="334" class="uc-lbl" font-size="11">(Post &amp; Community Post)</text>
+
+  <!-- 4. Quản lý Booking & Hoàn tiền -->
+  <ellipse cx="770" cy="320" rx="130" ry="30" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="770" y="317" class="uc-lbl" font-weight="700">Quản lý Booking</text>
+  <text x="770" y="334" class="uc-lbl" font-size="11">(Xem · Cập nhật · Hoàn tiền)</text>
+
+  <!-- 5. Quản lý Người dùng -->
+  <ellipse cx="450" cy="440" rx="120" ry="30" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="450" y="437" class="uc-lbl" font-weight="700">Quản lý Người dùng</text>
+  <text x="450" y="454" class="uc-lbl" font-size="11">(User · Role · Newsletter)</text>
+
+  <!-- 6. Vận hành RAG -->
+  <ellipse cx="770" cy="440" rx="130" ry="30" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="770" y="437" class="uc-lbl" font-weight="700">Vận hành hệ thống RAG</text>
+  <text x="770" y="454" class="uc-lbl" font-size="11">(Index ChromaDB · Giám sát)</text>
+
+  <!-- 7. Quản lý Danh mục -->
+  <ellipse cx="450" cy="560" rx="120" ry="30" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="450" y="557" class="uc-lbl" font-weight="700">Quản lý Danh mục</text>
+  <text x="450" y="574" class="uc-lbl" font-size="11">(Tour Cat. &amp; Post Cat.)</text>
+
+  <!-- 8. Xuất báo cáo -->
+  <ellipse cx="770" cy="560" rx="120" ry="30" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="770" y="557" class="uc-lbl" font-weight="700">Xuất báo cáo</text>
+  <text x="770" y="574" class="uc-lbl" font-size="11">(CSV booking · email list)</text>
+
+  <!-- 9. Đăng xuất -->
+  <ellipse cx="610" cy="650" rx="90" ry="28" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="610" y="655" class="uc-lbl" font-weight="700">Đăng xuất</text>
+
+  <!-- ======= ACTOR ASSOCIATIONS ======= -->
+  <g stroke="#92400e" stroke-width="1.3" fill="none">
+    <line x1="160" y1="380" x2="340" y2="200"/>
+    <line x1="160" y1="380" x2="655" y2="200"/>
+    <line x1="160" y1="380" x2="335" y2="320"/>
+    <line x1="160" y1="380" x2="645" y2="320"/>
+    <line x1="160" y1="380" x2="335" y2="440"/>
+    <line x1="160" y1="380" x2="645" y2="440"/>
+    <line x1="160" y1="380" x2="335" y2="560"/>
+    <line x1="160" y1="380" x2="655" y2="560"/>
+    <line x1="160" y1="380" x2="525" y2="650"/>
+  </g>
+
+  <!-- ======= EXTERNAL LINKS ======= -->
+  <!-- Quản lý Booking → VNPay Refund -->
+  <line x1="895" y1="315" x2="1010" y2="320" stroke="#b91c1c" stroke-width="1.3" stroke-dasharray="5,4"/>
+  <text x="955" y="305" class="stereo">«include»</text>
+
+  <!-- Vận hành RAG → ChromaDB + Gemini -->
+  <line x1="895" y1="445" x2="1010" y2="455" stroke="#b91c1c" stroke-width="1.3" stroke-dasharray="5,4"/>
+  <text x="955" y="435" class="stereo">«include»</text>
+
+  <!-- ======= LEGEND ======= -->
+  <g transform="translate(30, 560)">
+    <rect width="220" height="160" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="12" y="22" font-size="12" font-weight="700">Chú thích</text>
+
+    <ellipse cx="26" cy="50" rx="14" ry="8" fill="#fef3c7" stroke="#92400e"/>
+    <text x="52" y="54" font-size="11" fill="#1e293b">Use case của Admin</text>
+
+    <rect x="12" y="72" width="28" height="18" fill="#fee2e2" stroke="#b91c1c"/>
+    <text x="52" y="86" font-size="11" fill="#1e293b">Hệ thống ngoài</text>
+
+    <line x1="12" y1="108" x2="40" y2="108" stroke="#92400e" stroke-width="1.3"/>
+    <text x="52" y="112" font-size="11" fill="#1e293b">Association</text>
+
+    <line x1="12" y1="132" x2="40" y2="132" stroke="#b91c1c" stroke-width="1.3" stroke-dasharray="5,4"/>
+    <text x="52" y="136" font-size="11" fill="#1e293b">«include» API ngoài</text>
+  </g>
+</svg>

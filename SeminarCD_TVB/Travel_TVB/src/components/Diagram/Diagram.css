@@ -1,0 +1,484 @@
+.main-wrapper {
+    cursor: default;
+    margin: auto;
+    padding: 3rem 2rem;
+    max-width: 1340px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem; 
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    background: linear-gradient(135deg, #e3f2fd 0%, #fce4ec 50%, #fff9c4 100%);
+    background-size: cover;
+    background-color: white;
+    background-position: center;
+    border-radius: 25px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    position: relative; /* Still needed for the pseudo-element */
+    overflow: hidden;   /* Ensures the grid is clipped by the rounded corners */
+}
+
+/* NEW: Grid is now applied directly to the main-wrapper */
+.main-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /*background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.1) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.1) 2px, transparent 2px);*/
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 1; /* Places grid above the background, but below the content */
+    border-radius: inherit; /* IMPORTANT: Makes the grid's corners rounded */
+}
+
+.main-wrapper.fade-in {
+    opacity: 1;
+}
+
+/* --- Hero Section (Top) - Unchanged --- */
+.hero-section {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative; /* Ensure hero content is above the grid */
+    z-index: 2;
+}
+.features-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #FFFCF0;
+    color: #04284C;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+.hero-section h1 {
+    font-size: 60px;
+    font-weight: 700;
+    color: #04284C;
+    margin-bottom: 20px;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+.hero-section p {
+    font-size: 18px;
+    color: black;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    max-width: 800px;
+}
+
+/* --- NEW Insurance Diagram Styles --- */
+.new-diagram-container {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    position: relative; /* Ensure diagram content is above the grid */
+    z-index: 2;
+    transform-origin: top; /* Important for scaling from the top */
+}
+
+/* New class for making the diagram smaller */
+.new-diagram-container.diagram-small {
+    height: 75vh;
+    overflow: hidden; /* Hide anything that overflows due to scaling */
+    transform: scale(0.85); /* Adjust this value as needed to fit 75vh */
+}
+
+/* New overlay container */
+.diagram-overlay-container {
+    position: relative;
+    width: 100%;
+    height: auto; /* Or specific height if needed */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Overlay style */
+.diagram-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(128, 128, 128, 1); /* Gray overlay with transparency */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 12px; /* Match diagram container's border-radius if any */
+    z-index: 10; /* Ensure it's on top of the diagram */
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Left Section */
+.left-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    justify-content: center;
+}
+
+.text-block-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.text-block-wrapper.with-padding {
+    padding-left: 5rem;
+}
+
+.text-block {
+    text-wrap: wrap;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 5px 10px 5px 5px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+    color: #2c3e50;
+    border: 8px solid rgba(213, 238, 255, 0.81);
+    min-width: 280px;
+}
+
+.logo-block {
+    width: 40px;
+    height: 40px;
+    padding: 2%;
+    background: #04284b;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.secondary-connector-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 30px;
+    position: relative;
+}
+
+.connector-svg {
+    height: 30px;
+    width: auto;
+}
+
+.flipped {
+    transform: scaleX(-1);
+}
+
+/* Doanh Nghiep Block */
+.doanh-nghiep-block {
+    background: linear-gradient(96deg, #0B62CA 1.5%, #23AAFE 71%, #72B6FC 107.01%);
+    color: white;
+    padding: 20px 10px 20px 28px;
+    width: 100%;
+    margin-left: auto;
+    border: white solid 5px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    max-width: 380px;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+}
+
+.doanh-nghiep-block .icon-circle,
+.ben-cung-cap-block .icon-circle {
+    background: white;
+    border-radius: 50%;
+}
+
+.doanh-nghiep-title {
+    font-size: 18px;
+    font-weight: 600;
+    text-wrap: wrap;
+}
+
+/* Center Section */
+.center-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.center-block {
+    border-radius: 24px;
+    border: 6px solid #FFF;
+    background: #EFF6FD;
+    padding: 20px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    width: 100%;
+}
+
+.center-icon {
+    width: 50px;
+    height: 50px;
+    background: #42a5f5;
+    border-radius: 50%;
+    padding: 5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+}
+.center-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.center-text {
+    font-size: 18px;
+    font-weight: 700;
+    color: #04284C;
+    text-wrap: wrap;
+}
+
+/* Moi Gioi Bao Hiem Block */
+.moi-gioi-block {
+    border: 4px solid #FFF;
+    background: linear-gradient(96deg, #0B62CA 1.5%, #23AAFE 71%, #72B6FC 107.01%);
+    color: white;
+    padding: 25px;
+    border-radius: 12px;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 4px 16px rgba(33, 150, 243, 0.3);
+}
+
+.moi-gioi-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    text-wrap: wrap;
+}
+
+.moi-gioi-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    border: 4px solid #B6DAF4;
+}
+.moi-gioi-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.moi-gioi-title {
+    font-size: 18px;
+    font-weight: 600;
+    text-wrap: wrap;
+}
+
+.moi-gioi-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.moi-gioi-list li {
+    padding: 5px 0;
+    padding-left: 20px;
+    position: relative;
+    font-size: 12px;
+    text-align: left;
+    text-wrap: wrap;
+}
+
+.moi-gioi-list li:before {
+    content: '•';
+    position: absolute;
+    left: 5px;
+}
+
+/* Right Section */
+.right-section {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.ben-cung-cap-block {
+    background: #2196f3;
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+    border: white solid 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.ben-cung-cap-title {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: left;
+    text-wrap: wrap;
+    line-height: 1.3;
+}
+
+/* Main Connectors */
+.main-connector-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Add this */
+    width: 100px; 
+}
+
+.main-connector {
+    height: 35px;
+    width: 100%; /* Change from 'auto' to '100%' */
+}
+
+/* --- ANIMATION STYLES --- */
+@keyframes growIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* STEP 1: Set the INITIAL state */
+#doanh-nghiep, #conn-b-dnb, #conn-dnb-c, #block-b, #block-c,
+#conn-a-b, #conn-c-d, #main-conn-1, #block-a, #block-d,
+#moi-gioi, #conn-mgb-top, #conn-mgb-bottom, #main-conn-2,
+#center-top, #center-bottom, #ben-cung-cap {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: transform 0.4s ease-out;
+}
+
+/* STEP 2: TRIGGER the animation */
+.is-visible #doanh-nghiep, .is-visible #conn-b-dnb, .is-visible #conn-dnb-c, 
+.is-visible #block-b, .is-visible #block-c, .is-visible #conn-a-b, 
+.is-visible #conn-c-d, .is-visible #main-conn-1, .is-visible #block-a, 
+.is-visible #block-d, .is-visible #moi-gioi, .is-visible #conn-mgb-top, 
+.is-visible #conn-mgb-bottom, .is-visible #main-conn-2, .is-visible #center-top, 
+.is-visible #center-bottom, .is-visible #ben-cung-cap {
+    animation-name: growIn;
+    animation-duration: 0.43s;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-out;
+}
+
+/* STEP 3: Keep the sequencing delays */
+.is-visible #doanh-nghiep { animation-delay: 0s; }
+.is-visible #conn-b-dnb, .is-visible #conn-dnb-c { animation-delay: 0.43s; }
+.is-visible #block-b, .is-visible #block-c { animation-delay: 0.86s; }
+.is-visible #conn-a-b, .is-visible #conn-c-d, .is-visible #main-conn-1 { animation-delay: 1.29s; }
+.is-visible #block-a, .is-visible #block-d, .is-visible #moi-gioi { animation-delay: 1.72s; }
+.is-visible #conn-mgb-top, .is-visible #conn-mgb-bottom, .is-visible #main-conn-2 { animation-delay: 2.15s; }
+.is-visible #center-top, .is-visible #center-bottom, .is-visible #ben-cung-cap { animation-delay: 2.58s; }
+
+/* --- Vietnamese Button & Ripple (Unchanged) --- */
+.vietnamese-btn {
+    display: inline-flex; align-items: center; justify-content: center; background: #1a1a1a;
+    color: white; border: none; border-radius: 12px; padding: 16px 32px; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.3s ease; min-width: 240px;
+    gap: 12px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); position: relative; overflow: hidden;
+}
+.btn-text { flex: 1; text-align: left; }
+.btn-arrow {
+    display: flex; align-items: center; justify-content: center; width: 32px; height: 32px;
+    background: white; color: #1a1a1a; border-radius: 50%; transition: all 0.3s ease;
+}
+.vietnamese-btn:hover { background: #2a2a2a; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }
+.vietnamese-btn:hover .btn-arrow { transform: scale(1.1); }
+.ripple {
+    position: absolute; border-radius: 50%; transform: scale(0);
+    animation: ripple 600ms linear; background-color: rgba(255, 255, 255, 0.7);
+}
+@keyframes ripple {
+    to { transform: scale(4); opacity: 0; }
+}
+
+/* --- Responsive & Accessibility --- */
+@media (max-width: 768px) {
+    .main-wrapper {
+        padding: 2rem 1rem;
+    }
+    .hero-section h1 { font-size: 48px; }
+    .hero-section p { font-size: 16px; padding: 0 1rem; }
+}
+
+@media (max-width: 1200px){
+    /* This media query will hide the diagram on smaller screens, 
+       but if you want the overlay to show, you might need to adjust this. 
+       For now, the overlay will also be hidden if the diagram is hidden. */
+    .new-diagram-container {
+        display: none;
+    }
+    .diagram-overlay-container {
+        display: none; /* Hide the overlay container if the diagram is hidden */
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+   .vietnamese-btn { transition: none; }
+   .vietnamese-btn:hover { transform: none; }
+   .new-diagram-container * {
+     animation-name: none !important;
+     opacity: 1 !important;
+   }
+}

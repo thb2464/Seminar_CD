@@ -1,0 +1,5351 @@
+{
+  "_meta": {
+    "description": "10 generated Single-Post entries for Travel_TVB_Server (Strapi) in all 3 localizations (en, vi, zh). Schema mirrors Travel_TVB_Server/src/api/single-post/content-types/single-post/schema.json.",
+    "generatedAt": "2026-04-18",
+    "totalPosts": 10,
+    "totalEntries": 30,
+    "locales": [
+      "en",
+      "vi",
+      "zh"
+    ],
+    "sharedStrings": {
+      "Audio_Button_Text": {
+        "en": "Listen to article",
+        "vi": "Nghe bài viết",
+        "zh": "收听文章"
+      },
+      "Audio_Pause_Text": {
+        "en": "Pause",
+        "vi": "Tạm dừng nghe",
+        "zh": "暂停"
+      },
+      "Related_Post_Highlight": {
+        "en": "Related Articles",
+        "vi": "Bài viết liên quan",
+        "zh": "相关文章"
+      }
+    },
+    "categoryDocumentIds": {
+      "northern": "te5sele8nyz86j1bpm5owcw9",
+      "southern": "a9etfp885w0z0uaou5xncs2y"
+    },
+    "authorDocumentId": "byzvbcwncouodi4wey5s5q4p",
+    "enums": {
+      "PostType": [
+        "Integer",
+        "ThiTruong",
+        "TongHop"
+      ],
+      "TinThiTruong_Type": [
+        "TrongNuoc",
+        "QuocTe"
+      ]
+    },
+    "notes": [
+      "Each post has a unique 'documentId' (stable across locales).",
+      "Build Strapi payload by reading entries[locale]: PostTitle, slug, Content (blocks).",
+      "Shared fields (same across locales, pulled from _meta.sharedStrings): Audio_Button_Text, Audio_Pause_Text, Related_Post_Highlight.",
+      "Localized Time_To_Read values are provided explicitly per locale.",
+      "post_category uses categoryDocumentIds.northern / .southern.",
+      "author uses authorDocumentId (Tuan).",
+      "Featured_Image and AudioFile are NOT included — upload media in Strapi admin and link them per entry.",
+      "Content uses Strapi 'blocks' format: paragraph nodes with text children, bold supported. Citations follow the convention [^1] ... [1^] used by the SinglePost.jsx component."
+    ]
+  },
+  "posts": [
+    {
+      "documentId": "tvb_post_halongbay_0001",
+      "post_category": {
+        "documentId": "te5sele8nyz86j1bpm5owcw9"
+      },
+      "author": {
+        "documentId": "byzvbcwncouodi4wey5s5q4p"
+      },
+      "PostType": "Integer",
+      "TinThiTruong_Type": "TrongNuoc",
+      "locales": {
+        "en": {
+          "PostTitle": "Cruising Ha Long Bay: A Complete Traveler's Guide",
+          "slug": "cruising-ha-long-bay-complete-travelers-guide",
+          "Audio_Button_Text": "Listen to article",
+          "Audio_Pause_Text": "Pause",
+          "Related_Post_Highlight": "Related Articles",
+          "Time_To_Read": "7 min read",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Few places on Earth leave visitors as breathless as Ha Long Bay. Scattered across 1,553 square kilometers of emerald water are nearly two thousand limestone karsts and islets, each sculpted by wind, rain, and time into jagged cathedrals of rock. Sailing through this UNESCO World Heritage Site [^1] feels less like a cruise and more like drifting through a living landscape painting."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "1. When to Go",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "The best time to visit Ha Long Bay is from October to April, when the skies are clearest and the humidity dips. Summer brings warmer water but also the occasional tropical storm, so check the forecast before booking an overnight cruise. Early mornings on the bay are famously misty — perfect for photography, less ideal for postcard-blue views."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "2. Choosing Your Cruise",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Cruises range from budget day-trips out of Ha Long City to five-star overnight junks with spa services, sun decks, and fine dining. For most first-time travelers, a two-day / one-night cruise strikes the right balance: you'll see the iconic scenery, kayak through hidden lagoons, and wake up to sunrise over the karsts without spending a week on the water."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "3. Must-Do Experiences",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Kayak into Luon Cave, a tunnel of rock that opens onto a perfectly circular lagoon surrounded by cliffs. Climb to the Titop Island viewpoint for the classic aerial shot of green-blue water and scattered islets. And don't skip Sung Sot Cave — the \"Surprise Cave\" — whose illuminated stalactite chambers are as large as concert halls."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "4. What to Pack",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Light layers work best: the sea breeze is cool even in summer, and air-conditioned cabins run cold at night. Bring reef-safe sunscreen, a swimsuit, and shoes that can handle wet cave floors. A small dry bag is invaluable for kayaking trips."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "5. Beyond the Bay",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Consider pairing Ha Long Bay with a visit to nearby Lan Ha Bay or Bai Tu Long Bay [^2], which offer equally dramatic scenery with a fraction of the boat traffic. Many upscale cruises now route through these quieter waters, giving travelers a more intimate encounter with the karst seascape."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ha Long Bay rewards travelers who slow down. Spend a morning swimming in a hidden cove, an afternoon learning to squid-fish from the deck, and an evening watching the sun set gold behind the karsts. That's the bay at its best — still, quiet, unforgettable."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[1^] UNESCO World Heritage Centre — Ha Long Bay inscription, 1994."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[2^] Vietnam National Administration of Tourism, Annual Visitor Report 2024."
+                }
+              ]
+            }
+          ]
+        },
+        "vi": {
+          "PostTitle": "Du thuyền Vịnh Hạ Long: Cẩm nang toàn diện cho người lần đầu",
+          "slug": "du-thuyen-vinh-ha-long-cam-nang-toan-dien",
+          "Audio_Button_Text": "Nghe bài viết",
+          "Audio_Pause_Text": "Tạm dừng nghe",
+          "Related_Post_Highlight": "Bài viết liên quan",
+          "Time_To_Read": "7 phút đọc",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ít nơi nào trên thế giới khiến du khách phải nín thở như Vịnh Hạ Long. Trải dài trên 1.553 km² mặt nước ngọc bích là gần hai nghìn đảo đá vôi lớn nhỏ, được gió, mưa và thời gian bào mòn thành những 'thánh đường đá' kỳ vĩ. Ngồi thuyền lướt qua Di sản Thiên nhiên Thế giới UNESCO này [^1] giống như đang trôi trong một bức tranh sống động hơn là đi du lịch."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "1. Thời điểm lý tưởng",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Thời gian đẹp nhất để ghé Vịnh Hạ Long là từ tháng 10 đến tháng 4, khi trời trong, độ ẩm thấp. Mùa hè nước ấm hơn nhưng đôi khi xuất hiện bão nhiệt đới, nên hãy kiểm tra dự báo trước khi đặt tour ngủ đêm. Buổi sớm trên vịnh nổi tiếng với lớp sương mờ ảo — lý tưởng để chụp ảnh, nhưng không hẳn là khung cảnh xanh ngắt như bưu thiếp."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "2. Chọn du thuyền phù hợp",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Từ những tour trong ngày giá mềm khởi hành tại thành phố Hạ Long đến du thuyền 5 sao có spa, boong tắm nắng, nhà hàng cao cấp — có đủ lựa chọn cho mọi ngân sách. Với phần lớn khách lần đầu, hành trình 2 ngày 1 đêm là hợp lý nhất: bạn vẫn kịp ngắm cảnh kinh điển, chèo kayak vào phá kín đáo, và thức dậy đón bình minh giữa vịnh mà không phải ở trên biển cả tuần."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "3. Trải nghiệm không thể bỏ lỡ",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Hãy chèo kayak xuyên hang Luồn — một đường hầm đá mở ra phá nước tròn gần như hoàn hảo, bao quanh bởi vách đá. Leo lên đỉnh đảo Ti Tốp để có bức ảnh 'huyền thoại' với màu nước xanh ngọc và những hòn đảo rải rác. Và đừng quên hang Sửng Sốt — những sảnh nhũ đá rộng như phòng hòa nhạc được chiếu sáng huyền ảo."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "4. Hành trang nên mang",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Nên mặc nhiều lớp mỏng: gió biển se lạnh ngay cả mùa hè, còn cabin điều hòa về đêm khá lạnh. Mang kem chống nắng thân thiện với rạn san hô, đồ bơi và giày có thể lội nước ở sàn hang. Một túi khô nhỏ rất hữu ích khi chèo kayak."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "5. Mở rộng hành trình",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Bạn có thể kết hợp Vịnh Hạ Long với Vịnh Lan Hạ hoặc Vịnh Bái Tử Long [^2] — cảnh sắc hùng vĩ không kém nhưng ít thuyền qua lại hơn nhiều. Nhiều du thuyền cao cấp hiện đã chuyển sang các vùng nước yên ả này, mang đến trải nghiệm gần gũi hơn với biển đảo đá vôi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Vịnh Hạ Long thưởng hậu hĩnh cho những ai chịu đi chậm. Dành buổi sáng bơi ở một vụng vắng, buổi chiều học câu mực trên boong, và buổi tối ngắm mặt trời lặn vàng rực sau những hòn đảo đá. Đó là Hạ Long đúng nghĩa — tĩnh lặng, sâu lắng, khó quên."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[1^] Trung tâm Di sản Thế giới UNESCO — Vịnh Hạ Long được công nhận năm 1994."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[2^] Tổng cục Du lịch Việt Nam, Báo cáo lượng khách 2024."
+                }
+              ]
+            }
+          ]
+        },
+        "zh": {
+          "PostTitle": "下龙湾游船深度指南：从行程到装备一篇读懂",
+          "slug": "xia-long-wan-you-chuan-shen-du-zhi-nan",
+          "Audio_Button_Text": "收听文章",
+          "Audio_Pause_Text": "暂停",
+          "Related_Post_Highlight": "相关文章",
+          "Time_To_Read": "7 分钟阅读",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "世上少有地方能像下龙湾这样让旅人屏息。1,553 平方公里的翡翠水面上，近两千座石灰岩岛屿星罗棋布，被风、雨和时间雕琢成如大教堂般的嶙峋巨石。乘船穿行于这处联合国教科文组织世界遗产地 [^1]，与其说是巡游，不如说是在一幅会呼吸的山水画中漂流。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "1. 最佳出行时间",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "下龙湾最适宜的旅行季节是每年 10 月至次年 4 月，此时天朗气清、湿度较低。夏季水温更暖，但偶有热带风暴，预订过夜船班前请务必查看天气预报。清晨海湾常被薄雾笼罩，最适合拍照，却不一定能看到明信片上那种碧蓝海天。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "2. 如何挑选游船",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "从下龙市出发的经济型一日游，到配有 SPA、日光甲板、精致餐厅的五星豪华仿古帆船，选择应有尽有。对多数初访者来说，2 天 1 夜行程最为均衡：既能饱览标志性景致，穿越隐秘泻湖，又能在岛群之间醒来看日出，而不必在海上待整整一周。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "3. 不可错过的体验",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "划皮划艇穿过 Luon 洞——一条尽头豁然开朗的岩石隧道，尽头是悬崖环抱的圆形泻湖；登上 Titop 岛观景台，拍下那张经典的俯瞰照：碧水与零星岛屿交织；当然还有 Sung Sot 惊奇洞，灯光下的钟乳石大厅宽阔如音乐厅。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "4. 行李清单",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "建议采用轻薄分层穿搭：即便在夏天，海风依然凉爽，夜间空调客舱更是偏冷。别忘了准备对珊瑚礁友好的防晒霜、泳衣，以及能应付湿滑洞穴地面的鞋子。划皮划艇时，一只小型防水袋也会派上大用场。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "5. 将行程延伸",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "不妨把下龙湾与附近的兰下湾或拜子龙湾 [^2] 一并纳入行程——景色同样震撼，船只却少得多。越来越多高端游船如今取道这些更宁静的水域，让旅客能与这片喀斯特海景更为亲近。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "下龙湾只眷顾愿意放慢脚步的人。在隐秘港湾里游一个早上泳，下午在甲板上学钓鱿鱼，傍晚看夕阳把岛屿染成金色——这才是它最美的样子：宁静、悠远、难以忘怀。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[1^] 联合国教科文组织世界遗产中心——下龙湾于 1994 年列入名录。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[2^] 越南国家旅游总局《2024 年游客年报》。"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "documentId": "tvb_post_sapa_terraces_0002",
+      "post_category": {
+        "documentId": "te5sele8nyz86j1bpm5owcw9"
+      },
+      "author": {
+        "documentId": "byzvbcwncouodi4wey5s5q4p"
+      },
+      "PostType": "Integer",
+      "TinThiTruong_Type": "TrongNuoc",
+      "locales": {
+        "en": {
+          "PostTitle": "Sapa's Terraced Fields: A Photographer's Paradise in the Clouds",
+          "slug": "sapa-terraced-fields-photographers-paradise",
+          "Audio_Button_Text": "Listen to article",
+          "Audio_Pause_Text": "Pause",
+          "Related_Post_Highlight": "Related Articles",
+          "Time_To_Read": "6 min read",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Tucked in the northwestern highlands of Vietnam, Sapa is where rice meets sky. The town sits at 1,600 meters above sea level, overlooking valleys carved into staircases of green and gold. For photographers, this is holy ground [^1] — a place where morning fog, afternoon light, and the rhythm of ethnic hill villages converge into images you'll chase for years."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "1. When the Terraces Look Best",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "September and early October are peak season: the rice is ripe and the slopes turn solid gold. April brings the water-pouring season, when flooded terraces mirror the sky like scattered mercury. Between monsoons and harvest there are quieter months, but the drama is in those two windows."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "2. Where to Shoot",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Muong Hoa Valley has the most iconic terraces — endless layers descending from the Hoang Lien mountains. Ta Van and Lao Chai villages give you a foreground of stilt houses and buffalo. For sunrise above the clouds, take the cable car or hike toward Ham Rong Peak; the panorama on a clear morning is unforgettable."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "3. Culture, Not Just Scenery",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Sapa is home to Hmong, Dao, Tay and Giay communities, each with distinctive dress, embroidery and farming traditions. Travel with a local guide when possible — you'll gain access to homestays, hidden trails, and stories that no viewpoint photograph can capture."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "4. Practical Tips",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Pack layers, a rain shell, and sturdy hiking shoes. Weather in Sapa changes hourly. Cash is essential at village markets. And if you plan to shoot sunrise, book a homestay in the valley rather than a hotel in town — you'll be in position before the first light."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Sapa isn't a place you check off a list. It's a slow kind of beauty that reveals itself layer by layer, ridge by ridge. Give it three days if you can, and let the weather surprise you."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[1^] Vietnam National Administration of Tourism, 2024 Highland Destinations report."
+                }
+              ]
+            }
+          ]
+        },
+        "vi": {
+          "PostTitle": "Ruộng bậc thang Sapa: Thiên đường của người cầm máy giữa mây trời",
+          "slug": "ruong-bac-thang-sapa-thien-duong-nguoi-cam-may",
+          "Audio_Button_Text": "Nghe bài viết",
+          "Audio_Pause_Text": "Tạm dừng nghe",
+          "Related_Post_Highlight": "Bài viết liên quan",
+          "Time_To_Read": "6 phút đọc",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Nép mình giữa vùng cao Tây Bắc, Sapa là nơi lúa gặp trời. Thị trấn nằm ở độ cao 1.600 m, nhìn xuống những thung lũng được tạc thành bậc thang xanh và vàng. Với người yêu nhiếp ảnh, đây thực sự là 'đất thiêng' [^1] — nơi sương sớm, nắng chiều và nhịp sống bản làng hòa vào nhau thành những bức ảnh bạn sẽ đi tìm suốt nhiều năm."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "1. Ruộng bậc thang đẹp nhất khi nào?",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Tháng 9 và đầu tháng 10 là cao điểm: lúa chín rộ, sườn đồi nhuộm vàng óng. Tháng 4 là mùa nước đổ, ruộng ngập nước phản chiếu bầu trời như những mảnh thủy ngân. Giữa mùa mưa và mùa gặt còn những tháng yên tĩnh hơn, nhưng hai khung cửa sổ đẹp nhất vẫn nằm ở hai thời điểm kia."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "2. Chụp ở đâu?",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Thung lũng Mường Hoa sở hữu những ruộng bậc thang biểu tượng nhất — nhiều tầng trải dài từ dãy Hoàng Liên. Bản Tả Van và Lao Chải cho tiền cảnh là nhà sàn và trâu ăn cỏ. Để đón bình minh trên mây, hãy đi cáp treo hoặc trekking lên đỉnh Hàm Rồng; khung cảnh toàn cảnh sáng trời quang thật khó quên."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "3. Không chỉ là phong cảnh",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Sapa là nhà của đồng bào H'Mông, Dao, Tày, Giáy — mỗi dân tộc có trang phục, thêu thùa và tập quán canh tác riêng. Nếu có thể, hãy đi cùng người bản địa — bạn sẽ tiếp cận được homestay, những cung trekking ít người biết, cùng câu chuyện mà không tấm ảnh điểm ngắm nào ghi lại nổi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "4. Mẹo nhỏ hữu ích",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Mang quần áo nhiều lớp, áo mưa nhẹ và giày trekking chắc chắn. Thời tiết Sapa đổi từng giờ. Hãy đem đủ tiền mặt khi đi chợ bản. Nếu dự định chụp bình minh, hãy đặt homestay trong thung lũng thay vì khách sạn ở thị trấn — để có mặt tại điểm chụp trước ánh sáng đầu ngày."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Sapa không phải nơi bạn 'tick' vào danh sách. Vẻ đẹp của Sapa chậm và sâu, lộ dần qua từng lớp sương, từng đỉnh núi. Nếu được, hãy dành ba ngày cho Sapa, và để thời tiết tự làm bạn bất ngờ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[1^] Tổng cục Du lịch Việt Nam, báo cáo 'Điểm đến vùng cao 2024'."
+                }
+              ]
+            }
+          ]
+        },
+        "zh": {
+          "PostTitle": "云端的稻田——萨帕梯田摄影指南",
+          "slug": "yun-duan-de-dao-tian-sa-pa-ti-tian-zhi-nan",
+          "Audio_Button_Text": "收听文章",
+          "Audio_Pause_Text": "暂停",
+          "Related_Post_Highlight": "相关文章",
+          "Time_To_Read": "6 分钟阅读",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "萨帕坐落在越南西北高地，是稻浪与天空相遇的地方。小镇海拔 1,600 米，俯瞰着一座座被开垦成金绿阶梯的山谷。对摄影师而言，这里是圣地 [^1]——晨雾、午后光线和山地民族村落的节奏交织在一起，孕育出你将追寻多年的画面。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "1. 梯田何时最美",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "9 月至 10 月初是黄金季节：稻谷成熟，山坡一片金黄。4 月则是灌水期，被水淹没的梯田像水银碎片般映照天空。季风和秋收之间还有更安静的月份，但最戏剧性的画面集中在这两段时间里。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "2. 拍摄地点",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "孟华山谷拥有最具代表性的梯田——从黄连山脉层层铺展开来。塔凡和老寨村则能提供干栏屋与水牛的前景元素。想要拍摄云海日出，可以坐缆车或徒步登上含龙峰；天气晴朗的清晨，这里的全景令人难以忘怀。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "3. 不只是风光",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "萨帕是苗、瑶、岱、佑族等山地民族的家园，各族群的服饰、刺绣和耕作方式都独具特色。若条件允许，请与当地向导同行——你将得以入住寨中民宿，走进少有人知的山径，听到任何观景台照片都无法承载的故事。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "4. 实用小贴士",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "请准备分层衣物、防水外套和结实的徒步鞋。萨帕的天气以小时为单位变化。赶集时务必带足现金。如果你打算拍摄日出，宁可在山谷里订民宿而不是镇上酒店——这样才能在第一缕光到来之前抵达机位。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "萨帕不是打卡清单上可以勾掉的地方。它的美是缓慢的、层层展开的，从一片雾、一道山脊开始显露出来。如果可以，请给它三天时间，并任由天气带来意外。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[1^] 越南国家旅游总局《2024 年高地目的地报告》。"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "documentId": "tvb_post_hanoi_food_0003",
+      "post_category": {
+        "documentId": "te5sele8nyz86j1bpm5owcw9"
+      },
+      "author": {
+        "documentId": "byzvbcwncouodi4wey5s5q4p"
+      },
+      "PostType": "TongHop",
+      "TinThiTruong_Type": "TrongNuoc",
+      "locales": {
+        "en": {
+          "PostTitle": "A Foodie's Walking Tour of Hanoi's Old Quarter",
+          "slug": "foodie-walking-tour-hanoi-old-quarter",
+          "Audio_Button_Text": "Listen to article",
+          "Audio_Pause_Text": "Pause",
+          "Related_Post_Highlight": "Related Articles",
+          "Time_To_Read": "5 min read",
+          "PostType": "TongHop",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Hanoi's Old Quarter is a maze of 36 streets, each historically named after a craft — silk, silver, paper, tin. Today many of those trades are gone, but the real currency of the Quarter is food. Walk with an empty stomach and a curious palate, and you'll taste a city's soul by noon."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Stop 1 — Pho Bo for Breakfast",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Start at a sidewalk pho shop around 7 a.m. Look for places with a visible broth pot and locals perched on tiny plastic stools. True Hanoi pho is beef-based, clean, and balanced — a whisper of star anise, never thick or sweet."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Stop 2 — Banh Cuon, Mid-Morning",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "These paper-thin steamed rice rolls, filled with minced pork and wood-ear mushroom, are best straight from the steamer. Dip them in a light nuoc cham with a squeeze of lime. Bonus: a side of cha lua (Vietnamese pork sausage)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Stop 3 — Bun Cha for Lunch",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Hanoi's lunchtime classic. Charcoal-grilled pork patties and belly slices meet a warm dipping broth, served with vermicelli and mountains of herbs. The best spots have that telltale grill smoke pouring onto the street."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Stop 4 — Egg Coffee, Afternoon",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Duck into Cafe Giang or Cafe Dinh and order ca phe trung — a Hanoi invention from the 1940s. Whipped egg yolk and condensed milk float over dark coffee like a warm tiramisu. It sounds strange. It's astonishing."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Stop 5 — Bia Hoi, Sunset",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "End the day on Ta Hien Street with a glass of bia hoi, Hanoi's ultra-fresh draft beer, delivered daily to sidewalk spots across the city. Pair with nem ran (fried spring rolls) and watch the Old Quarter light up."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Bring cash, bring tissues, and don't overthink the plastic stools. The point isn't luxury — it's immediacy. In Hanoi, lunch is an art form."
+                }
+              ]
+            }
+          ]
+        },
+        "vi": {
+          "PostTitle": "Bản đồ ẩm thực phố cổ Hà Nội cho tín đồ ăn uống",
+          "slug": "ban-do-am-thuc-pho-co-ha-noi",
+          "Audio_Button_Text": "Nghe bài viết",
+          "Audio_Pause_Text": "Tạm dừng nghe",
+          "Related_Post_Highlight": "Bài viết liên quan",
+          "Time_To_Read": "5 phút đọc",
+          "PostType": "TongHop",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Phố cổ Hà Nội là mê cung 36 phố phường, mỗi con phố xưa kia mang tên một nghề — lụa, bạc, giấy, thiếc. Ngày nay phần lớn các nghề ấy đã không còn, nhưng 'đồng tiền' thực sự của phố cổ vẫn là món ăn. Hãy đi bộ khi bụng rỗng và vị giác tò mò, bạn sẽ nếm được hồn cốt một thành phố trước giờ trưa."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Điểm 1 — Phở bò sáng",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Hãy bắt đầu ở một quán phở vỉa hè tầm 7 giờ sáng. Tìm nơi có nồi nước dùng lớn bốc hơi và khách ngồi ghế nhựa nhỏ. Phở Hà Nội chuẩn có vị thanh, cân bằng — thoảng hương hồi, không quá đậm hay ngọt."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Điểm 2 — Bánh cuốn giữa buổi",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Những lá bánh cuốn mỏng tang, nhân thịt băm và mộc nhĩ, ngon nhất khi vừa rời khỏi nồi hấp. Chấm cùng nước mắm pha nhạt với vài giọt chanh. Gọi thêm đĩa chả lụa là 'tròn vị'."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Điểm 3 — Bún chả buổi trưa",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Món trưa kinh điển của Hà Nội. Chả viên và ba chỉ nướng than hoa ngập trong bát nước chấm ấm, ăn kèm bún và rổ rau sống đầy ự. Hàng ngon thường có khói than bay ra tận đường."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Điểm 4 — Cà phê trứng buổi chiều",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ghé Cafe Giáng hoặc Cafe Đinh gọi một ly cà phê trứng — phát minh của Hà Nội từ thập niên 1940. Lòng đỏ trứng đánh bông cùng sữa đặc phủ lên cà phê đen như một chiếc 'tiramisu ấm'. Nghe lạ nhưng ngon đến bất ngờ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Điểm 5 — Bia hơi lúc hoàng hôn",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Kết thúc ngày tại phố Tạ Hiện với vại bia hơi Hà Nội — loại bia tươi được giao tận vỉa hè mỗi ngày. Gọi thêm đĩa nem rán và nhìn phố cổ lên đèn."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Hãy mang tiền mặt, mang khăn giấy, và đừng ngại ghế nhựa. Cái hay của ẩm thực Hà Nội không phải sự sang trọng — mà là sự tức thì. Ở đây, bữa trưa là một môn nghệ thuật."
+                }
+              ]
+            }
+          ]
+        },
+        "zh": {
+          "PostTitle": "河内老城区美食徒步路线：一顿吃出越南灵魂",
+          "slug": "he-nei-lao-cheng-qu-mei-shi-tu-bu-lu-xian",
+          "Audio_Button_Text": "收听文章",
+          "Audio_Pause_Text": "暂停",
+          "Related_Post_Highlight": "相关文章",
+          "Time_To_Read": "5 分钟阅读",
+          "PostType": "TongHop",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "河内老城区是一座 36 条街道交织的迷宫，每条街历史上都以一门手艺命名——丝、银、纸、锡。如今大多数行当已消失，但老城真正的 \"货币\" 依然是美食。带着空腹和好奇心上路，一个上午就能尝到这座城市的灵魂。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "第 1 站 · 早餐吃河内牛肉粉",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "早上 7 点，到街边粉摊坐下。找那种当街熬着大汤锅、食客挤在小塑料凳上的店。正宗河内牛肉粉汤头清亮、味道平衡——只带一丝八角香，不会浓重或发甜。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "第 2 站 · 上午吃河粉卷",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "这种薄如纸的蒸米卷包着猪肉末和木耳，刚出锅时最好吃。蘸清爽的鱼露调料，挤几滴青柠。加一份越南猪肉肠（chả lụa）更完整。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "第 3 站 · 中午吃烤肉米线",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "河内经典午餐。炭火烤出的猪肉饼和五花肉浸在温热的蘸汁里，配上米线和满桌香草。最棒的店门口通常炭火浓烟飘到路上。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "第 4 站 · 下午喝鸡蛋咖啡",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "钻进 Cafe Giang 或 Cafe Dinh，点一杯 \"ca phe trung\"——上世纪 40 年代诞生于河内的发明。打发的蛋黄与炼乳漂浮在浓缩咖啡上，像一杯温热的提拉米苏。听起来奇怪，味道却惊艳。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "第 5 站 · 日落时分的鲜啤",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "在 Ta Hien 街以一杯 \"bia hoi\" 结束一天——每天新鲜送到街边的河内鲜啤。再点一盘炸春卷（nem ran），看老城渐次亮起灯火。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "备好现金、纸巾，别嫌塑料小凳。河内美食的精髓不是奢华，而是\"即时性\"。在这里，午餐本身就是一门艺术。"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "documentId": "tvb_post_ninh_binh_0004",
+      "post_category": {
+        "documentId": "te5sele8nyz86j1bpm5owcw9"
+      },
+      "author": {
+        "documentId": "byzvbcwncouodi4wey5s5q4p"
+      },
+      "PostType": "Integer",
+      "TinThiTruong_Type": "TrongNuoc",
+      "locales": {
+        "en": {
+          "PostTitle": "Ninh Binh: Vietnam's Inland Halong and How to Do It in a Day",
+          "slug": "ninh-binh-inland-halong-one-day-guide",
+          "Audio_Button_Text": "Listen to article",
+          "Audio_Pause_Text": "Pause",
+          "Related_Post_Highlight": "Related Articles",
+          "Time_To_Read": "6 min read",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Two hours south of Hanoi, the limestone karsts reappear — this time rising out of rice paddies and rivers instead of the sea. Welcome to Ninh Binh, often called the \"Halong Bay on Land\" [^1], a landscape of cliffs, caves, pagodas and slow green water that rewards a full, well-paced day."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Morning — Trang An Boat Tour",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Start early at the Trang An landscape complex, a UNESCO mixed heritage site. Small wooden sampans glide through grottoes, past temples, and under arching caves. Route 2 or Route 3 tend to be less crowded; book the first sailing to beat day-tour groups from Hanoi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Late Morning — Hang Mua Viewpoint",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Climb 500 stone steps to the top of Hang Mua for the iconic panoramic shot: Tam Coc valley sliced by the Ngo Dong River, framed by karst peaks. The stairs are steep but the view is worth every breath."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Lunch — Goat Meat and Com Chay",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ninh Binh's culinary signature is thit de — free-range mountain goat, grilled or steamed — served with crispy rice (com chay) and fresh herbs. Try a family-run restaurant near Hoa Lu to taste it at its best."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Afternoon — Hoa Lu Ancient Capital",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Visit the temples of Dinh and Le, marking Vietnam's 10th-century imperial capital. The site is quieter than the boat tour and gives essential historical context to the region."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Late Afternoon — Bai Dinh Pagoda",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Southeast Asia's largest Buddhist complex, with a 100-meter bell tower and one of the region's tallest Buddha statues. Go late in the day when the tourist buses have left and the corridors fill with golden light."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ninh Binh can technically be done in a day, but its magic is in the quieter hours — sunrise on the river, dusk at a pagoda. If you can, stay the night."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[1^] UNESCO World Heritage Centre — Trang An Landscape Complex, mixed inscription 2014."
+                }
+              ]
+            }
+          ]
+        },
+        "vi": {
+          "PostTitle": "Ninh Bình: 'Hạ Long trên cạn' và lộ trình 1 ngày trọn vẹn",
+          "slug": "ninh-binh-ha-long-tren-can-lo-trinh-1-ngay",
+          "Audio_Button_Text": "Nghe bài viết",
+          "Audio_Pause_Text": "Tạm dừng nghe",
+          "Related_Post_Highlight": "Bài viết liên quan",
+          "Time_To_Read": "6 phút đọc",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Cách Hà Nội hai giờ về phía nam, những khối núi đá vôi lại xuất hiện — lần này mọc lên từ ruộng lúa và sông nước thay vì biển cả. Chào mừng đến Ninh Bình, thường được gọi là 'Hạ Long trên cạn' [^1] — vùng đất của vách đá, hang động, đền chùa và dòng sông xanh chảy chậm, xứng đáng một ngày trọn vẹn."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Buổi sáng — Đi thuyền Tràng An",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Hãy bắt đầu sớm ở quần thể danh thắng Tràng An — Di sản Hỗn hợp UNESCO. Những chiếc đò gỗ nhỏ lặng lẽ trôi qua hang động, đền chùa và vòm đá kỳ vĩ. Tuyến 2 hoặc tuyến 3 thường ít đông hơn; hãy đặt chuyến sớm nhất để tránh các đoàn khách đi trong ngày từ Hà Nội."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Gần trưa — Đỉnh Hang Múa",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Leo 500 bậc đá lên đỉnh Hang Múa để có bức ảnh panorama kinh điển: thung lũng Tam Cốc bị dòng Ngô Đồng chia đôi, bao quanh là các đỉnh núi đá vôi. Bậc thang dốc nhưng tầm nhìn xứng đáng từng nhịp thở."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Bữa trưa — Thịt dê và cơm cháy",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Đặc sản Ninh Bình là thịt dê núi — nướng hoặc hấp — ăn kèm cơm cháy giòn tan và rau thơm tươi. Hãy thử một nhà hàng gia đình gần Hoa Lư để thưởng thức hương vị chuẩn nhất."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Buổi chiều — Cố đô Hoa Lư",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ghé đền thờ vua Đinh và vua Lê — dấu tích kinh đô đầu tiên của Đại Cồ Việt thế kỷ X. Khu di tích vắng hơn Tràng An và giúp bạn hiểu thêm bối cảnh lịch sử của cả vùng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Cuối chiều — Chùa Bái Đính",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Quần thể Phật giáo lớn nhất Đông Nam Á với tháp chuông cao 100 m và một trong những tượng Phật lớn nhất khu vực. Đi muộn trong ngày khi xe du lịch đã rời đi và ánh vàng cuối chiều tràn vào hành lang."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ninh Bình có thể đi trong một ngày, nhưng phép màu của vùng này nằm ở những giờ yên tĩnh — bình minh trên sông, chạng vạng ở một ngôi chùa. Nếu được, hãy ngủ lại một đêm."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[1^] Trung tâm Di sản Thế giới UNESCO — Quần thể danh thắng Tràng An, công nhận 2014."
+                }
+              ]
+            }
+          ]
+        },
+        "zh": {
+          "PostTitle": "宁平：陆上下龙湾，一日行程全攻略",
+          "slug": "ning-ping-lu-shang-xia-long-wan-yi-ri-xing-cheng",
+          "Audio_Button_Text": "收听文章",
+          "Audio_Pause_Text": "暂停",
+          "Related_Post_Highlight": "相关文章",
+          "Time_To_Read": "6 分钟阅读",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "从河内向南两小时，石灰岩峰林再次出现——这次它们从稻田与河流中拔地而起，而非大海之上。欢迎来到宁平，一座常被称为 \"陆上下龙湾\" 的地方 [^1]。这里崖壁、洞穴、寺庙与缓流碧水交织，值得用完整的一天慢慢品味。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "上午 · 长安水道乘船",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "清早前往长安名胜群——联合国教科文组织混合遗产地。小型木船缓缓穿过岩洞、驶过庙宇、钻入一座座拱形洞穴。二号或三号航线通常人少一些；最好预订最早班次，赶在河内一日游团到来之前出发。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "上午晚些 · 舞洞观景台",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "攀登 500 级石阶登顶舞洞（Hang Mua），拍下那张经典全景：三谷（Tam Coc）被吴峒河分开，四周被喀斯特山峰环抱。阶梯陡峭，但每一口气都值得。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "午餐 · 山羊肉与锅巴米饭",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "宁平的招牌菜是 \"thit de\"——放养的山羊肉，烧烤或清蒸皆宜，搭配酥脆锅巴（com chay）与鲜香草一起享用。可以选择华庐附近的一家家族餐厅来体验最地道的做法。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "下午 · 华庐古都",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "参观丁先皇和黎大行帝的祠庙，这里曾是越南 10 世纪的都城。景区比水道路线安静，也为这片土地的历史提供了重要背景。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "傍晚 · 拜顶寺",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "东南亚最大的佛教建筑群，拥有 100 米高的钟楼和该地区最高佛像之一。傍晚去最好——旅游大巴已离开，走廊里流淌着金色余晖。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "宁平的确可以一日游，但它的魔法藏在更安静的时刻——河上的日出、寺庙里的黄昏。若时间允许，请住上一晚。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[1^] 联合国教科文组织世界遗产中心——长安名胜群于 2014 年列入混合遗产。"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "documentId": "tvb_post_hoi_an_0005",
+      "post_category": {
+        "documentId": "te5sele8nyz86j1bpm5owcw9"
+      },
+      "author": {
+        "documentId": "byzvbcwncouodi4wey5s5q4p"
+      },
+      "PostType": "TongHop",
+      "TinThiTruong_Type": "TrongNuoc",
+      "locales": {
+        "en": {
+          "PostTitle": "Hoi An Ancient Town: Lanterns, Tailors, and the Art of Slowing Down",
+          "slug": "hoi-an-ancient-town-lanterns-tailors-slowing-down",
+          "Audio_Button_Text": "Listen to article",
+          "Audio_Pause_Text": "Pause",
+          "Related_Post_Highlight": "Related Articles",
+          "Time_To_Read": "6 min read",
+          "PostType": "TongHop",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Hoi An is the opposite of modern Vietnam's rush. A former trading port where Japanese, Chinese, and Dutch merchants met for centuries, the Ancient Town today is a UNESCO-protected ensemble of tile-roofed houses, wooden assembly halls, and lantern-lit lanes. Spend three days here — any less and the town doesn't show you its real face."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Day 1 — The Ancient Town on Foot",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Wake up early and walk the old streets before the tour buses arrive. Visit the Japanese Covered Bridge, Phuc Kien Assembly Hall, and a handful of traditional homes like Tan Ky House. By 10 a.m., step into the central market to see produce, fabric, and fish change hands the same way they have for generations."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Day 2 — Tailoring and Craft",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Hoi An is famous for bespoke tailoring; a well-made shirt or suit can be cut, fitted, and delivered within 24–48 hours. Pair it with a lantern-making workshop in the late afternoon, followed by a cooking class that starts at the market and ends at your plate."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Day 3 — Beach and Countryside",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Rent a bicycle and ride out to An Bang Beach, 4 km from the Old Town. On the way, pass rice fields, water buffaloes, and family-run coffee stands. In the afternoon, join a basket-boat tour in the Bay Mau coconut palms for a playful look at local fishing life."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Evening Ritual",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Every night in Hoi An feels like a festival. Silk lanterns glow along the Thu Bon River, and boats drift past carrying floating candles. Skip the trend of Instagramming every moment — find a riverside stool, order a local white rose dumpling, and just watch."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Hoi An is small. That's the point. Its rewards go to travelers who walk the same street twice, who eat the same bowl of cao lau noodles three mornings in a row, who accept that \"doing nothing\" is, in fact, the itinerary."
+                }
+              ]
+            }
+          ]
+        },
+        "vi": {
+          "PostTitle": "Phố cổ Hội An: Đèn lồng, nhà may và nghệ thuật 'chậm lại'",
+          "slug": "pho-co-hoi-an-den-long-nha-may-cham-lai",
+          "Audio_Button_Text": "Nghe bài viết",
+          "Audio_Pause_Text": "Tạm dừng nghe",
+          "Related_Post_Highlight": "Bài viết liên quan",
+          "Time_To_Read": "6 phút đọc",
+          "PostType": "TongHop",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Hội An là 'phản đề' của nhịp sống vội vã ở Việt Nam hiện đại. Từng là thương cảng nơi thương nhân Nhật, Hoa và Hà Lan giao thương suốt nhiều thế kỷ, phố cổ hôm nay là một quần thể được UNESCO bảo tồn với nhà mái ngói, hội quán gỗ và những ngõ nhỏ sáng đèn lồng. Hãy dành ba ngày ở Hội An — ít hơn, phố sẽ chưa lộ khuôn mặt thật."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ngày 1 — Dạo phố cổ",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Dậy sớm đi bộ trên các con đường cũ trước khi xe du lịch đến. Ghé Chùa Cầu, Hội quán Phúc Kiến và vài căn nhà cổ tiêu biểu như nhà Tấn Ký. Khoảng 10 giờ, bước vào chợ trung tâm để xem rau quả, vải và cá được trao tay như đã nhiều thế hệ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ngày 2 — May đo và thủ công",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Hội An nổi tiếng với nghề may đo — một chiếc áo hay bộ vest có thể được cắt, thử và giao trong 24–48 giờ. Buổi chiều, hãy kết hợp với một lớp làm đèn lồng, sau đó là một lớp học nấu ăn bắt đầu ở chợ và kết thúc trên đĩa của bạn."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ngày 3 — Biển và làng quê",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Thuê xe đạp và đạp ra biển An Bàng, cách phố cổ 4 km. Trên đường, bạn đi qua ruộng lúa, trâu nước và những quán cà phê gia đình. Buổi chiều, tham gia tour thuyền thúng ở rừng dừa Bảy Mẫu để thấy đời sống ngư dân với một chút hài hước."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Nghi thức mỗi tối",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Mỗi đêm ở Hội An đều như lễ hội. Đèn lồng lụa bập bùng dọc sông Thu Bồn, những con thuyền mang nến hoa trôi qua. Đừng cố chụp mọi khoảnh khắc lên mạng — tìm một chiếc ghế nhỏ ven sông, gọi một đĩa bánh bao bánh vạc, và ngồi ngắm thôi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Hội An nhỏ bé. Đó chính là điều hay. Phần thưởng thuộc về người đi đi lại lại cùng một con phố, ăn một tô cao lầu ba buổi sáng liên tiếp, và chấp nhận rằng 'không làm gì cả' chính là lịch trình."
+                }
+              ]
+            }
+          ]
+        },
+        "zh": {
+          "PostTitle": "会安古镇：灯笼、裁缝与慢生活的艺术",
+          "slug": "hui-an-gu-zhen-deng-long-cai-feng-man-sheng-huo",
+          "Audio_Button_Text": "收听文章",
+          "Audio_Pause_Text": "暂停",
+          "Related_Post_Highlight": "相关文章",
+          "Time_To_Read": "6 分钟阅读",
+          "PostType": "TongHop",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "会安是现代越南忙碌节奏的反面。作为曾经的国际港口，几个世纪以来日本、中国和荷兰商人都在这里相遇。今天的古镇是联合国教科文组织保护的完整建筑群——瓦屋、木会馆、灯笼下的巷弄。请给会安三天时间，少一天，它就不会对你展露真实的面容。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "第一天 · 徒步古镇",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "请早起步行走街串巷，赶在旅游大巴之前到达。参观来远桥、福建会馆以及进记屋等几处传统民居。10 点左右钻进中心市场，看蔬果、布料和鱼虾按着老一辈的方式易手。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "第二天 · 裁缝与手工艺",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "会安以定制裁缝闻名——一件衬衫或西装可以在 24 至 48 小时内完成量裁、试穿和交付。傍晚可以参加一场做灯笼的手作课，接着是一堂从市场采购开始、到餐桌结束的烹饪课。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "第三天 · 海边与乡间",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "租一辆自行车，骑去距古镇 4 公里的安邦海滩。沿途会经过稻田、水牛和家族经营的小咖啡摊。下午不妨加入白茆椰林里的藤筏船游，用一种幽默的方式感受当地渔民生活。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "每夜的仪式",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "会安的每个夜晚都像节日。丝绸灯笼沿着秋盆河一路亮起，游船载着漂流烛光缓缓驶过。不要急着把每一刻都发到社交网络——找一张河边的小凳，点一份白玫瑰虾饺，只是静静看着就好。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "会安很小，这正是它的精髓。奖赏属于那些愿意两次走同一条街、连续三天早晨吃同一碗高楼面（cao lau）、愿意承认 \"什么也不做\" 才是真正行程的人。"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "documentId": "tvb_post_da_lat_0006",
+      "post_category": {
+        "documentId": "a9etfp885w0z0uaou5xncs2y"
+      },
+      "author": {
+        "documentId": "byzvbcwncouodi4wey5s5q4p"
+      },
+      "PostType": "Integer",
+      "TinThiTruong_Type": "TrongNuoc",
+      "locales": {
+        "en": {
+          "PostTitle": "Da Lat in Three Moods: Flowers, Coffee, and Cool Mountain Air",
+          "slug": "da-lat-three-moods-flowers-coffee-mountain-air",
+          "Audio_Button_Text": "Listen to article",
+          "Audio_Pause_Text": "Pause",
+          "Related_Post_Highlight": "Related Articles",
+          "Time_To_Read": "5 min read",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "If Saigon is a sprint, Da Lat is a long exhale. Built by French colonists at 1,500 meters in the Central Highlands, the city is cool year-round, drenched in pine forest and flower fields, and overflowing with cafes. Three moods define a great trip here: floral, caffeinated, and alpine."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Mood 1 — The Flower City",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Da Lat's nickname is 'City of a Thousand Flowers,' and it's not marketing. The Da Lat Flower Park is the easiest starter, but for scale, head to the commercial greenhouses on the edge of town or the seasonal sunflower fields in Tu Tra. In April, cherry-blossom-like mai anh dao lines the roads."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Mood 2 — Coffee Culture",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Vietnam is the world's second-largest coffee producer, and much of the robusta — and the good arabica — comes from these highlands. Spend an afternoon at a specialty roaster like La Viet Coffee, or climb up to a view cafe like Me Linh Coffee Garden, where espresso meets mountain panoramas."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Mood 3 — Mountain Adventures",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "For the active traveler, Da Lat is Vietnam's canyoning capital. Certified operators run half-day tours that include rappelling down waterfalls and sliding natural rock chutes. Mountain biking and trekking in the Langbiang range are also excellent. Evenings call for a blanket and a hot coffee on the hotel balcony."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Where to Stay and Eat",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "For romance, consider a restored French villa near the Xuan Huong Lake. For food, don't leave without trying banh trang nuong (Da Lat-style grilled rice paper — often called 'Vietnamese pizza') and a bowl of artichoke tea, a local specialty said to aid digestion and calm nerves."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Da Lat is Vietnam's change of pace. Pack a sweater, slow down, and let the mountains reset you."
+                }
+              ]
+            }
+          ]
+        },
+        "vi": {
+          "PostTitle": "Đà Lạt qua ba gam màu: Hoa, cà phê và không khí núi",
+          "slug": "da-lat-qua-ba-gam-mau-hoa-ca-phe-khong-khi-nui",
+          "Audio_Button_Text": "Nghe bài viết",
+          "Audio_Pause_Text": "Tạm dừng nghe",
+          "Related_Post_Highlight": "Bài viết liên quan",
+          "Time_To_Read": "5 phút đọc",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Nếu Sài Gòn là một cú chạy nước rút, Đà Lạt là một hơi thở dài. Được người Pháp xây trên Cao nguyên Lâm Viên ở độ cao 1.500 m, thành phố quanh năm mát mẻ, ngập trong rừng thông, ruộng hoa và vô số quán cà phê. Một chuyến đi Đà Lạt đẹp thường gói gọn trong ba gam màu: hoa, cà phê và núi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Gam 1 — Thành phố ngàn hoa",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Đà Lạt được gọi là 'Thành phố ngàn hoa', và điều đó không phải slogan du lịch. Vườn hoa Đà Lạt là điểm khởi đầu dễ chịu, nhưng để thấy quy mô, hãy ra các nhà kính thương mại ở ven thành phố hoặc cánh đồng hoa hướng dương theo mùa ở Tu Tra. Tháng 4, mai anh đào nở hồng dọc các con đường."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Gam 2 — Văn hóa cà phê",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Việt Nam là nước xuất khẩu cà phê lớn thứ hai thế giới, và phần lớn robusta — cùng những hạt arabica ngon — đến từ chính cao nguyên này. Hãy dành một buổi chiều ở một quán rang xay chuyên sâu như La Viet Coffee, hoặc leo lên quán view đẹp như Mê Linh Coffee Garden — nơi espresso gặp toàn cảnh núi non."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Gam 3 — Phiêu lưu núi rừng",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Với du khách ưa vận động, Đà Lạt là 'thủ phủ' canyoning của Việt Nam. Các đơn vị có chứng nhận tổ chức tour nửa ngày gồm đu dây xuống thác và trượt máng đá tự nhiên. Đạp xe địa hình và trekking trên dãy Langbiang cũng rất đáng thử. Tối về, hãy quấn chăn và ngồi ban công với một ly cà phê nóng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ăn gì, ở đâu",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Nếu muốn lãng mạn, chọn một biệt thự Pháp cổ đã được trùng tu gần hồ Xuân Hương. Đừng rời Đà Lạt khi chưa ăn bánh tráng nướng (hay được gọi vui là 'pizza Việt Nam') và uống một ly trà atisô — đặc sản địa phương, được cho là tốt cho tiêu hóa và giấc ngủ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Đà Lạt là khoảng nghỉ nhịp của Việt Nam. Mang theo một chiếc áo len, đi chậm lại, và để núi non 'cài đặt lại' bạn."
+                }
+              ]
+            }
+          ]
+        },
+        "zh": {
+          "PostTitle": "大叻三种情绪：花海、咖啡与高山清风",
+          "slug": "da-le-san-zhong-qing-xu-hua-hai-ka-fei",
+          "Audio_Button_Text": "收听文章",
+          "Audio_Pause_Text": "暂停",
+          "Related_Post_Highlight": "相关文章",
+          "Time_To_Read": "5 分钟阅读",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "如果说西贡是冲刺，大叻就是一次长长的呼气。这座由法国殖民者在中部高原海拔 1,500 米处建造的山城，四季凉爽，被松林和花田环绕，咖啡馆遍布大街小巷。一次完美的大叻之旅往往由三种情绪构成：花、咖啡和山野。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "情绪 1 · 千花之城",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "大叻的别称是 \"千花之城\"，这并非营销辞。大叻花园是最容易入门的地方，但要感受规模，可以去城郊的商业温室，或季节性盛开的图特拉向日葵田。每年 4 月，街道旁盛开的越南樱（mai anh dao）让整座城市粉成一片。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "情绪 2 · 咖啡文化",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "越南是全球第二大咖啡出口国，而大部分罗布斯塔——以及上乘的阿拉比卡——就出自这片高原。可以在 La Viet Coffee 这类精品烘焙店度过一个下午，或登上 Me Linh Coffee Garden 之类的观景咖啡馆，看意式浓缩与群山全景同框。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "情绪 3 · 山野冒险",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "对爱运动的旅客来说，大叻是越南的峡谷探险之都。持证机构会带你在半天内完成瀑布速降、天然岩槽滑降。朗边山（Langbiang）的越野骑行和徒步也非常精彩。傍晚则需要一条毯子和一杯热咖啡，坐在酒店阳台上慢慢喝。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "住宿与美食",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "若想浪漫一点，可以选春香湖附近翻新过的法式别墅入住。美食方面，一定要尝 \"bánh tráng nướng\"（大叻式烤米纸，常被戏称为 \"越南披萨\"），再配一杯洋蓟茶——当地特产，据说有助消化与安神。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "大叻是越南的换挡时刻。带上一件毛衣，放慢脚步，让群山为你重新\"归零\"。"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "documentId": "tvb_post_mekong_delta_0007",
+      "post_category": {
+        "documentId": "a9etfp885w0z0uaou5xncs2y"
+      },
+      "author": {
+        "documentId": "byzvbcwncouodi4wey5s5q4p"
+      },
+      "PostType": "Integer",
+      "TinThiTruong_Type": "TrongNuoc",
+      "locales": {
+        "en": {
+          "PostTitle": "Mekong Delta: Life on the Nine Dragons River",
+          "slug": "mekong-delta-life-on-nine-dragons-river",
+          "Audio_Button_Text": "Listen to article",
+          "Audio_Pause_Text": "Pause",
+          "Related_Post_Highlight": "Related Articles",
+          "Time_To_Read": "6 min read",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "In Vietnam the Mekong is called Cuu Long — the Nine Dragons — for the nine mouths through which it reaches the sea. This is the country's rice bowl and fruit basket, a low, watery landscape of canals, sampans, floating markets, and stilt homes. You don't visit the delta; you drift through it."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Don't Skip Can Tho",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Can Tho is the delta's largest city and the gateway to Cai Rang floating market [^1], best seen just after dawn when wholesale boats are still active. Each trader hangs a sample of their produce — jackfruit, watermelon, pineapple — from a bamboo pole, a tradition older than neon signs."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Slow Routes Over Busy Ones",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "One-day tours from Ho Chi Minh City give a taste, but the real delta takes two to three days. Consider a homestay in Ben Tre or Vinh Long. You'll pick fruit from orchards, watch coconut candy being stretched by hand, and take night walks along canals alive with frogs and fireflies."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Eat Like a Local",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Try hu tieu, the delta's delicate pork-and-shrimp noodle soup; banh xeo, a turmeric-yellow crepe folded over shrimp and bean sprouts; and the region's fresh elephant-ear fish, served whole and wrapped in rice paper with herbs."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Practical Notes",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "The dry season (December–April) is the easiest for travel. Bring mosquito repellent, lightweight clothes, and some cash — ATMs exist in small towns but card acceptance is limited once you leave main roads."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "If northern Vietnam is poetic, the Mekong is biographical — every family here has a river story. Stay long enough to hear a few."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[1^] Vietnam National Administration of Tourism, Mekong Delta visitor survey 2024."
+                }
+              ]
+            }
+          ]
+        },
+        "vi": {
+          "PostTitle": "Đồng bằng sông Cửu Long: Nhịp sống trên chín cửa rồng",
+          "slug": "dong-bang-song-cuu-long-nhip-song-chin-cua-rong",
+          "Audio_Button_Text": "Nghe bài viết",
+          "Audio_Pause_Text": "Tạm dừng nghe",
+          "Related_Post_Highlight": "Bài viết liên quan",
+          "Time_To_Read": "6 phút đọc",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ở Việt Nam, sông Mekong được gọi là Cửu Long — chín con rồng — theo chín cửa đổ ra biển. Đây là vựa lúa và vựa trái cây của cả nước, một vùng đất thấp, ngập nước với kênh rạch, xuồng ba lá, chợ nổi và nhà sàn. Bạn không 'đến' đồng bằng — bạn trôi qua nó."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Đừng bỏ lỡ Cần Thơ",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Cần Thơ là thành phố lớn nhất ở miền Tây và cửa ngõ đến chợ nổi Cái Răng [^1]. Hãy đi ngay sau bình minh, khi các ghe sỉ còn hoạt động nhộn nhịp. Mỗi ghe treo một mẫu hàng — mít, dưa hấu, khóm — trên một cây bẹo tre, truyền thống có trước cả biển hiệu neon."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Đi chậm hơn là đi nhiều",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Các tour 1 ngày từ TP.HCM chỉ là 'nếm thử'. Miền Tây thật sự cần 2–3 ngày. Hãy cân nhắc một homestay ở Bến Tre hoặc Vĩnh Long. Bạn sẽ tự tay hái trái cây trong vườn, xem kẹo dừa được kéo bằng tay, và đi bộ đêm dọc kênh rạch lao xao tiếng ếch và đom đóm."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ăn như người bản xứ",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Hãy thử hủ tiếu — tô bún tôm thịt thanh nhẹ đặc trưng của đồng bằng; bánh xèo vàng nghệ gập đôi với tôm và giá; và cá tai tượng tươi chiên xù, ăn kèm bánh tráng cuốn rau thơm."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ghi chú thực tế",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Mùa khô (tháng 12 – tháng 4) dễ đi lại nhất. Mang kem chống muỗi, quần áo mỏng nhẹ và chút tiền mặt — ATM có ở thị trấn lớn, nhưng thanh toán thẻ hạn chế khi bạn rời các trục đường chính."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Nếu miền Bắc giống như một bài thơ, miền Tây là một cuốn tự truyện — nhà nào ở đây cũng có một câu chuyện liên quan đến sông. Hãy ở lại đủ lâu để nghe vài câu trong số đó."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[1^] Tổng cục Du lịch Việt Nam, Khảo sát khách du lịch ĐBSCL 2024."
+                }
+              ]
+            }
+          ]
+        },
+        "zh": {
+          "PostTitle": "湄公河三角洲：九龙河上的生活",
+          "slug": "mei-gong-he-san-jiao-zhou-jiu-long-he-shang-de-sheng-huo",
+          "Audio_Button_Text": "收听文章",
+          "Audio_Pause_Text": "暂停",
+          "Related_Post_Highlight": "相关文章",
+          "Time_To_Read": "6 分钟阅读",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "在越南，湄公河被称为 \"九龙江\"——因其在入海口分出九条支流。这里是全国的米仓和果篮，一片低洼湿润的土地，遍布运河、舢板船、水上市场与吊脚楼。你不是 \"来到\" 三角洲，而是顺水漂过它。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "不要错过芹苴",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "芹苴是湄公河三角洲最大的城市，也是前往盖冷水上市场的门户 [^1]。最佳游览时间是日出后不久，批发船只仍在忙碌。每艘商船会把一束竹竿挑出自己的样品货——菠萝蜜、西瓜、菠萝——这种 \"招客竿\" 的传统比霓虹灯还要古老。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "慢线比快线更值得",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "从胡志明市出发的一日游只能浅尝辄止。真正的三角洲需要 2–3 天时间。可以考虑在槟椥或永隆选一家民宿居住。你会在果园里亲手摘水果，看手工抻拉的椰子糖，夜晚沿着河渠散步，青蛙与萤火虫就在身边。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "像当地人一样吃饭",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "一定要尝粉汤（hu tieu）——三角洲标志性的鲜虾肉片汤面；姜黄煎饼（banh xeo），折叠包裹着虾与豆芽；还有当地河鲜象耳鱼——整条炸脆后用米纸卷上香草食用。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "实用信息",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "旱季（12 月至次年 4 月）最适合旅行。请准备防蚊液、轻薄衣物和少量现金——小镇里都有 ATM，但一旦离开主干道，刷卡的接受度会明显下降。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "如果说越南北部是一首诗，湄公河三角洲就更像一部自传——这里每个家庭都有一段与河有关的故事。住得久一些，你就能听到其中几段。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[1^] 越南国家旅游总局《2024 年湄公河三角洲游客调查》。"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "documentId": "tvb_post_phu_quoc_0008",
+      "post_category": {
+        "documentId": "a9etfp885w0z0uaou5xncs2y"
+      },
+      "author": {
+        "documentId": "byzvbcwncouodi4wey5s5q4p"
+      },
+      "PostType": "Integer",
+      "TinThiTruong_Type": "TrongNuoc",
+      "locales": {
+        "en": {
+          "PostTitle": "Phu Quoc Island: Where to Go, What to Skip, and When to Visit",
+          "slug": "phu-quoc-island-where-to-go-what-to-skip",
+          "Audio_Button_Text": "Listen to article",
+          "Audio_Pause_Text": "Pause",
+          "Related_Post_Highlight": "Related Articles",
+          "Time_To_Read": "5 min read",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Phu Quoc, Vietnam's largest island, sits in the Gulf of Thailand closer to Cambodia than to the mainland. Once a sleepy fishing and pepper-farming outpost, it's now a fully formed beach destination with international flights and five-star resorts — but the island still hides wilder corners for travelers who go looking."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Go: The South and the Beaches",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Sao Beach remains one of Southeast Asia's most photographed stretches of white sand. Further south, the An Thoi archipelago offers excellent snorkeling around small uninhabited islands; a three-island day tour from An Thoi harbour is the easiest way to see them. The cable car from An Thoi to Hon Thom is, for a ride, quite literally the longest of its kind over the sea."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Go: Pepper Farms and the Night Market",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Phu Quoc black pepper is a geographic-indication product — worth a visit to a working farm. In the evening, Duong Dong Night Market is lively, with fresh seafood grilled to order and local snacks like banh khot (mini coconut pancakes)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Skip (or Time Carefully)",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Vinpearl Land and Grand World can feel more Orlando than Asia; go only if traveling with children. Avoid the east coast beaches during the rainy season (July–September) when seaweed and debris wash in."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "When to Visit",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "November to March is the ideal window: clear skies, calm water, and peak snorkeling visibility. April and May are hot but still good for beach days. July–September is the monsoon; prices drop but swimming can be rough."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Phu Quoc rewards travelers who split their time — a few days resort-style, a few days exploring by rented scooter. That balance is where the island opens up."
+                }
+              ]
+            }
+          ]
+        },
+        "vi": {
+          "PostTitle": "Đảo Phú Quốc: Nên đi đâu, bỏ gì và đi khi nào",
+          "slug": "dao-phu-quoc-nen-di-dau-bo-gi-di-khi-nao",
+          "Audio_Button_Text": "Nghe bài viết",
+          "Audio_Pause_Text": "Tạm dừng nghe",
+          "Related_Post_Highlight": "Bài viết liên quan",
+          "Time_To_Read": "5 phút đọc",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Phú Quốc — hòn đảo lớn nhất Việt Nam — nằm trong vịnh Thái Lan, gần Campuchia hơn cả đất liền. Từng là tiền đồn yên tĩnh với nghề đánh bắt và trồng tiêu, nay Phú Quốc đã là điểm đến biển đầy đủ tiện nghi với đường bay quốc tế và chuỗi resort 5 sao — nhưng đảo vẫn giữ lại những góc hoang sơ cho người chịu đi tìm."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Nên đi: Phía nam và các bãi biển",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Bãi Sao vẫn là một trong những bãi cát trắng được chụp nhiều nhất Đông Nam Á. Xa hơn về phía nam, quần đảo An Thới cho bạn lặn ngắm san hô quanh những đảo nhỏ không người ở; tour 3 đảo trong ngày xuất phát từ cảng An Thới là cách tiện nhất. Cáp treo từ An Thới sang Hòn Thơm chính là cáp treo vượt biển dài hàng đầu thế giới."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Nên đi: Vườn tiêu và chợ đêm",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Tiêu Phú Quốc là sản phẩm được bảo hộ chỉ dẫn địa lý — nên ghé một nông trại đang hoạt động. Tối đến, chợ đêm Dương Đông rất nhộn nhịp với hải sản nướng tại chỗ và các món dân dã như bánh khọt."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Bỏ qua (hoặc chọn thời điểm)",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "VinWonders và Grand World đôi khi mang cảm giác 'công viên Mỹ' hơn là 'châu Á'; chỉ nên đi nếu có trẻ nhỏ. Tránh các bãi bờ đông trong mùa mưa (tháng 7–9) khi rong rêu và rác trôi vào."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Đi khi nào?",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Tháng 11 đến tháng 3 là khung lý tưởng: trời quang, biển lặng, nước trong rõ để lặn ngắm san hô. Tháng 4 và 5 nóng nhưng vẫn đẹp để tắm biển. Tháng 7–9 là cao điểm gió mùa; giá giảm nhưng biển động."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Phú Quốc 'mở lòng' với người biết chia ngày — vài ngày nghỉ dưỡng, vài ngày thuê xe máy đi khám phá. Sự cân bằng đó mới là bộ mặt thật của đảo."
+                }
+              ]
+            }
+          ]
+        },
+        "zh": {
+          "PostTitle": "富国岛：去哪儿、略过哪儿、何时来",
+          "slug": "fu-guo-dao-qu-na-er-lve-guo-na-er",
+          "Audio_Button_Text": "收听文章",
+          "Audio_Pause_Text": "暂停",
+          "Related_Post_Highlight": "相关文章",
+          "Time_To_Read": "5 分钟阅读",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "富国岛是越南最大的岛屿，位于泰国湾，距柬埔寨比距越南本土还要近。它曾是渔业和胡椒种植的偏远小岛，如今已发展为成熟的海岛度假目的地，拥有国际航线和五星级度假村——但只要你愿意走远一点，富国岛仍藏着不少野趣角落。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "值得去 · 南部与沙滩",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Sao 沙滩至今仍是东南亚最上镜的白沙海滩之一。更南端的安泰群岛则适合浮潜，有许多无人小岛；从安泰港出发的三岛一日游是最方便的方式。从安泰到 Hon Thom 的跨海缆车，是全球最长的跨海缆车之一。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "值得去 · 胡椒园与夜市",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "富国岛黑胡椒是受地理标志保护的产品，建议到运营中的农场参观一下。傍晚的阳东夜市热闹非凡，有现烤海鲜和各种小吃，比如迷你椰子煎饼 \"bánh khọt\"。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "可跳过或择时",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Vinpearl 乐园与 Grand World 有时更像奥兰多而非亚洲；除非带孩子同行，可以跳过。雨季（7–9 月）请避开东海岸的海滩，海藻与漂浮物会被冲上岸。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "最佳旅行时间",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "11 月至次年 3 月是黄金档：天高气清、海面平静、浮潜能见度极佳。4 月和 5 月较热但仍适合海滩活动。7–9 月季风较强，虽然价格下跌，但游泳时浪大。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "富国岛最适合那些会 \"分段\" 的旅人——几天度假酒店式放松，几天租摩托车探索。这种平衡才能让岛屿真正向你敞开。"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "documentId": "tvb_post_saigon_walk_0009",
+      "post_category": {
+        "documentId": "a9etfp885w0z0uaou5xncs2y"
+      },
+      "author": {
+        "documentId": "byzvbcwncouodi4wey5s5q4p"
+      },
+      "PostType": "TongHop",
+      "TinThiTruong_Type": "TrongNuoc",
+      "locales": {
+        "en": {
+          "PostTitle": "Ho Chi Minh City in 48 Hours: A First-Timer's Walking Guide",
+          "slug": "ho-chi-minh-city-48-hours-walking-guide",
+          "Audio_Button_Text": "Listen to article",
+          "Audio_Pause_Text": "Pause",
+          "Related_Post_Highlight": "Related Articles",
+          "Time_To_Read": "6 min read",
+          "PostType": "TongHop",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ho Chi Minh City — still called Saigon by most locals — is Vietnam's economic engine and its most cosmopolitan stage. Motorbikes roar through French colonial boulevards, skyscrapers rise above street-food carts, and the air carries both espresso and jasmine. Two days isn't enough, but with a smart plan, it's plenty to fall in love."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Day 1 Morning — District 1 Historic Core",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Start at Notre-Dame Cathedral and the Central Post Office, both French colonial landmarks. Walk to the Reunification Palace — a 1960s time capsule — and finish at the War Remnants Museum. The museum is confronting but essential for understanding modern Vietnam."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Day 1 Afternoon — Ben Thanh and Rooftops",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Lunch at Ben Thanh Market, then wander Nguyen Hue walking street. As afternoon cools, take the elevator up to a rooftop bar — the Landmark 81 SkyView and Bitexco Saigon Sky Deck are the best vantage points. The view of the Saigon River at dusk is a postcard."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Day 2 Morning — District 3 Cafes",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Skip the hotel breakfast and take a Grab to District 3 for independent cafes tucked in alleyways. Try Workshop Coffee or The Cafe Apartment on Nguyen Hue — a 1960s housing block transformed into a nine-floor cafe village."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Day 2 Afternoon — Cu Chi Tunnels (Optional)",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "For history travelers, a half-day trip to the Cu Chi Tunnels is doable. Expect a 90-minute drive each way; go with a reputable operator and avoid the mega-bus tours."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Evenings — Food is the Program",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Saigon's food scene is unmatched. Pho at Pho Hoa Pasteur, banh mi at Banh Mi Huynh Hoa, com tam (broken-rice plate) anywhere in District 4. End the night with a craft cocktail at a speakeasy like Layla or Qui."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Saigon isn't a city you tick off. It's a city you commit to. Two days is a teaser — most travelers come back."
+                }
+              ]
+            }
+          ]
+        },
+        "vi": {
+          "PostTitle": "Sài Gòn 48 giờ: Cẩm nang đi bộ cho lần đầu ghé thăm",
+          "slug": "sai-gon-48-gio-cam-nang-di-bo-lan-dau",
+          "Audio_Button_Text": "Nghe bài viết",
+          "Audio_Pause_Text": "Tạm dừng nghe",
+          "Related_Post_Highlight": "Bài viết liên quan",
+          "Time_To_Read": "6 phút đọc",
+          "PostType": "TongHop",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Thành phố Hồ Chí Minh — phần lớn người dân vẫn gọi là Sài Gòn — là động cơ kinh tế của Việt Nam và cũng là sân khấu đô thị đa văn hóa nhất cả nước. Xe máy cuộn qua những đại lộ Pháp cổ, các tòa nhà chọc trời vươn lên phía trên xe hủ tiếu vỉa hè, trong không khí lẫn mùi espresso và hoa nhài. Hai ngày là chưa đủ, nhưng với lịch trình thông minh là thừa để bạn yêu thành phố này."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ngày 1 sáng — Lõi lịch sử Quận 1",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Bắt đầu ở Nhà thờ Đức Bà và Bưu điện Trung tâm — hai công trình thời Pháp thuộc. Đi bộ tới Dinh Thống Nhất — 'viên nang thời gian' thập niên 1960 — rồi kết thúc ở Bảo tàng Chứng tích Chiến tranh. Bảo tàng không dễ chịu nhưng cần thiết để hiểu Việt Nam hôm nay."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ngày 1 chiều — Bến Thành và sân thượng",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ăn trưa ở chợ Bến Thành, rồi dạo phố đi bộ Nguyễn Huệ. Khi trời dịu, lên một quầy bar sân thượng — SkyView Landmark 81 hoặc Bitexco Saigon Sky Deck đều là những điểm ngắm hàng đầu. Cảnh sông Sài Gòn lúc hoàng hôn đẹp như bưu thiếp."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ngày 2 sáng — Café Quận 3",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Bỏ bữa sáng khách sạn, gọi Grab qua Quận 3 để tìm những quán café độc lập giấu mình trong hẻm. Thử Workshop Coffee, hoặc 'Chung cư cà phê' 42 Nguyễn Huệ — một lô nhà tập thể thập niên 1960 nay trở thành một 'khu phố café' 9 tầng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ngày 2 chiều — Địa đạo Củ Chi (tùy chọn)",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Với người thích lịch sử, một chuyến nửa ngày về Địa đạo Củ Chi là khả thi. Mất khoảng 90 phút mỗi chiều đường; đi cùng đơn vị uy tín và tránh các tour xe lớn."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Buổi tối — Ẩm thực là nội dung chính",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ẩm thực Sài Gòn không có đối thủ. Phở ở Phở Hòa Pasteur, bánh mì Huỳnh Hoa, cơm tấm khắp Quận 4. Kết thúc đêm bằng một ly cocktail thủ công ở một speakeasy như Layla hay Qui."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Sài Gòn không phải nơi bạn 'check' trong danh sách. Đó là thành phố bạn cam kết quay lại. Hai ngày chỉ là 'trailer' — phần lớn du khách đều trở lại."
+                }
+              ]
+            }
+          ]
+        },
+        "zh": {
+          "PostTitle": "胡志明市 48 小时：初访者的徒步指南",
+          "slug": "hu-zhi-ming-shi-48-xiao-shi-tu-bu-zhi-nan",
+          "Audio_Button_Text": "收听文章",
+          "Audio_Pause_Text": "暂停",
+          "Related_Post_Highlight": "相关文章",
+          "Time_To_Read": "6 分钟阅读",
+          "PostType": "TongHop",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "胡志明市——大多数当地人仍称它为西贡——是越南的经济引擎，也是全国最国际化的城市舞台。摩托车在法式林荫大道上呼啸而过，摩天大楼耸立在街边小吃摊之上，空气里混着浓缩咖啡和茉莉花香。两天远远不够，但只要行程安排得当，也足以让你爱上它。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "第 1 天上午 · 第一郡历史中心",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "从西贡圣母大教堂和中央邮政局开始——两座法国殖民时期的地标。徒步前往统一宫——一座 1960 年代的 \"时间胶囊\"，最后参观战争遗迹博物馆。博物馆并不轻松，却是理解今日越南的关键。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "第 1 天下午 · 滨城市场与天台",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "在滨城市场吃午饭，然后逛阮惠步行街。临近傍晚，可乘电梯登上天台酒吧——81 号地标 SkyView 和 Bitexco 西贡天台都是绝佳观景点。黄昏时分的西贡河宛如明信片。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "第 2 天上午 · 第三郡的咖啡时光",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "放弃酒店早餐，叫一辆 Grab 前往第三郡，去那些藏在小巷里的独立咖啡馆。可以试试 Workshop Coffee，或者去阮惠街的 \"咖啡公寓\"——一座 1960 年代的老住宅楼被改造成九层楼的咖啡村落。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "第 2 天下午 · 古芝地道（可选）",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "若你对历史感兴趣，可安排半天行程前往古芝地道。单程约 90 分钟车程；请选择信誉良好的运营商，避免拥挤的大巴团。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "夜晚 · 美食才是正题",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "西贡的美食无可匹敌。在巴斯德路的 Pho Hoa 吃一碗牛肉粉，Huynh Hoa 的越式三明治，还有第四郡随处可见的碎米饭（com tam）。夜深时，到 Layla 或 Qui 这样的私酿酒吧喝一杯手工鸡尾酒。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "西贡不是能被打勾 \"完成\" 的城市，而是需要你愿意回来的城市。两天只是预告片——大多数旅人最终都会再回来一次。"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "documentId": "tvb_post_con_dao_0010",
+      "post_category": {
+        "documentId": "a9etfp885w0z0uaou5xncs2y"
+      },
+      "author": {
+        "documentId": "byzvbcwncouodi4wey5s5q4p"
+      },
+      "PostType": "Integer",
+      "TinThiTruong_Type": "TrongNuoc",
+      "locales": {
+        "en": {
+          "PostTitle": "Con Dao: Vietnam's Quietest Islands and Their Difficult Beauty",
+          "slug": "con-dao-quietest-islands-difficult-beauty",
+          "Audio_Button_Text": "Listen to article",
+          "Audio_Pause_Text": "Pause",
+          "Related_Post_Highlight": "Related Articles",
+          "Time_To_Read": "5 min read",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Few Vietnamese destinations carry the weight Con Dao does. This small archipelago off the country's southern coast is both a haunting historical site — home to a 19th-century French prison complex [^1] — and one of the most pristine marine environments in Southeast Asia. Travelers who come here usually leave moved, in more ways than one."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "The Historical Layer",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Start with the Con Dao Prison Museum and the tiger cages of Phu Hai. Tens of thousands of political prisoners were held across the island during colonial and wartime decades. It's a sobering visit, but it reframes everything else you see — the silence of the forests, the vastness of the ocean, the simple fact that this place is beautiful at all."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Beaches and Reefs",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Dam Trau and Nhat beaches are genuinely untouched — no beach chairs, no vendors, just white sand and casuarina trees. Hon Bay Canh is the best spot for snorkeling, and between June and September sea turtles nest on its shores under the supervision of the national park. Book turtle-watching tours well in advance."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Food and Stays",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Con Dao has limited dining compared to the mainland, but the fish is as fresh as it gets. For stays, choose either the eco-luxury Six Senses Con Dao for a splurge, or a guesthouse in Con Son Town for a budget-friendly base with easy access to local restaurants."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Getting There and When to Go",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Daily flights connect Ho Chi Minh City and Con Son. The dry season (December–April) is calmest and best for diving. July–September brings rougher seas but the best sea-turtle sightings."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Con Dao doesn't try to be a Vietnam highlight reel. It asks you to slow down and remember. That's its unusual gift."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[1^] Ministry of Culture, Sports and Tourism of Vietnam — Con Dao Special National Relic Site."
+                }
+              ]
+            }
+          ]
+        },
+        "vi": {
+          "PostTitle": "Côn Đảo: Quần đảo yên tĩnh nhất Việt Nam và vẻ đẹp trĩu nặng",
+          "slug": "con-dao-quan-dao-yen-tinh-nhat-vet-dep-triu-nang",
+          "Audio_Button_Text": "Nghe bài viết",
+          "Audio_Pause_Text": "Tạm dừng nghe",
+          "Related_Post_Highlight": "Bài viết liên quan",
+          "Time_To_Read": "5 phút đọc",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ít điểm đến ở Việt Nam mang sức nặng như Côn Đảo. Quần đảo nhỏ ngoài khơi phía nam này vừa là di tích lịch sử ám ảnh — nơi có hệ thống nhà tù Pháp từ thế kỷ 19 [^1] — vừa là một trong những vùng biển nguyên sơ nhất Đông Nam Á. Người đã đến Côn Đảo thường rời đảo với nhiều cảm xúc hơn họ tưởng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Lớp lịch sử",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Hãy bắt đầu ở Bảo tàng Nhà tù Côn Đảo và khu 'chuồng cọp' Phú Hải. Hàng chục nghìn tù chính trị đã bị giam khắp đảo qua các thập niên thuộc địa và chiến tranh. Đây là chuyến thăm nặng lòng, nhưng nó khiến mọi thứ khác trên đảo mang một lớp nghĩa mới — sự yên lặng của rừng, sự bao la của biển, và đơn giản là việc nơi này vẫn đẹp đến thế."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Bãi biển và rạn san hô",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Bãi Đầm Trầu và Bãi Nhát gần như nguyên sơ — không ghế, không hàng rong, chỉ có cát trắng và phi lao. Hòn Bảy Cạnh là nơi lặn ngắm san hô đẹp nhất, và từ tháng 6 đến tháng 9, rùa biển đẻ trứng dưới sự giám sát của ban quản lý vườn quốc gia. Nên đặt tour xem rùa từ rất sớm."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ăn ở",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ẩm thực Côn Đảo ít lựa chọn hơn đất liền, nhưng cá thì tươi khỏi phải bàn. Về chỗ ở, bạn có thể chọn Six Senses Côn Đảo cho một chuyến xa hoa, hoặc nhà nghỉ ở thị trấn Côn Sơn với giá hợp lý và gần các hàng quán bản địa."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Đi thế nào và khi nào",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Hàng ngày có chuyến bay nối TP.HCM — Côn Sơn. Mùa khô (tháng 12 – tháng 4) biển êm và đẹp nhất để lặn. Tháng 7–9 biển động hơn, nhưng là mùa xem rùa đẻ trứng hay nhất."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Côn Đảo không cố 'highlight reel' kiểu Việt Nam. Nó yêu cầu bạn chậm lại và nhớ. Đó là món quà rất riêng của quần đảo này."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[1^] Bộ Văn hóa, Thể thao và Du lịch — Di tích Quốc gia Đặc biệt Côn Đảo."
+                }
+              ]
+            }
+          ]
+        },
+        "zh": {
+          "PostTitle": "昆岛：越南最安静的群岛与它 \"不轻松\" 的美",
+          "slug": "kun-dao-yue-nan-zui-an-jing-de-qun-dao",
+          "Audio_Button_Text": "收听文章",
+          "Audio_Pause_Text": "暂停",
+          "Related_Post_Highlight": "相关文章",
+          "Time_To_Read": "5 分钟阅读",
+          "PostType": "Integer",
+          "TinThiTruong_Type": "TrongNuoc",
+          "Content": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "在越南，很少有目的地像昆岛那样承载着如此分量。这座位于越南南部海域的群岛，既是令人心悸的历史地标——拥有可追溯至 19 世纪的法国监狱建筑群 [^1]——也是东南亚最原始的海洋环境之一。来过的人，离开时大多带着比预想更多的情绪。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "历史的一层",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "从昆岛监狱博物馆和富海的 \"虎笼\" 开始参观。殖民时期和战争年代，岛上曾关押数以万计的政治犯。这是一次沉重的行程，但它会重新定义你在岛上看到的其他一切——森林的静、海洋的阔，以及这地方依然如此美丽本身。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "沙滩与珊瑚礁",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Dam Trau 与 Nhat 沙滩保持着真正的原始——没有躺椅、没有小贩，只有白沙与木麻黄树。Hon Bay Canh 岛是浮潜最佳地点；每年 6 至 9 月，海龟会在国家公园监管下上岸产卵。请务必提前很久预订观龟活动。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "美食与住宿",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "昆岛的餐饮选择比大陆少，但鱼绝对新鲜到极致。住宿方面，可以选择 Six Senses Con Dao 奢华酒店体验一次 \"慢奢\"，或选昆山镇里的民宿，价格亲民并且临近本地餐馆。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "如何抵达 · 何时前往",
+                  "bold": true
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "每日有从胡志明市飞往昆山的航班。旱季（12 月至次年 4 月）海面最平静，适合潜水。7 至 9 月海况较差，但却是观赏海龟产卵的最佳季节。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "昆岛不愿成为越南的 \"打卡合集\"，它要求你放慢脚步、愿意记住。这正是它独一无二的礼物。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "[1^] 越南文化、体育与旅游部——昆岛国家特别遗迹。"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

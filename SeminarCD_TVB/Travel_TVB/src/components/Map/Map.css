@@ -1,0 +1,108 @@
+/* General styling for the map section */
+.map-section {
+  margin-top: 7%;
+  padding: 4rem 2rem;
+  background-color: #ffffff; /* White background */
+  font-family: Arial, sans-serif;
+}
+
+/* Container for the two-column layout */
+.map-container {
+  display: flex;
+  flex-wrap: wrap; /* Allows columns to stack on smaller screens */
+  gap: 0rem; /* Space between the map and the info column */
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: center; /* Vertically aligns the content */
+}
+
+/* Left column: Google Map */
+.map-google {
+  flex: 1.4; /* Each column takes up half the space */
+  min-width: 300px;
+}
+
+.map-google iframe {
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+/* Right column: Contact Information */
+.map-info {
+  min-height: 485px;
+  background-color: transparent;
+  align-items: center;
+  flex: 0.6;
+  min-width: 300px;
+  padding-left: 5%;
+  display: flex;
+  flex-direction: column;
+ justify-content: center;
+}
+
+.map-info h2 {
+  font-size: 2.25rem; /* 36px */
+  font-weight: bold;
+  text-align: left;
+  color: #04284c; /* Dark blue from the design */
+  margin-bottom: 2rem;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem; /* Space between each info item */
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem; /* Space between icon and text */
+}
+
+.info-icon {
+  background-color: #04284c; /* Dark blue background for the icon */
+  color: white;
+  padding: 0.8rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem; /* Icon size */
+  flex-shrink: 0; /* Prevents the icon from shrinking */
+}
+
+.info-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-title {
+  font-size: 0.9rem; /* 14px */
+  font-weight: 700;
+  font-family: 'montserrat', sans-serif !important;
+  text-align: left;
+  color: black; /* Gray for the title */
+  margin: 0 0 0.25rem 0;
+}
+
+.info-details {
+  font-size: 1rem; /* 16px */
+  text-align: left;
+  color: #2b659d;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 992px) {
+  .map-container {
+    flex-direction: column; /* Stack columns vertically */
+    gap: 2rem;
+  }
+
+  .map-google, .map-info {
+  width: 100%;
+ }
+}

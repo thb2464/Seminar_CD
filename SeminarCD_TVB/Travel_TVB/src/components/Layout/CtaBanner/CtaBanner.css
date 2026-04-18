@@ -1,0 +1,76 @@
+/* Main container styling */
+.cta-banner-container {
+  background-color: #05284b;
+  border-radius: 16px;
+  padding: 3rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  /* Centering and sizing */
+  margin: 5% auto 7% auto; /* 5% top, 7% bottom, auto left/right for centering */
+  max-width: 1200px; /* Maximum width */
+  min-height: 40vh;
+  width: 90%; /* Responsive width */
+  gap: 1.5rem;
+}
+
+/* Heading style */
+.cta-highlight {
+  color: #ffffff;
+  font-size: clamp(1.75rem, 1.5rem + 2vw, 3rem); 
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Provided button styles */
+.hero-cta-button {
+  background-color: #D2E7FC;
+  color: #04284b;
+  border: none;
+  border-radius: 10px;
+  padding: max(1.2vh, 10px) max(2.4vw, 20px);
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: max(1vw, 8px);
+  transition: background-color 0.3s, color 0.3s;
+  border: 2px solid #D2E7FC;
+}
+
+.btn-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: white;
+  color: #1a1a1a;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+/* Corrected hover state for standard CSS */
+.hero-cta-button:hover {
+  background-color: #04284b;
+  color: #D2E7FC;
+  border: 2px solid #D2E7FC; /* Optional: add a border on hover for contrast */
+}
+
+.hero-cta-button:hover .btn-arrow {
+  background-color: #D2E7FC; /* Swaps background */
+  color: #04284b; /* Swaps icon color */
+}
+
+.hero-cta-button svg {
+  width: clamp(18px, 3vw, 20px);
+  height: clamp(18px, 3vw, 20px);
+}
+
+.hero-cta-link {
+  text-decoration: none;
+}

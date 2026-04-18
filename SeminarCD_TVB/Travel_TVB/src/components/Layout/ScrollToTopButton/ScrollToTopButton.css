@@ -1,0 +1,48 @@
+.scroll-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  
+  box-sizing: border-box;
+  width: 45px;
+  height: 45px;
+  padding: 0;
+
+  background-color: #f39c12;
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Initial State (Hidden) */
+  opacity: 0;
+  transform: scale(0) rotate(-180deg); /* Start small and rotated */
+  transition: all 0.4s ease-out;
+  visibility: hidden;
+}
+
+/* Final State (Visible) */
+.scroll-btn.visible {
+  margin-right: 10px;
+  bottom:12%;
+  opacity: 1;
+  transform: scale(1) rotate(0deg); /* Grow and un-rotate */
+  visibility: visible;
+}
+/* --- The rest of your CSS remains the same --- */
+
+.scroll-btn:hover {
+  background-color: #e67e22;
+  transform: scale(1.1);
+}
+
+.scroll-btn:focus {
+  outline: none;
+  outline-offset: 2px;
+}

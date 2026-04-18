@@ -1,0 +1,87 @@
+/* Styling for the FeatureSection component */
+.feature-section-container {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center content when it wraps */
+    flex-wrap: wrap; /* <<< THIS IS THE KEY FIX */
+    gap: 3rem; 
+    padding: 4rem 1.5rem; 
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Default layout (image on the left) */
+.feature-section-container.image-left {
+    flex-direction: row;
+}
+
+/* Reversed layout (image on the right) */
+.feature-section-container.image-right {
+    flex-direction: row-reverse;
+}
+
+.feature-section-image,
+.feature-section-content {
+    flex: 1; /* Each column takes up half the space */
+    min-width: 300px; /* Prevent columns from getting too narrow */
+}
+
+.feature-section-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.feature-section-content {
+    text-align: left;
+}
+
+.feature-section-content h2 {
+    /* Fluid typography: min, preferred, max */
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    color: #0d2c54; 
+    margin-bottom: 1rem;
+}
+
+.feature-section-content p {
+    /* Fluid typography: min, preferred, max */
+    font-size: clamp(1rem, 1.5vw, 1.1rem);
+    line-height: 1.6;
+    color: #333;
+    margin-bottom: 2rem;
+}
+
+/* General CTA button styling */
+.cta-button {
+    display: inline-block;
+    background-color: #0d2c54; 
+    color: white;
+    padding: 12px 24px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+.cta-button:hover {
+    background-color: #1a4a8a;
+    transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .feature-section-container,
+    .feature-section-container.image-right {
+        flex-direction: column; /* Stack vertically on small screens */
+        text-align: center;
+        gap: 2rem;
+        padding: 2rem 1.5rem;
+    }
+    
+    .feature-section-content {
+        /* Center text when stacked on mobile */
+        text-align: center;
+    }
+}

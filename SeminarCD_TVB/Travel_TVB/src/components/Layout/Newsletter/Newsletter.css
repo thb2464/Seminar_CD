@@ -1,0 +1,112 @@
+/* Main section container */
+.newsletter-section {
+  background-color: #fffae6; /* Component background color */
+  padding: 60px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+/* Inner container for content alignment */
+.newsletter-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px; /* Space between title and form */
+  width: 100%;
+  max-width: 980px;
+}
+
+/* Title styling with responsive font-size */
+.newsletter-title {
+  /* clamp(MIN, PREFERRED, MAX) */
+  font-size: clamp(1.75rem, 1.5rem + 2vw, 3rem); 
+  color: #1c1c1c;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-weight: 500;
+  text-align: center;
+  margin: 0;
+}
+
+/* Form styling */
+.newsletter-form {
+  display: flex;
+  width: 100%;
+  max-width: 800px; /* Controls the width of the form */
+}
+
+/* Input field styling with responsive font-size */
+.newsletter-input {
+  flex-grow: 1; /* Allows input to take up available space */
+  padding: 12px 18px;
+  /* clamp(MIN, PREFERRED, MAX) */
+  font-size: clamp(0.9rem, 0.85rem + 0.5vw, 1rem);
+  border: 1px solid #e0e0e0;
+  border-radius:8px; /* Rounded corners on the left */
+  outline: none;
+  background-color: #fff;
+  transition: border-color 0.3s ease;
+}
+
+.newsletter-input:focus {
+  border-color: #1c1c1c;
+}
+
+/* Button styling with responsive font-size */
+.newsletter-button {
+  background-color: #fff0b9; /* Button background color */
+  border: none;
+  padding: 12px 24px;
+  min-width: 150px;
+  margin-left: 2%;
+  /* clamp(MIN, PREFERRED, MAX) */
+  font-size: clamp(0.9rem, 0.85rem + 0.5vw, 1rem);
+  font-weight: 500;
+  color: #04284c;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between text and icon */
+  border-radius:8px; /* Rounded corners on the right */
+  transition: background-color 0.3s ease;
+}
+
+.newsletter-button:hover {
+  background-color: #ffe8a1; /* Slightly darker for hover effect */
+}
+
+/* Icon styling */
+.newsletter-icon {
+  width: 18px;
+  height: 18px;
+  transform: rotate(-45deg); /* Rotate icon to point up */
+  fill: currentColor; /* Ensures icon color matches the button's text color */
+}
+
+/* --- Responsiveness --- */
+/* For tablets and mobile devices */
+@media (max-width: 768px) {
+  .newsletter-section {
+    padding: 40px 20px; /* Reduce padding on smaller screens */
+  }
+
+  .newsletter-form {
+    flex-direction: column; /* Stack the input and button vertically */
+    align-self: center;
+    width: 60%;
+  }
+
+  .newsletter-input {
+    border-radius: 8px 8px 0 0; /* Adjust border-radius for stacked layout */
+    text-align: center;
+  }
+
+  .newsletter-button {
+    align-self: center;
+    width: 100%;
+    margin-top: 5%;
+    justify-content: center; /* Center the text and icon */
+    border-radius: 0 0 8px 8px; /* Adjust border-radius for stacked layout */
+  }
+}

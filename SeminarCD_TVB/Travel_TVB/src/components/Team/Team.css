@@ -1,0 +1,228 @@
+/* Team Section Styles */
+.team-section {
+ padding: 80px 0;
+ background-color: #ffffff;
+}
+
+
+.team-container {
+ max-width: 1340px;
+ margin: 0 auto;
+ padding: 0 20px;
+ text-align: center;
+}
+
+
+/* Highlight Text */
+.team-highlight {
+ display: inline-block;
+ background-color: #fffae6;
+ color: #000000;
+ padding: 0.5rem 1rem;
+ border-radius: 1.25rem;
+ font-size: clamp(0.75rem, 2vw, 0.875rem);
+ font-weight: 500;
+ margin-bottom: clamp(1rem, 3vw, 1.25rem);
+ letter-spacing: 0.03125rem;
+}
+
+
+/* Title */
+.team-title {
+ font-size: clamp(2rem, 5vw, 3rem);
+ font-weight: 500;
+ color: #1a1a1a;
+ margin-bottom: clamp(0.75rem, 2vw, 1rem);
+ line-height: 1.2;
+}
+
+
+/* Subtitle */
+.team-subtitle {
+ font-size: clamp(1.5rem, 4vw, 2.5rem);
+ color: black;
+ margin-bottom: clamp(2rem, 6vw, 2rem);
+ font-weight: 500;
+}
+
+
+/* Expert Section */
+.expert-section {
+ margin-top: clamp(3rem, 8vw, 5rem);
+}
+
+.expert-subtitle {
+ margin-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+
+/* Team Grid */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, min(18.75rem, 100%)); 
+  justify-content: center;
+  gap: clamp(1.25rem, 3vw, 2rem);
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+
+/* Team Card */
+.team-card {
+ background: #ffffff;
+ border-radius: 0.75rem;
+ padding: 0;
+ transition: transform 0.3s ease;
+ overflow: hidden;
+}
+
+
+.team-card:hover {
+ transform: translateY(-0.3125rem);
+}
+
+
+/* Employee Image Container */
+.employee-image-container {
+ position: relative;
+ width: 100%;
+ height: clamp(12.5rem, 20vw, 15.625rem);
+ overflow: hidden;
+ border-radius: 0.75rem 0.75rem 0 0;
+}
+
+
+.employee-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures the image covers the entire container */
+  object-position: center; /* Centers the image within the container */
+  transition: transform 0.5s ease;
+}
+
+
+.team-card:hover .employee-image {
+ transform: scale(1.05);
+}
+
+
+/* Employee Description Overlay */
+.employee-description-overlay {
+ position: absolute;
+ left: 0;
+ right: 0;
+ bottom: 0;
+ background: linear-gradient(0deg, #fffae6, #FF8C0000);
+ display: flex;
+ align-items: center;
+ justify-content: flex-end;
+ opacity: 0;
+ transition: opacity 0.5s ease, transform 0.5s ease;
+ padding: clamp(1rem, 3vw, 1.25rem);
+ transform: translateY(100%);
+ padding-top: 50%;
+ flex-direction: column;
+}
+
+
+.employee-image-container:hover .employee-description-overlay {
+ opacity: 1;
+ transform: translateY(0);
+}
+
+
+.employee-description {
+ color: #04284b;
+ font-size: clamp(0.75rem, 2vw, 0.9rem);
+ line-height: 1.6;
+ text-align: left;
+ margin: 0;
+ font-weight: 500;
+}
+
+
+/* Employee Info */
+.employee-info {
+ padding: clamp(1.25rem, 4vw, 1.5625rem) clamp(1rem, 3vw, 1.25rem);
+ text-align: left;
+}
+
+
+.employee-name {
+ font-size: clamp(1rem, 3vw, 1.125rem);
+ font-weight: 600;
+ color: black;
+ margin-bottom: clamp(0.375rem, 1.5vw, 0.5rem);
+ letter-spacing: 0.03125rem;
+}
+
+
+.employee-position {
+ font-size: clamp(0.75rem, 2vw, 0.875rem);
+ color: #666666;
+ margin-bottom: clamp(0.75rem, 2vw, 0.9375rem);
+ font-weight: 500;
+ line-height: 1.4;
+}
+
+
+/* Employee Contact */
+.employee-contact {
+ display: flex;
+ align-items: center;
+ justify-content: left;
+ gap: clamp(0.375rem, 1vw, 0.5rem);
+ color: green;
+}
+
+
+.email-icon {
+ width: clamp(0.875rem, 2vw, 1rem);
+ height: clamp(0.875rem, 2vw, 1rem);
+ stroke-width: 2;
+ flex-shrink: 0;
+}
+
+
+.employee-email {
+ font-size: clamp(0.6875rem, 1.5vw, 0.8125rem);
+ color: green;
+ word-break: break-all;
+}
+
+
+/* Responsive Design */
+@media (max-width: 64rem) {
+ .team-container {
+ padding: 0 clamp(1rem, 3vw, 1.25rem);
+ }
+}
+
+@media (max-width: 48rem) {
+ .team-section {
+ padding: clamp(3rem, 8vw, 5rem) 0;
+ }
+
+ .team-grid {
+ grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+ gap: clamp(1rem, 3vw, 1.5rem);
+ }
+
+ .employee-image-container {
+ height: clamp(10rem, 25vw, 12.5rem);
+ }
+}
+
+@media (max-width: 30rem) {
+ .team-grid {
+ grid-template-columns: 1fr;
+ gap: clamp(1rem, 4vw, 1.25rem);
+ }
+
+ .employee-image-container {
+ height: clamp(12.5rem, 35vw, 15.625rem);
+ }
+
+ .employee-email {
+ font-size: clamp(0.625rem, 2vw, 0.75rem);
+ }
+}

@@ -1,0 +1,166 @@
+.stats-section {
+  width: 100%;
+  padding: clamp(40px, 8vw, 60px) 0;
+  background-color: #ffffff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.stats-container {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: clamp(16px, 3vw, 24px);
+  width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 0 20px;
+  min-height: 220px;
+}
+
+.stat-card {
+  flex: 1;
+  min-width: 0;
+  padding: clamp(20px, 4vw, 30px);
+  border-radius: clamp(12px, 2vw, 16px);
+  color: #0c2b58;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  transition: flex 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow: hidden;
+  cursor: default;
+  background-color: #b9d8f7;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px);
+  background-size: 25px 25px;
+}
+
+/* Desktop styles - first card always expanded */
+@media (min-width: 769px) {
+  .stat-card {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  /* First card is always expanded */
+  .stat-card:first-child {
+    flex: 2;
+    background: linear-gradient(135deg,#04284c,#000000);
+    color: white;
+  }
+
+  /* First card suffix is always visible */
+  .stat-card:first-child .stat-suffix {
+    opacity: 1;
+    max-width: 150px;
+    margin-left: 8px;
+  }
+
+  /* Other cards maintain normal size */
+  .stat-card:not(:first-child) {
+    flex: 1;
+  }
+}
+
+/* Text Styling */
+.stat-number {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: clamp(8px, 2vw, 12px);
+  display: flex;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+.stat-suffix {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  
+  /* Suffix always visible */
+  opacity: 1;
+  max-width: none;
+  margin-left: 8px;
+  
+  /* Animation for a smooth appearance */
+  transition: max-width 0.4s ease-out, opacity 0.3s ease-out, margin-left 0.4s ease-out;
+}
+
+.stat-text p {
+  font-size: clamp(1rem, 2.5vw, 1.125rem);
+  line-height: 1.5;
+  font-weight: 500;
+  margin: 0;
+  white-space: normal;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .stats-container {
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(12px, 3vw, 16px);
+    min-height: auto;
+  }
+
+  .stat-card {
+    width: 100%;
+    max-width: 400px;
+    flex: none;
+    align-items: center;
+    text-align: center;
+    cursor: default;
+    transition: none;
+    background: linear-gradient(135deg,#04284c,#000000) !important;
+    color: white !important;
+  }
+
+  /* Show suffix by default on mobile */
+  .stat-suffix {
+    opacity: 1;
+    max-width: none;
+    margin-left: 8px;
+  }
+
+  /* Two rows layout for very small screens */
+    @media (max-width: 480px) {
+    .stats-container {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8px, 2vw, 12px);
+    }
+
+    .stat-card {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+      padding: clamp(16px, 4vw, 20px);
+    }
+
+    .stat-number {
+      font-size: clamp(2rem, 8vw, 2.5rem);
+    }
+
+    .stat-suffix {
+      font-size: clamp(2rem, 8vw, 2.5rem);
+    }
+
+    .stat-text p {
+      font-size: clamp(0.875rem, 3vw, 1rem);
+    }
+  }
+}
+
+/* Tablet Styles */
+@media (min-width: 481px) and (max-width: 768px) {
+  .stats-container {
+    gap: clamp(16px, 3vw, 20px);
+  }
+
+  .stat-card {
+    padding: clamp(24px, 5vw, 30px);
+  }
+}

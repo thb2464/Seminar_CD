@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 950" width="1500" height="950" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <style>
+      .title     { font-size: 22px; font-weight: 700; fill: #0f172a; }
+      .subtitle  { font-size: 13px; fill: #475569; }
+      .actor-lbl { font-size: 13px; font-weight: 700; fill: #0f172a; text-anchor: middle; }
+      .ext-lbl   { font-size: 12px; font-weight: 700; fill: #0f172a; text-anchor: middle; }
+      .uc-lbl    { font-size: 12px; fill: #0f172a; text-anchor: middle; }
+      .sys-lbl   { font-size: 16px; font-weight: 700; fill: #1e3a8a; }
+      .stereo    { font-size: 10px; fill: #475569; font-style: italic; text-anchor: middle; }
+    </style>
+
+    <!-- Reusable actor stick figure -->
+    <symbol id="actor" viewBox="-30 0 60 80">
+      <circle cx="0" cy="12" r="10" fill="#fef3c7" stroke="#0f172a" stroke-width="1.6"/>
+      <line x1="0" y1="22" x2="0" y2="50" stroke="#0f172a" stroke-width="1.6"/>
+      <line x1="-15" y1="32" x2="15" y2="32" stroke="#0f172a" stroke-width="1.6"/>
+      <line x1="0" y1="50" x2="-12" y2="72" stroke="#0f172a" stroke-width="1.6"/>
+      <line x1="0" y1="50" x2="12" y2="72" stroke="#0f172a" stroke-width="1.6"/>
+    </symbol>
+
+    <!-- External system box symbol -->
+    <symbol id="extsys" viewBox="0 0 140 60">
+      <rect x="0" y="0" width="140" height="60" rx="4" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.5"/>
+    </symbol>
+  </defs>
+
+  <rect width="1500" height="950" fill="#f8fafc"/>
+
+  <!-- Header -->
+  <text x="750" y="40" text-anchor="middle" class="title">Hình 3.2: Sơ đồ Use Case tổng quát — Hệ thống TravelTVB</text>
+  <text x="750" y="62" text-anchor="middle" class="subtitle">Các chức năng chính và mối quan hệ giữa 3 tác nhân: Khách vãng lai · Khách hàng đã đăng nhập · Quản trị viên</text>
+
+  <!-- System boundary -->
+  <rect x="320" y="100" width="860" height="780" rx="10" fill="#ffffff" stroke="#1e3a8a" stroke-width="2"/>
+  <text x="750" y="128" text-anchor="middle" class="sys-lbl">Hệ thống TravelTVB</text>
+  <line x1="340" y1="140" x2="1160" y2="140" stroke="#cbd5e1"/>
+
+  <!-- ========== ACTORS (left) ========== -->
+  <!-- Khách vãng lai -->
+  <use href="#actor" x="120" y="180" width="60" height="80"/>
+  <text x="150" y="278" class="actor-lbl">Khách vãng lai</text>
+  <text x="150" y="294" class="actor-lbl" font-weight="400" font-size="11">(Guest)</text>
+
+  <!-- Khách hàng đã đăng nhập -->
+  <use href="#actor" x="120" y="450" width="60" height="80"/>
+  <text x="150" y="548" class="actor-lbl">Khách hàng</text>
+  <text x="150" y="564" class="actor-lbl">đã đăng nhập</text>
+  <text x="150" y="580" class="actor-lbl" font-weight="400" font-size="11">(Customer)</text>
+
+  <!-- Inheritance: Customer → Guest (open triangle) -->
+  <line x1="150" y1="450" x2="150" y2="305" stroke="#0f172a" stroke-width="1.5"/>
+  <polygon points="150,295 144,310 156,310" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+  <text x="165" y="395" class="stereo" text-anchor="start">generalization</text>
+
+  <!-- ========== ACTORS (right) ========== -->
+  <!-- Quản trị viên -->
+  <use href="#actor" x="1320" y="180" width="60" height="80"/>
+  <text x="1350" y="278" class="actor-lbl">Quản trị viên</text>
+  <text x="1350" y="294" class="actor-lbl" font-weight="400" font-size="11">(Admin)</text>
+
+  <!-- External systems (right, bottom) -->
+  <use href="#extsys" x="1280" y="480" width="140" height="60"/>
+  <text x="1350" y="505" class="ext-lbl">«external»</text>
+  <text x="1350" y="525" class="ext-lbl">VNPay Sandbox</text>
+
+  <use href="#extsys" x="1280" y="600" width="140" height="60"/>
+  <text x="1350" y="625" class="ext-lbl">«external»</text>
+  <text x="1350" y="645" class="ext-lbl">Google Gemini API</text>
+
+  <!-- ========== GUEST USE CASES (top section) ========== -->
+  <g>
+    <ellipse cx="440" cy="210" rx="85" ry="26" fill="#dbeafe" stroke="#1e3a8a"/>
+    <text x="440" y="215" class="uc-lbl">Duyệt &amp; tìm tour</text>
+
+    <ellipse cx="640" cy="180" rx="85" ry="26" fill="#dbeafe" stroke="#1e3a8a"/>
+    <text x="640" y="185" class="uc-lbl">Xem chi tiết tour</text>
+
+    <ellipse cx="840" cy="210" rx="85" ry="26" fill="#dbeafe" stroke="#1e3a8a"/>
+    <text x="840" y="215" class="uc-lbl">Đọc bài viết</text>
+
+    <ellipse cx="1040" cy="180" rx="90" ry="26" fill="#dbeafe" stroke="#1e3a8a"/>
+    <text x="1040" y="185" class="uc-lbl">Trò chuyện chatbot</text>
+
+    <ellipse cx="440" cy="310" rx="85" ry="26" fill="#dbeafe" stroke="#1e3a8a"/>
+    <text x="440" y="315" class="uc-lbl">Đăng ký tài khoản</text>
+
+    <ellipse cx="640" cy="340" rx="75" ry="26" fill="#dbeafe" stroke="#1e3a8a"/>
+    <text x="640" y="345" class="uc-lbl">Đăng nhập</text>
+
+    <ellipse cx="840" cy="310" rx="90" ry="26" fill="#dbeafe" stroke="#1e3a8a"/>
+    <text x="840" y="308" class="uc-lbl">Đăng ký nhận</text>
+    <text x="840" y="322" class="uc-lbl">newsletter</text>
+
+    <ellipse cx="1040" cy="340" rx="75" ry="26" fill="#dbeafe" stroke="#1e3a8a"/>
+    <text x="1040" y="345" class="uc-lbl">Đổi ngôn ngữ</text>
+  </g>
+
+  <!-- ========== CUSTOMER USE CASES (middle section) ========== -->
+  <g>
+    <ellipse cx="440" cy="470" rx="80" ry="26" fill="#dcfce7" stroke="#166534"/>
+    <text x="440" y="475" class="uc-lbl">Đặt tour</text>
+
+    <ellipse cx="640" cy="500" rx="90" ry="26" fill="#dcfce7" stroke="#166534"/>
+    <text x="640" y="505" class="uc-lbl">Thanh toán VNPay</text>
+
+    <ellipse cx="840" cy="470" rx="95" ry="26" fill="#dcfce7" stroke="#166534"/>
+    <text x="840" y="475" class="uc-lbl">Xem lịch sử đặt tour</text>
+
+    <ellipse cx="1040" cy="500" rx="80" ry="26" fill="#dcfce7" stroke="#166534"/>
+    <text x="1040" y="505" class="uc-lbl">Hủy đặt tour</text>
+
+    <ellipse cx="640" cy="600" rx="95" ry="26" fill="#dcfce7" stroke="#166534"/>
+    <text x="640" y="605" class="uc-lbl">Nhận hoàn tiền</text>
+
+    <ellipse cx="840" cy="600" rx="95" ry="26" fill="#dcfce7" stroke="#166534"/>
+    <text x="840" y="605" class="uc-lbl">Quản lý tài khoản</text>
+  </g>
+
+  <!-- ========== ADMIN USE CASES (bottom section) ========== -->
+  <g>
+    <ellipse cx="440" cy="720" rx="95" ry="26" fill="#fef3c7" stroke="#92400e"/>
+    <text x="440" y="725" class="uc-lbl">Quản lý Tour (CRUD)</text>
+
+    <ellipse cx="640" cy="750" rx="100" ry="26" fill="#fef3c7" stroke="#92400e"/>
+    <text x="640" y="755" class="uc-lbl">Quản lý Bài viết</text>
+
+    <ellipse cx="840" cy="720" rx="100" ry="26" fill="#fef3c7" stroke="#92400e"/>
+    <text x="840" y="725" class="uc-lbl">Quản lý Booking</text>
+
+    <ellipse cx="1040" cy="750" rx="100" ry="26" fill="#fef3c7" stroke="#92400e"/>
+    <text x="1040" y="755" class="uc-lbl">Quản lý Người dùng</text>
+
+    <ellipse cx="640" cy="830" rx="100" ry="26" fill="#fef3c7" stroke="#92400e"/>
+    <text x="640" y="835" class="uc-lbl">Re-index RAG ChromaDB</text>
+
+    <ellipse cx="840" cy="830" rx="100" ry="26" fill="#fef3c7" stroke="#92400e"/>
+    <text x="840" y="835" class="uc-lbl">Xử lý hoàn tiền VNPay</text>
+  </g>
+
+  <!-- ========== ACTOR → USE CASE ASSOCIATIONS ========== -->
+  <!-- Guest (top-left actor at ~180,220) to top use cases -->
+  <g stroke="#1e3a8a" stroke-width="1.3" fill="none">
+    <line x1="180" y1="220" x2="355" y2="210"/>
+    <line x1="180" y1="220" x2="555" y2="180"/>
+    <line x1="180" y1="220" x2="755" y2="210"/>
+    <line x1="180" y1="220" x2="950" y2="180"/>
+    <line x1="180" y1="240" x2="355" y2="310"/>
+    <line x1="180" y1="240" x2="565" y2="340"/>
+    <line x1="180" y1="240" x2="750" y2="310"/>
+    <line x1="180" y1="240" x2="965" y2="340"/>
+  </g>
+
+  <!-- Customer (middle-left actor at ~180,490) to customer-only use cases -->
+  <g stroke="#166534" stroke-width="1.3" fill="none">
+    <line x1="180" y1="480" x2="360" y2="470"/>
+    <line x1="180" y1="490" x2="550" y2="500"/>
+    <line x1="180" y1="480" x2="745" y2="470"/>
+    <line x1="180" y1="495" x2="960" y2="500"/>
+    <line x1="180" y1="510" x2="545" y2="600"/>
+    <line x1="180" y1="510" x2="745" y2="600"/>
+  </g>
+
+  <!-- Admin (right actor at ~1320,220) to admin use cases -->
+  <g stroke="#92400e" stroke-width="1.3" fill="none">
+    <line x1="1320" y1="230" x2="535" y2="720"/>
+    <line x1="1320" y1="230" x2="740" y2="750"/>
+    <line x1="1320" y1="230" x2="940" y2="720"/>
+    <line x1="1320" y1="230" x2="1140" y2="750"/>
+    <line x1="1320" y1="230" x2="740" y2="830"/>
+    <line x1="1320" y1="230" x2="940" y2="830"/>
+  </g>
+
+  <!-- ========== USE CASE → EXTERNAL SYSTEM ========== -->
+  <!-- Thanh toán VNPay → VNPay Sandbox -->
+  <line x1="730" y1="500" x2="1280" y2="510" stroke="#b91c1c" stroke-width="1.2" stroke-dasharray="5,4"/>
+  <text x="1005" y="495" class="stereo">«include» VNPay</text>
+
+  <!-- Xử lý hoàn tiền → VNPay Sandbox -->
+  <line x1="940" y1="820" x2="1280" y2="530" stroke="#b91c1c" stroke-width="1.2" stroke-dasharray="5,4"/>
+
+  <!-- Trò chuyện chatbot → Gemini -->
+  <line x1="1130" y1="180" x2="1280" y2="610" stroke="#b91c1c" stroke-width="1.2" stroke-dasharray="5,4"/>
+  <text x="1215" y="410" class="stereo" transform="rotate(72 1215 410)">«include» Gemini RAG</text>
+
+  <!-- Re-index RAG → Gemini -->
+  <line x1="740" y1="830" x2="1280" y2="640" stroke="#b91c1c" stroke-width="1.2" stroke-dasharray="5,4"/>
+
+  <!-- ========== LEGEND ========== -->
+  <g transform="translate(40, 700)">
+    <rect width="260" height="200" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="12" y="22" font-size="13" font-weight="700" fill="#0f172a">Chú thích</text>
+
+    <ellipse cx="28" cy="48" rx="16" ry="9" fill="#dbeafe" stroke="#1e3a8a"/>
+    <text x="52" y="52" font-size="11" fill="#1e293b">Use case của Guest</text>
+
+    <ellipse cx="28" cy="75" rx="16" ry="9" fill="#dcfce7" stroke="#166534"/>
+    <text x="52" y="79" font-size="11" fill="#1e293b">Use case của Customer</text>
+
+    <ellipse cx="28" cy="102" rx="16" ry="9" fill="#fef3c7" stroke="#92400e"/>
+    <text x="52" y="106" font-size="11" fill="#1e293b">Use case của Admin</text>
+
+    <line x1="14" y1="130" x2="44" y2="130" stroke="#0f172a" stroke-width="1.3"/>
+    <text x="52" y="134" font-size="11" fill="#1e293b">Association (actor ↔ use case)</text>
+
+    <line x1="14" y1="155" x2="44" y2="155" stroke="#b91c1c" stroke-width="1.3" stroke-dasharray="5,4"/>
+    <text x="52" y="159" font-size="11" fill="#1e293b">«include» tới hệ thống ngoài</text>
+
+    <line x1="14" y1="178" x2="44" y2="178" stroke="#0f172a" stroke-width="1.3"/>
+    <polygon points="44,172 44,184 52,178" fill="#ffffff" stroke="#0f172a" stroke-width="1.3"/>
+    <text x="60" y="182" font-size="11" fill="#1e293b">Generalization (kế thừa actor)</text>
+  </g>
+</svg>

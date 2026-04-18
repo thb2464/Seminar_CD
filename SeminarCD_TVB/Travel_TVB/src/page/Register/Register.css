@@ -1,0 +1,19 @@
+.auth-container-wide {
+  max-width: 560px;
+}
+
+.auth-form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.auth-form-row .auth-form-group {
+  flex: 1;
+}
+
+@media (max-width: 560px) {
+  .auth-form-row {
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+}

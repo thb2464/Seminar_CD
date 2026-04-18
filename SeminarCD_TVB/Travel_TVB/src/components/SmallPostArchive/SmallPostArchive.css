@@ -1,0 +1,271 @@
+/* src/components/SmallPostArchive/SmallPostArchive.css */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary-font: 'Montserrat', sans-serif;
+  --text-color-dark: #222;
+  --text-color-light: #666;
+  --border-color: black;
+  --background-color: #f9f9f9;
+  --card-background: #ffffff;
+  --active-tab-bg: #333;
+  --active-tab-text: #fff;
+}
+
+.small-post-archive-container {
+  width: 100%;
+  max-width: 1240px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+  font-family: var(--primary-font);
+  box-sizing: border-box;
+}
+
+/* --- Header & Tabs --- */
+.spa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.spa-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-color-dark);
+}
+
+.spa-header-title h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.spa-header-icon{
+    height: 30px;
+    width: 30px;
+}
+
+/* src/components/SmallPostArchive/SmallPostArchive.css */
+
+.spa-tabs {
+  display: flex;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden; /* Clips the inner corners of the buttons */
+}
+
+.spa-tab-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: var(--background-color); /* Inactive background */
+  color: var(--text-color-light);
+  font-family: var(--primary-font);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  border-radius: 0; 
+  
+  /* --- Add these two lines --- */
+  flex: 1;
+  text-align: center;
+}
+
+.spa-tab-btn:focus{
+    outline: none;
+}
+
+/* Add the vertical separator */
+.spa-tab-btn:first-of-type {
+  border-right: 1px solid var(--border-color);
+}
+
+.spa-tab-btn.active {
+  background-color: var(--active-tab-bg);
+  color: var(--active-tab-text);
+  box-shadow: none; /* Shadow is not needed for this design */
+}
+/* --- Content & Grid --- */
+.spa-content {
+  min-height: 400px; /* Prevents layout shift during loading */
+}
+
+.spa-message {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--text-color-light);
+  padding: 4rem 0;
+}
+
+.spa-message.error {
+  color: #d9534f;
+}
+
+.spa-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+/* --- Post Card --- */
+.spa-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-background);
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--text-color-dark);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.spa-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  .spa-card-title{
+    color: #666;
+  }
+}
+
+.spa-card-image {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+.spa-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.spa-card:hover .spa-card-image img {
+  transform: scale(1.05);
+}
+
+.spa-card-content {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Ensures content area fills space */
+  text-align: left; /* Add this line */
+}
+
+.spa-card-category {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-color-light);
+  margin-bottom: 0.5rem;
+}
+
+.spa-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 1rem 0;
+  flex-grow: 1; /* Pushes meta to the bottom */
+}
+
+.spa-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-color-light);
+}
+
+.spa-card-author {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.spa-card-author-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.spa-card-time {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.reading-time {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* --- Pagination --- */
+.spa-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 3rem;
+}
+
+.spa-page-btn {
+  font-family: var(--primary-font);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.6rem;
+  min-width: 40px;
+  height: 40px;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-background);
+  color: var(--text-color-light);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.spa-page-btn.next {
+  padding: 0.6rem 1rem;
+}
+
+.spa-page-btn:hover {
+  border-color: #aaa;
+  color: var(--text-color-dark);
+}
+
+.spa-page-btn.active {
+  background-color: var(--active-tab-bg);
+  color: var(--active-tab-text);
+  border-color: var(--active-tab-bg);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 992px) {
+  .spa-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .small-post-archive-container {
+    padding: 0 1rem;
+  }
+  .spa-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .spa-grid {
+    grid-template-columns: 1fr;
+  }
+}

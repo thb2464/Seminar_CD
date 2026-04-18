@@ -1,0 +1,45 @@
+{
+  "kind": "singleType",
+  "collectionName": "about_journeys",
+  "info": {
+    "singularName": "about-journey",
+    "pluralName": "about-journeys",
+    "displayName": "About-Journey"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "Highlight": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "Title": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "TimelineEvents": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "slides.timeline-events",
+      "repeatable": true
+    }
+  }
+}
