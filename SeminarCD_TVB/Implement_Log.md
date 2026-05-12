@@ -65,7 +65,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 ### Sprint 5 — Booking & Payment Services (Weeks 13–16)
 - [x] **F5.1** Booking NestJS scaffold (`services/booking-service/`) — Booking, TravelDate, ContactInfo modules.
-- [ ] **F5.2** Port `booking.js` controller (599 lines) → NestJS — `create`, `myBookings`, `cancelBooking`, `getAvailability`.
+- [x] **F5.2** Port `booking.js` controller (599 lines) → NestJS — `create`, `myBookings`, `cancelBooking`, `getAvailability`.
 - [ ] **F5.3** Publish `BookingCreated` event on creation.
 - [ ] **F5.4** Subscribe to `payment.events` — `PaymentCompleted` / `PaymentFailed` → update booking status state machine.
 - [ ] **F5.5** Payment NestJS scaffold (`services/payment-service/`) — Payment, VNPayTransaction, RefundRequest modules.
@@ -1123,6 +1123,40 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F5.2** — Port `booking.js` controller → NestJS.
+
+---
+
+### F5.2 — Port booking.js controller → NestJS — 2026-05-12
+
+**What was done**
+- Ported the 4 core Booking API methods from the Strapi monolith (`getAvailability`, `create`, `myBookings`, `cancelBooking`) to NestJS.
+- **`Booking` Entity**: Mapped all required fields to `booking.entity.ts`, collapsing Strapi's many-to-one link tables into `tour_id` and `user_id` columns, and embedded `ContactInfo` properties directly.
+- **`BookingService`**: Uses native `fetch` to retrieve tour pricing and capacity from the Catalog Service (`CATALOG_SERVICE_URL`), honoring microservice isolation where reads go through REST.
+- **`BookingController`**: Exposes `/api/bookings`, `/api/bookings/availability`, `/api/bookings/my-bookings`, `/api/bookings/:id/cancel`. Protects mutating endpoints with `UserGuard`, which expects `X-User-Id` from Kong.
+- **`UserGuard` & `CurrentUser`**: Handlers that extract context set by Kong's JWT plugin, enabling Identity-less trust.
+- **Dependencies**: Added `@nestjs/config`, `joi`, `nestjs-pino`, `class-validator`, `class-transformer` and wired them globally via `AppModule`.
+- Added minimal specs for controller and service to bootstrap coverage. Comprehensive integration specs follow in F5.11.
+
+**Files touched**
+- `services/booking-service/package.json`
+- `services/booking-service/src/app.module.ts`, `config/env.validation.ts`
+- `services/booking-service/src/booking/entities/booking.entity.ts`
+- `services/booking-service/src/booking/dto/create-booking.dto.ts`
+- `services/booking-service/src/booking/booking.service.ts`, `booking.controller.ts`, `booking.module.ts`, `*.spec.ts`
+- `services/booking-service/src/common/user.guard.ts`, `current-user.decorator.ts`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Flattened relationships**: `user_id` and `tour_id` are stored directly on the `bookings` table as integers instead of generating complex many-to-one junction tables.
+- **Inter-service REST call**: `BookingService` directly invokes the Catalog Service over HTTP to fetch tour `max_participants` and `price`.
+- **Interim refund status**: For cancelled bookings that were paid, `refund_status` is marked as `pending_manual` since the VNPay integration will be housed in the Payment Service (F5.5+).
+
+**Issues / unknowns**
+- `fetch` errors to Catalog Service result in 500s. We should implement resilience/circuit breaking later if Catalog Service availability becomes flaky.
+- Wait for F5.6 to finish VNPay logic to fully handle refunds automatically.
+
+**Next**
+- **F5.3** — Publish `BookingCreated` event on creation.
 
 ---
 
