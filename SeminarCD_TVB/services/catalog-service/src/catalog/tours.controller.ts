@@ -17,15 +17,19 @@ import { TourQueryDto } from './dto/tour-query.dto';
 import { CreateTourDto, UpdateTourDto } from './dto/tour.dto';
 import { SupportedLocale } from './entities/tour-category.entity';
 import { Tour } from './entities/tour.entity';
-import { PaginatedTours, ToursService } from './tours.service';
+import { PaginatedTours, ToursQueryService } from './tours-query.service';
+import { ToursService } from './tours.service';
 
 @Controller('tours')
 export class ToursController {
-  constructor(private readonly tours: ToursService) {}
+  constructor(
+    private readonly toursQuery: ToursQueryService,
+    private readonly tours: ToursService,
+  ) {}
 
   @Get()
   list(@Query() query: TourQueryDto): Promise<PaginatedTours> {
-    return this.tours.list(query);
+    return this.toursQuery.list(query);
   }
 
   @Get(':id')
@@ -33,7 +37,7 @@ export class ToursController {
     @Param('id', ParseIntPipe) id: number,
     @Query('locale') locale: SupportedLocale = 'vi',
   ): Promise<Tour> {
-    return this.tours.findById(id, locale);
+    return this.toursQuery.findById(id, locale);
   }
 
   @Get('slug/:slug')
@@ -41,7 +45,7 @@ export class ToursController {
     @Param('slug') slug: string,
     @Query('locale') locale: SupportedLocale = 'vi',
   ): Promise<Tour> {
-    return this.tours.findBySlug(slug, locale);
+    return this.toursQuery.findBySlug(slug, locale);
   }
 
   @UseGuards(AdminOnlyGuard)

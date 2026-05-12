@@ -895,6 +895,53 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 ---
 
+### F3.9 — CQRS read-model split + contract test + Sprint 3 closeout — 2026-05-12
+
+**What was done**
+- **CQRS split**:
+  - New `ToursQueryService` (`src/catalog/tours-query.service.ts`) — read-only `list`, `findById`, `findBySlug` with the same Strapi-style `{ data, meta.pagination }` envelope, sort whitelist, and filter projection that lived in `ToursService` before. Stateless, no event publisher dep, free to be scaled and cached independently.
+  - `ToursService` (`tours.service.ts`) — pruned down to write-only operations (`create`, `update`, `softDelete`). Every mutation still emits to the F3.5 publisher. `update`/`softDelete` now do their own `findOne` lookups so the read service isn't pulled in as a transitive dependency.
+  - `ToursController` updated to inject both services; reads route through `ToursQueryService`, writes through `ToursService`.
+  - `CatalogModule` registers and exports both services so future modules (CQRS read replica, projection workers) can consume either side.
+- **Frontend contract test** (`test/frontend-contract.e2e-spec.ts`) — boots the full Nest app with mocked `Tour` + `TourCategory` repos and a stubbed `CatalogEventsPublisher`. Asserts the exact shape `Tours.jsx` and `TourDetail.jsx` already parse:
+  1. `GET /api/tours?locale=vi` → `{ data: Tour[], meta.pagination: { page, pageSize, pageCount, total } }`.
+  2. `GET /api/tours/slug/:slug` → single `Tour` with `slug`, `tourName`, `locale`.
+  3. `GET /api/tours/:id` → 404 when missing.
+  4. `POST /api/tours` without `X-User-Id` → 401 (AdminOnlyGuard rejects missing identity header).
+  5. `POST /api/tours` with non-admin role → 403.
+  6. `POST /api/tours` with admin role → 201 + created tour body.
+- **Unit specs**:
+  - `tours.service.spec.ts` rewritten for the write-only API (5 cases — create + event, update merges fields + event, update NotFound, softDelete + event, softDelete NotFound).
+  - `tours-query.service.spec.ts` (6 cases — list envelope, filter projection, default sort, sort whitelist guard, NotFound for missing id, slug lookup).
+- The pre-existing `admin-only.guard.spec.ts` (3 cases) and `tour-categories.service.spec.ts` (2 cases) carry over unchanged.
+- Coverage gate stays at 80% lines/statements/functions / 70% branches per plan §5.2.
+
+**Files touched**
+- `services/catalog-service/src/catalog/tours-query.service.ts` (new)
+- `services/catalog-service/src/catalog/tours-query.service.spec.ts` (new)
+- `services/catalog-service/src/catalog/tours.service.ts` (writes-only rewrite)
+- `services/catalog-service/src/catalog/tours.service.spec.ts` (rewritten for new shape)
+- `services/catalog-service/src/catalog/tours.controller.ts` (dual-injection)
+- `services/catalog-service/src/catalog/catalog.module.ts` (register `ToursQueryService`)
+- `services/catalog-service/test/frontend-contract.e2e-spec.ts` (new — 6 cases)
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Single table, two services** — sharing the `tours` table is plenty for the seminar workload. Real CQRS (separate read replica, materialised projection, eventual consistency) is a Phase 7 optimisation. The seam exists today; promoting it to a distinct read model is a deployment change, not a code change.
+- **Removed the `findById`/`findBySlug` helpers from `ToursService`** — keeps the write service from being abused for reads (and prevents the read service from accidentally pulling in the event publisher dep). Update/softDelete now do their own lookups; reads always go through the query service.
+- **Contract test mocks the repo with a small map** — fast, deterministic, exercises the full controller → service → guard → DTO pipeline. Integration tests against a real Postgres (testcontainers) ship with Phase 5 T1.
+- **No new Pact provider yet** — same reason as F1.8 / F2.6. The snapshot test is the cheap subset of Pact that covers the seminar's needs.
+
+**Issues / unknowns**
+- The `e2e-spec` lives under `test/` and runs via `npm run test:e2e`; it isn't picked up by the default `npm test` runner (which uses `*.spec.ts` under `src/`). CI workflow in F0.6 will run both targets in sequence.
+- The CQRS read-side `ToursQueryService` is still hitting the same Postgres as the write side. Phase 6 D4's HPA will scale the catalog 2–5 replicas; if the read service gets too hot, the next step is a Postgres read replica + `replication_lag` aware routing — both deployment-level changes.
+
+**Next — Sprint 3 closeout**
+- All 9 Sprint 3 features (F3.1–F3.9) are `[x]`. The Catalog Service is feature-complete behind Kong with public reads, admin-only writes, multi-locale support, RabbitMQ event publishing, and a CQRS read-model split. The AI Chatbot consumes those events to keep ChromaDB in sync. The monolith no longer answers `/api/tours/*` or `/api/tour-categories/*`.
+- Sprint 4 begins with **F4.1** — re-package the remaining Strapi modules (blogs, FAQ, page sections, etc.) as the dedicated Content Service. The user paused this thread at the end of Sprint 3.
+
+---
+
 ## How to update this log
 After each feature:
 1. Mark the checkbox `[x]` next to the feature ID above.
