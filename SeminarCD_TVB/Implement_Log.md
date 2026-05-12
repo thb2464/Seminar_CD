@@ -51,9 +51,9 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F3.3** Data migration — SQLite tour tables → PostgreSQL `catalog_db`. Preserve slugs, IDs, locale links.
 - [x] **F3.4** REST API — match every existing `/api/tours`, `/api/tour-categories` endpoint contract (filters, populate, locale, pagination).
 - [x] **F3.5** Publish `TourUpdated` event on create/update/delete to `catalog.events`.
-- [ ] **F3.6** AI Chatbot consumer — `TourUpdated` → re-index that tour's chunks in ChromaDB.
+- [x] **F3.6** AI Chatbot consumer — `TourUpdated` → re-index that tour's chunks in ChromaDB.
 - [x] **F3.7** Kong routes `/api/tours/*`, `/api/tour-categories/*` → catalog-service.
-- [ ] **F3.8** Remove tour APIs from monolith Strapi; verify frontend `Tours.jsx`, `TourDetail.jsx`.
+- [x] **F3.8** Remove tour APIs from monolith Strapi; verify frontend `Tours.jsx`, `TourDetail.jsx`.
 - [ ] **F3.9** Jest suite ≥80% coverage; CQRS read-model split for high-traffic list/detail queries.
 
 ### Sprint 4 — Content Service (Weeks 11–12)
@@ -867,6 +867,31 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F3.8** — remove the tour APIs from the monolith Strapi. Block `/api/tours/*` and `/api/tour-categories/*` with the same 410-Gone middleware pattern used in F2.5 (`block-legacy-auth.js`), keeping the rest of the Strapi content APIs untouched until Sprint 4.
+
+---
+
+### F3.8 — Block monolith tour APIs — 2026-05-12
+
+**What was done**
+- Added `Travel_TVB_Server/src/middlewares/block-legacy-catalog.js` — sister to F2.5's `block-legacy-auth.js`. Short-circuits any request matching `/api/tours(/...)` or `/api/tour-categories(/...)` with **HTTP 410 Gone** and a Strapi-style envelope pointing the caller at the Catalog Service.
+- Registered the middleware in `config/middlewares.js` after `block-legacy-auth`, so the monolith now returns 410 for both auth and catalog paths.
+- The Strapi admin panel (`/admin/...`) is untouched — admins can still view legacy tour data via the admin UI during the transition. (Sprint 4 will trim the admin panel down with the content-service split.)
+
+**Files touched**
+- `Travel_TVB_Server/src/middlewares/block-legacy-catalog.js` (new)
+- `Travel_TVB_Server/config/middlewares.js` (register new middleware)
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **One middleware per domain** — `block-legacy-auth` (Sprint 2) + `block-legacy-catalog` (Sprint 3). Easier to retire individually as the monolith shrinks; also keeps each middleware's pattern list short and obviously scoped.
+- **Same 410 envelope shape** — `{ error: { status: 410, name: 'GoneError', message } }` matches what the frontend already parses as `data.error.message`. Anyone running the legacy `VITE_STRAPI_URL` gets a clear "this moved" message instead of a quiet 404.
+- **No removal of `api/tour` content-type definitions** — the Strapi admin panel + the F3.3 migration still need them as the source of truth for the SQLite tables. We delete them with the rest of the monolith in Sprint 7.
+
+**Issues / unknowns**
+- The frontend pages `Tours.jsx` and `TourDetail.jsx` will get 410s if they're still pointing at port 1337. Sprint 6 F6.1 flips `VITE_STRAPI_URL` to the Kong URL; dev users who want to test locally can override it in `Travel_TVB/.env`.
+
+**Next**
+- **F3.9** — close out Sprint 3 with Jest coverage ≥80% plus a CQRS-style read-model split: separate `ToursQueryService` (read path, can be cached) from the existing `ToursService` (write path). Add a snapshot contract test that pins the frontend's response shape.
 
 ---
 
