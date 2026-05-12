@@ -1,0 +1,35 @@
+{
+  "collectionName": "components_slides_slides",
+  "info": {
+    "displayName": "Slide"
+  },
+  "options": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "backgroundImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "navTextLine1": {
+      "type": "string"
+    },
+    "navTextLine2": {
+      "type": "string"
+    },
+    "buttonText": {
+      "type": "string"
+    },
+    "buttonPath": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_menu_item_footer_menu1_items",
+  "info": {
+    "displayName": "Footer_Menu1_Item"
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

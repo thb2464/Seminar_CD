@@ -1,0 +1,55 @@
+{
+  "kind": "singleType",
+  "collectionName": "home_portfolios",
+  "info": {
+    "singularName": "home-portfolio",
+    "pluralName": "home-portfolios",
+    "displayName": "Home-Portfolio"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "Portfolio_Subtitle": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "Portfolia_Title": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "Year": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "slides.year",
+      "repeatable": true
+    },
+    "Partner": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "slides.partner",
+      "repeatable": true
+    }
+  }
+}

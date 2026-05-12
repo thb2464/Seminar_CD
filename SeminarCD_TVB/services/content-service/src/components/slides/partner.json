@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_slides_partners",
+  "info": {
+    "displayName": "Partner"
+  },
+  "options": {},
+  "attributes": {
+    "PartnerName": {
+      "type": "string"
+    },
+    "PartnerLogo": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "Description": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

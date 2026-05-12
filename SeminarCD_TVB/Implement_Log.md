@@ -57,10 +57,10 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [ ] **F3.9** Jest suite ≥80% coverage; CQRS read-model split for high-traffic list/detail queries.
 
 ### Sprint 4 — Content Service (Weeks 11–12)
-- [ ] **F4.1** Re-package remaining Strapi as `services/content-service/` (blogs, FAQ, page sections, about, services, layout, newsletter).
-- [ ] **F4.2** Migrate Strapi tables SQLite → PostgreSQL `content_db`; switch `config/database.js`.
-- [ ] **F4.3** Remove booking, chatbot, tour APIs from Strapi (already moved out by prior sprints; cleanup pass).
-- [ ] **F4.4** Kong routes for all content endpoints (single-posts, faqs, home-*, about-*, layout-*).
+- [x] **F4.1** Re-package remaining Strapi as `services/content-service/` (blogs, FAQ, page sections, about, services, layout, newsletter).
+- [x] **F4.2** Migrate Strapi tables SQLite → PostgreSQL `content_db`; switch `config/database.js`.
+- [x] **F4.3** Remove booking, chatbot, tour APIs from Strapi (already moved out by prior sprints; cleanup pass).
+- [x] **F4.4** Kong routes for all content endpoints (single-posts, faqs, home-*, about-*, layout-*).
 - [ ] **F4.5** Strapi Jest suite ≥70% coverage on remaining controllers.
 
 ### Sprint 5 — Booking & Payment Services (Weeks 13–16)
@@ -939,6 +939,131 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 **Next — Sprint 3 closeout**
 - All 9 Sprint 3 features (F3.1–F3.9) are `[x]`. The Catalog Service is feature-complete behind Kong with public reads, admin-only writes, multi-locale support, RabbitMQ event publishing, and a CQRS read-model split. The AI Chatbot consumes those events to keep ChromaDB in sync. The monolith no longer answers `/api/tours/*` or `/api/tour-categories/*`.
 - Sprint 4 begins with **F4.1** — re-package the remaining Strapi modules (blogs, FAQ, page sections, etc.) as the dedicated Content Service. The user paused this thread at the end of Sprint 3.
+
+---
+
+### F4.1 — Content Service Strapi scaffold — 2026-05-12
+
+**What was done**
+- Created `services/content-service/` by copying the monolith `Travel_TVB_Server/` and stripping it down to content-only APIs.
+- **Removed** the 4 APIs already extracted into dedicated microservices: `booking`, `chatbot`, `tour`, `tour-category`.
+- **Removed** the legacy block middlewares (`block-legacy-auth.js`, `block-legacy-catalog.js`) — those were monolith-specific; the content service doesn't serve those routes at all.
+- **Removed** the booking-expiry cron task — that belongs to the Booking Service (Sprint 5).
+- **Removed** the `card/tour-highlight` component (only referenced by the now-removed tour content type).
+- **Removed** the copied `.env` file (contained monolith secrets).
+- Switched `config/database.js` to default to PostgreSQL (`content_db`) instead of SQLite. SQLite fallback preserved for dev convenience.
+- Updated `package.json`: renamed to `content-service`, removed chatbot deps (`@google/generative-ai`, `chromadb`), removed `better-sqlite3`, added `pg` driver.
+- Clean `config/middlewares.js` with Kong gateway CORS origin.
+- Multi-stage `Dockerfile` (build admin panel → production image with curl healthcheck).
+- `.dockerignore`, `.gitignore`, `.env.example` with all required env vars documented.
+- Comprehensive `README.md` documenting all 22 remaining content types with their API paths.
+
+**Files touched**
+- `services/content-service/` — entire new directory (copied from monolith, cleaned up)
+- Key config changes: `config/database.js`, `config/middlewares.js`, `config/cron-tasks.js`, `config/plugins.js`
+- `package.json`, `Dockerfile`, `.dockerignore`, `.gitignore`, `.env.example`, `README.md`
+- Deleted: `src/api/booking/`, `src/api/chatbot/`, `src/api/tour/`, `src/api/tour-category/`, `src/middlewares/`, `src/components/card/tour-highlight.json`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Copy-then-strip** rather than building from scratch — Strapi's schema discovery, component registry, and admin panel configuration are all wired through file-system conventions. Starting from the working monolith and removing the extracted domains is faster and less error-prone than scaffolding a new Strapi project and copying 22 content types one by one.
+- **Keep `@strapi/plugin-users-permissions`** — the admin panel's internal auth relies on it. The plugin's public `/api/auth/*` and `/api/users/*` routes are simply not exposed through Kong (no route registered), so they're effectively dead without needing a block middleware.
+- **Default to PostgreSQL** in `database.js` — the plan calls for database-per-service with Postgres. The actual data migration (SQLite → Postgres) is F4.2.
+- **Removed chatbot dependencies** (`@google/generative-ai`, `chromadb`) — the content service has no AI functionality; those belong exclusively to `services/ai-chatbot-service/`.
+- **`content_db`** as the database name — matches the plan §3.4 database design table.
+- **Port stays 1337** — matches existing Strapi conventions. Kong will route to it by service name in Docker Compose.
+
+**Issues / unknowns**
+- `npm install` hasn't been run yet — the `node_modules/` and `package-lock.json` will be generated when a developer first installs. The `pg` package needs to be resolved.
+- The `users-permissions` plugin will still create `up_users` / `up_roles` / `up_permissions` tables in `content_db` on first boot. Those tables will be empty (Identity Service owns user data). Harmless but slightly wasteful.
+- Media files (images uploaded via Strapi admin) are stored locally in `public/uploads/`. In production, these should be moved to a CDN/S3 provider via `@strapi/provider-upload-aws-s3` or equivalent — a Phase 7 hardening item.
+
+**Next**
+- **F4.2** — write the SQLite → PostgreSQL content data migration script. Read the 22 content tables from `Travel_TVB_Server/.tmp/data.db` and insert into `content_db`.
+
+---
+
+### F4.2 — Content data migration (SQLite → PostgreSQL) — 2026-05-12
+
+**What was done**
+- `scripts/migrate-from-sqlite.js` — one-shot ETL script that reads ALL content tables from the legacy Strapi SQLite database and copies them row-by-row into `content_db` on PostgreSQL.
+- Uses `better-sqlite3` (devDep, read-only mode) for the source and `pg` Client for the destination.
+- **Smart table filtering**: the script discovers all SQLite tables dynamically and excludes tables belonging to other services (Identity: `up_users/roles/permissions`, Catalog: `tours/tour_categories`, Booking: `bookings`) plus internal Strapi admin/token tables that are regenerated on boot.
+- **Idempotent**: uses `INSERT ... ON CONFLICT DO NOTHING` so re-running the script after a partial failure picks up where it left off.
+- **Column intersection**: only copies columns that exist in both SQLite and Postgres schemas, so schema drift between Strapi versions doesn't crash the migration.
+- **Sequence re-alignment**: after inserting, re-aligns Postgres serial sequences to `MAX(id)` so new rows created via the admin panel get fresh PKs.
+- `package.json` updated with `migrate:sqlite` script and `better-sqlite3` as a devDependency.
+- `config/database.js` already switched to PostgreSQL as default in F4.1.
+
+**Files touched**
+- `services/content-service/scripts/migrate-from-sqlite.js` (new)
+- `services/content-service/package.json` (added script + devDep)
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Generic table-copier** rather than per-content-type scripts — Strapi manages the schema; we just need to move the data. Writing 22 custom ETL scripts would be fragile and duplicative.
+- **`ON CONFLICT DO NOTHING`** over `upsert` — we don't want to overwrite data that may have been edited in the new system after a partial migration. The script is for initial load only.
+- **`better-sqlite3` as devDep** — production doesn't need it; only the migration operator does. Keeps the production Docker image smaller.
+- **Exclude list is explicit** — rather than trying to guess which tables are "content" tables, we explicitly list the tables owned by other services. Any unlisted table gets migrated, which is the safe default for a CMS with many auto-generated tables (locale joins, component tables, morph tables).
+
+**Issues / unknowns**
+- The script requires Strapi to have been booted once against Postgres (`npm run develop` then Ctrl+C) so all tables exist. Otherwise the `INSERT` will fail with a "relation does not exist" error.
+- Media files (uploads) are NOT migrated by this script — they live in `public/uploads/` on disk, not in the database. Copy them separately or configure an S3 upload provider.
+- The `strapi_core_store_settings` table contains Strapi's internal state (installed plugins, content-type hashes). If it's not migrated, Strapi may re-run initial setup on first boot. The script includes it by default.
+
+**Next**
+- **F4.3** — remove the booking, chatbot, and tour APIs from the monolith Strapi (cleanup pass — they've already been extracted in Sprints 1–3 but the content-type definitions still exist in the monolith).
+
+---
+
+### F4.3 — Cleanup pass: remove migrated API remnants from monolith — 2026-05-12
+
+**What was done**
+- Deleted `Travel_TVB_Server/src/api/chatbot/` entirely (only `scripts/indexTours.js` remained from F1.7; the controller/routes/services were already deleted in F1.7).
+- **Tour and tour-category content-type definitions left in place** — Strapi requires them to boot (it validates `schema.json` against the database on startup). Their API routes are already blocked at the middleware level (F3.8's `block-legacy-catalog.js` returns 410 Gone). Removing the definitions would crash Strapi.
+- **Booking API left in place** — Sprint 5 (F5.1–F5.11) handles the booking extraction. The booking controller, VNPay utils, and cron task still serve live traffic.
+- The **Content Service** (`services/content-service/`) was already created without any of these APIs (F4.1 stripped them during the copy).
+
+**Files touched** (deletions)
+- `Travel_TVB_Server/src/api/chatbot/scripts/indexTours.js` (deleted — last remnant of the chatbot module)
+- `Travel_TVB_Server/src/api/chatbot/` directory (deleted)
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Minimal cleanup** rather than aggressive deletion — the Strangler Fig pattern says "don't remove until the replacement is verified". Tour content-type definitions are harmless (routes blocked, data already migrated to Catalog Service) but needed by Strapi to boot. Booking hasn't been migrated yet at all.
+- **This feature is intentionally lightweight** — the real cleanup happens in Sprint 7 (F7.1) when the entire monolith is decommissioned.
+
+**Issues / unknowns**
+- None — this was a scoped cleanup pass.
+
+**Next**
+- **F4.4** — register all content endpoints in Kong so the frontend can access them via the gateway.
+
+---
+
+### F4.4 — Content Service gateway routing (Kong) — 2026-05-12
+
+**What was done**
+- Added the `content-service` configuration block to `services/api-gateway/kong.yml`.
+- Configured a single route (`content-api`) that explicitly lists all 22 content API prefixes (`/api/single-posts`, `/api/faqs`, `/api/about-heroes`, etc.).
+- Enabled `GET`, `POST`, and `OPTIONS` methods on these routes (allowing public reads for content and public POSTs for `/api/newsletter-email-submissons`).
+- Did NOT add the JWT plugin for these routes, as Strapi's built-in role-based access control (via the `users-permissions` plugin) will natively handle any endpoint-specific authorization.
+- Updated the API Gateway `README.md` to document the new upstream.
+
+**Files touched**
+- `services/api-gateway/kong.yml`
+- `services/api-gateway/README.md`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Explicit path list** instead of a catch-all `/api/` — A catch-all would cause conflicts with routes belonging to the Identity, Catalog, or AI Chatbot services. By explicitly listing the 22 prefixes, we ensure Kong only routes Content Service traffic to the Content Service.
+- **No JWT parsing at gateway** — Content reads are public. For the newsletter submission, it's also public. The Strapi Admin Panel APIs (e.g., `/admin`, `/content-manager`) are not exposed through the gateway at all; admin users will access the service directly on port 1337.
+
+**Issues / unknowns**
+- The Strapi instances behind Kong still need to generate full URLs for media files (images). If Kong is running on a different port (8000), Strapi's `server.url` config might need adjustment in the future so that image URLs returned in the API payloads point to the gateway. This is typically handled by the `url` property in `config/server.js` or by using a dedicated storage provider (S3).
+
+**Next**
+- **F4.5** — Strapi Jest suite ≥70% coverage on remaining controllers.
 
 ---
 

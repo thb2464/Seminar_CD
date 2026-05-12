@@ -1,0 +1,19 @@
+{
+  "kind": "collectionType",
+  "collectionName": "newsletter_email_submissons",
+  "info": {
+    "singularName": "newsletter-email-submisson",
+    "pluralName": "newsletter-email-submissons",
+    "displayName": "Newsletter Email Submission"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "UsersEmail": {
+      "type": "email",
+      "required": true
+    }
+  }
+}
