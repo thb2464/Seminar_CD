@@ -32,7 +32,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F1.2** Port `chatbot.js` controller → `POST /api/chat/query` — request validation, rate limiter (15 req/min/IP), error handling.
 - [x] **F1.3** Port `vectorStore.js` → Python ChromaDB client wrapper (query/upsert/delete), tested against a real ChromaDB.
 - [x] **F1.4** Port chatbot service logic — Gemini embedding call, RAG context build, prompt template, response shaping.
-- [ ] **F1.5** Port `indexTours.js` → async indexing job. CLI: `python -m chatbot.scripts.index_tours`.
+- [x] **F1.5** Port `indexTours.js` → async indexing job. CLI: `python -m app.scripts.index_tours`.
 - [ ] **F1.6** Kong route `/api/chatbot/*` → ai-chatbot-service.
 - [ ] **F1.7** Remove `Travel_TVB_Server/src/api/chatbot/` from monolith; verify the frontend `ChatbotWidget` still works.
 - [ ] **F1.8** PyTest suite ≥75% coverage; contract test with the frontend payload schema.
@@ -256,6 +256,41 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F1.5** — `app/scripts/index_tours.py`: async CLI that fetches all tours from the Catalog Service (or the still-monolith Strapi during Sprint 1), chunks them (overview / description / highlights / itinerary), embeds, and upserts into ChromaDB. Mirrors the cron-driven `index-tours-cron.sh` workflow.
+
+---
+
+### F1.5 — Tour indexing CLI in Python — 2026-05-12
+
+**What was done**
+- `app/scripts/index_tours.py` — async CLI that pulls all tours from Strapi (`/api/tours?locale=<lang>&populate=*&publicationState=live`, paginated 50 per page), splits each into four chunk types, and upserts them into ChromaDB via the F1.3 `VectorStore`.
+- `app/scripts/blocks.py` — minimal renderer for Strapi v5's `blocks` rich-text format: paragraphs join with `\n`, unordered lists become `•` bullets, ordered lists become `1.`, `2.`, ..., images dropped. Plain text is enough for embedding.
+- Chunk types (parity with what the monolith README documented): **overview** (name + short desc + location + region + price + duration + rating), **description** (rendered blocks), **highlights** (bulleted Title/Description pairs from the `card.tour-highlight` component), **itinerary** (rendered blocks). Empty sections skipped.
+- Per-tour metadata stored on each chunk: `tourId`, `tourSlug`, `tourName`, `language`, `price` (formatted `2.500.000 VND`), `location`, `region`, `durationDays`, `rating`, `chunkType`. This is the metadata the F1.3 vector store filters on.
+- Stable IDs: `<lang>::<slug>::<chunkType>` so re-indexing upserts cleanly without duplicate vectors.
+- CLI flags: `--clear` (drop the collection first), `--language vi|en|zh` (repeatable; defaults to all three).
+- `pyproject.toml` already exposes `index-tours = "app.scripts.index_tours:main"` (added in F1.1), so the script is reachable as both `python -m app.scripts.index_tours` and the `index-tours` entry-point.
+- Tests: `test_index_tours.py` covers the blocks renderer (5 cases), price formatter (2 cases), chunk builder (3 cases — all four chunk types emitted, overview content, skipping empty sections), and document IDs/metadata (2 cases). 12 cases total.
+
+**Files touched**
+- `services/ai-chatbot-service/app/scripts/__init__.py`
+- `services/ai-chatbot-service/app/scripts/blocks.py`
+- `services/ai-chatbot-service/app/scripts/index_tours.py`
+- `services/ai-chatbot-service/tests/test_index_tours.py`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **`httpx.AsyncClient`** over `aiohttp` — already a transitive dep; keeps the test-friendly `respx`-style mocking story consistent across services.
+- **Pagination via Strapi's `pagination[page]`** rather than `start`/`limit` — matches Strapi 5 conventions and respects `pageCount` from the meta envelope.
+- **`publicationState=live`** to mirror what the public site sees — never index drafts.
+- **Price formatting `2.500.000 VND`** (Vietnamese dot-as-thousand-separator) baked into the metadata so the chatbot's reply can quote it verbatim without re-formatting.
+- **No retry on the Strapi fetch** at this layer — `httpx` raises and the next cron run picks up. F0.6's CI workflow will add a `--retries` flag later if it proves flaky.
+
+**Issues / unknowns**
+- The legacy `index-tours-cron.sh` references ports 17234 (Strapi) and 42839 (ChromaDB). The new CLI reads `CATALOG_BASE_URL` and `CHROMADB_HOST/PORT` from env — operators just point at whichever instance is live. The shell wrapper will be retired in F1.7 along with the monolith chatbot module.
+- The `card.tour-highlight` component schema isn't declared in `Travel_TVB_Server/src/components/` yet (no `components/` dir visible). We optimistically read `Title` / `Description` (and lowercase variants) so the renderer survives whichever casing Strapi serialises.
+
+**Next**
+- **F1.6** — Kong gateway route. `/api/chatbot/*` → ai-chatbot-service, with path rewrite `/api/chatbot → /api/chat` so the frontend `ChatbotWidget`'s existing URL keeps working. Declarative config under `services/api-gateway/kong.yml`.
 
 ---
 
