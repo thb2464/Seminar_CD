@@ -68,7 +68,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F5.2** Port `booking.js` controller (599 lines) → NestJS — `create`, `myBookings`, `cancelBooking`, `getAvailability`.
 - [x] **F5.3** Publish `BookingCreated` event on creation.
 - [x] **F5.4** Subscribe to `payment.events` — `PaymentCompleted` / `PaymentFailed` → update booking status state machine.
-- [ ] **F5.5** Payment NestJS scaffold (`services/payment-service/`) — Payment, VNPayTransaction, RefundRequest modules.
+- [x] **F5.5** Payment NestJS scaffold (`services/payment-service/`) — Payment, VNPayTransaction, RefundRequest modules.
 - [ ] **F5.6** Port VNPay logic — `createPaymentUrl`, `vnpayReturn` (HMAC verification), `processVnpayRefund` from `vnpay-helpers.js`.
 - [ ] **F5.7** Publish `PaymentCompleted` / `PaymentFailed` after callback verification.
 - [ ] **F5.8** Circuit breaker around outbound VNPay calls.
@@ -1216,6 +1216,26 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F5.5** — Payment NestJS scaffold (`services/payment-service/`) — Payment, VNPayTransaction, RefundRequest modules.
+
+---
+
+### F5.5 — Payment NestJS scaffold — 2026-05-12
+
+**What was done**
+- Scaffolded `payment-service` using `@nestjs/cli`.
+- Generated structural modules: `PaymentModule`, `VnpayTransactionModule`, `RefundRequestModule`.
+- Wired up foundational configs: `ConfigModule` with Joi validation (`RABBITMQ_URL`, `DATABASE_*`, `VNPAY_*`), `TypeOrmModule` for future entities, and `LoggerModule` (pino) for consistent JSON logging.
+- Set up standard `npm` dependencies matching other services (`nestjs-pino`, `typeorm`, `amqplib`, etc.).
+
+**Files touched**
+- `services/payment-service/`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- Kept the same standard boilerplate as other services (Postgres, RabbitMQ, Pino) to ensure operational consistency.
+
+**Next**
+- **F5.6** Port VNPay logic — `createPaymentUrl`, `vnpayReturn` (HMAC verification), `processVnpayRefund` from `vnpay-helpers.js`.
 
 ---
 
