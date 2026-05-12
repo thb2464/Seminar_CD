@@ -17,4 +17,7 @@ module.exports = [
   'strapi::session',
   'strapi::favicon',
   'strapi::public',
+  // Sprint 2 (F2.5): /api/auth/* and /api/users/* now live on the Identity
+  // Service. Anything still hitting the monolith for those paths gets 410.
+  'global::block-legacy-auth',
 ];
