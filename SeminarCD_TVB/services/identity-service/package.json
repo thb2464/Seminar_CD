@@ -93,6 +93,7 @@
     "coveragePathIgnorePatterns": [
       "src/main.ts",
       "src/database/migrations",
+      "src/database/data-source.ts",
       "\\.module\\.ts$"
     ],
     "testEnvironment": "node"
