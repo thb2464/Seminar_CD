@@ -47,7 +47,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 ### Sprint 3 — Catalog Service (Weeks 8–10)
 - [x] **F3.1** NestJS scaffold (`services/catalog-service/`) — Tour, TourCategory, Region, Itinerary, Highlight, Gallery, Pricing modules.
-- [ ] **F3.2** Schema design — PostgreSQL tables matching Strapi tour entities incl. locale variants (vi/en/zh).
+- [x] **F3.2** Schema design — PostgreSQL tables matching Strapi tour entities incl. locale variants (vi/en/zh).
 - [ ] **F3.3** Data migration — SQLite tour tables → PostgreSQL `catalog_db`. Preserve slugs, IDs, locale links.
 - [ ] **F3.4** REST API — match every existing `/api/tours`, `/api/tour-categories` endpoint contract (filters, populate, locale, pagination).
 - [ ] **F3.5** Publish `TourUpdated` event on create/update/delete to `catalog.events`.
@@ -635,6 +635,37 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F3.2** — design the PostgreSQL schema. One `tour_categories` table + one `tours` table, both with `(document_id, locale)` unique key matching Strapi's locale model. Highlights / itinerary / gallery as JSONB columns on `tours`. First TypeORM migration.
+
+---
+
+### F3.2 — PostgreSQL tour schema (multi-locale) — 2026-05-12
+
+**What was done**
+- `TourCategory` entity with `(document_id, locale)` unique key matching Strapi's locale grouping, plus `(slug, locale)` index. Fields: `name`, `description`, timestamps, `OneToMany` to `Tour`.
+- `Tour` entity with every column the Strapi schema exposes: identity (`document_id`, `locale`, `slug`, `tour_name`), text (`short_description`, `description` JSONB blocks), geo (`region`, `location`, `departure_location`), pricing (`price`, `original_price`, `child_price` as bigint with a string→number transformer), duration (`duration_days`, `duration_nights`), meta (`max_participants`, `rating`, `review_count`, `transport_type`, `is_featured`), JSONB collections (`highlights`, `itinerary`, `gallery`), `featured_image_url`, FK to `TourCategory` with `ON DELETE SET NULL`, audit timestamps + `deleted_at` soft delete.
+- Indexes: unique `(document_id, locale)`, plus `(slug, locale)`, `region`, `is_featured`.
+- `src/database/data-source.ts` for runtime + migration CLI.
+- `1715515300000-InitCatalogSchema.ts` migration creates both tables, the FK, and all indices using TypeORM's declarative builders. Reversible `down()`.
+- Entity specs: `tour.entity.spec.ts` (4 cases — default arrays, nullable prices, numeric prices, Strapi blocks) and `tour-category.entity.spec.ts` (1 case — locale-grouping fields).
+
+**Files touched**
+- `services/catalog-service/src/catalog/entities/tour-category.entity.ts`, `tour-category.entity.spec.ts`
+- `services/catalog-service/src/catalog/entities/tour.entity.ts`, `tour.entity.spec.ts`
+- `services/catalog-service/src/database/data-source.ts`
+- `services/catalog-service/src/database/migrations/1715515300000-InitCatalogSchema.ts`
+
+**Decisions**
+- **Same-row-per-locale (Strapi-style)** rather than parent+translations tables — preserves Strapi's `document_id` linking so existing slugs and IDs survive the F3.3 migration unchanged.
+- **JSONB for highlights/itinerary/gallery** instead of child tables — Strapi serialises these as nested JSON already; child-table normalisation would lose the original payload and the catalog always serves them whole.
+- **`bigint` for price columns with a numberish transformer** — Strapi uses `biginteger`; the `pg` driver returns bigints as strings, so we parse back to `number`. No real Vietnamese tour price exceeds `Number.MAX_SAFE_INTEGER`.
+- **Soft delete via `deleted_at`** — the F3.9 CQRS read-model needs to emit tombstones, not just stop including a row.
+
+**Issues / unknowns**
+- Strapi blocks are stored verbatim. If the frontend ever swaps to plain Markdown, we'll add a separate column or translate at the gateway.
+- `synchronize: true` is unreliable for FK + index ordering; production must always run `migration:run` before `start:prod`.
+
+**Next**
+- **F3.3** — write the SQLite → PostgreSQL data migration for tours + tour_categories. Read Strapi's locale-lookup tables, fan rows into the new tables preserving `document_id` and slugs.
 
 ---
 
