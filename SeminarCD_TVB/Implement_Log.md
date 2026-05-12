@@ -67,7 +67,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F5.1** Booking NestJS scaffold (`services/booking-service/`) — Booking, TravelDate, ContactInfo modules.
 - [x] **F5.2** Port `booking.js` controller (599 lines) → NestJS — `create`, `myBookings`, `cancelBooking`, `getAvailability`.
 - [x] **F5.3** Publish `BookingCreated` event on creation.
-- [ ] **F5.4** Subscribe to `payment.events` — `PaymentCompleted` / `PaymentFailed` → update booking status state machine.
+- [x] **F5.4** Subscribe to `payment.events` — `PaymentCompleted` / `PaymentFailed` → update booking status state machine.
 - [ ] **F5.5** Payment NestJS scaffold (`services/payment-service/`) — Payment, VNPayTransaction, RefundRequest modules.
 - [ ] **F5.6** Port VNPay logic — `createPaymentUrl`, `vnpayReturn` (HMAC verification), `processVnpayRefund` from `vnpay-helpers.js`.
 - [ ] **F5.7** Publish `PaymentCompleted` / `PaymentFailed` after callback verification.
@@ -1189,6 +1189,33 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F5.4** — Subscribe to `payment.events` — `PaymentCompleted` / `PaymentFailed` → update booking status state machine.
+
+---
+
+### F5.4 — Subscribe to payment.events — 2026-05-12
+
+**What was done**
+- Implemented `PaymentEventsSubscriber` in the Booking Service to listen to the `payment.events` topic exchange.
+- Defined `PaymentCompleted` and `PaymentFailed` event types to serve as contracts for the upcoming Payment Service.
+- Wired the AMQP consumer using the shared connection manager from `events.module.ts`.
+- Updated the booking state machine logic: transitions booking status to `Paid` and records `vnpayTransactionNo` on `PaymentCompleted`, and transitions status to `Failed` on `PaymentFailed`.
+
+**Files touched**
+- `services/booking-service/src/events/payment-event.types.ts`
+- `services/booking-service/src/events/payment-events.subscriber.ts`
+- `services/booking-service/src/events/events.module.ts`
+- `services/booking-service/src/config/env.validation.ts`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Forward-looking event contracts**: Since the Payment Service isn't built yet, the event envelope (`payment.events`) and types (`PaymentCompleted`, `PaymentFailed`) were designed anticipating standard saga requirements.
+- **Consumer queue durability**: Used a durable queue (`booking_service_payment_events`) to ensure payment events aren't lost if the booking service is temporarily down or restarting.
+
+**Issues / unknowns**
+- Unparseable payloads currently reject without requeue. In a production scenario, dead-lettering for malformed events would be ideal to prevent silent failures.
+
+**Next**
+- **F5.5** — Payment NestJS scaffold (`services/payment-service/`) — Payment, VNPayTransaction, RefundRequest modules.
 
 ---
 
