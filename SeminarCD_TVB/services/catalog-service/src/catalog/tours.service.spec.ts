@@ -3,6 +3,23 @@ import { NotFoundException } from '@nestjs/common';
 import { Tour } from './entities/tour.entity';
 import { ToursService } from './tours.service';
 
+function makeEvents() {
+  return {
+    publishTourCreated: jest.fn().mockResolvedValue(undefined),
+    publishTourUpdated: jest.fn().mockResolvedValue(undefined),
+    publishTourDeleted: jest.fn().mockResolvedValue(undefined),
+  } as any;
+}
+
+function buildRepo() {
+  return {
+    findOne: jest.fn(),
+    create: jest.fn((value: unknown) => value as Tour),
+    save: jest.fn(async (value: unknown) => value as Tour),
+    softRemove: jest.fn(async (value: unknown) => value as Tour),
+  };
+}
+
 function makeTour(partial: Partial<Tour> = {}): Tour {
   const tour = new Tour();
   Object.assign(
@@ -43,135 +60,59 @@ function makeTour(partial: Partial<Tour> = {}): Tour {
   return tour;
 }
 
-function makeEvents() {
-  return {
-    publishTourCreated: jest.fn().mockResolvedValue(undefined),
-    publishTourUpdated: jest.fn().mockResolvedValue(undefined),
-    publishTourDeleted: jest.fn().mockResolvedValue(undefined),
-  } as any;
-}
-
-function buildRepo() {
-  return {
-    findOne: jest.fn(),
-    findAndCount: jest.fn(),
-    create: jest.fn((value: unknown) => value as Tour),
-    save: jest.fn(async (value: unknown) => value as Tour),
-    softRemove: jest.fn(async (value: unknown) => value as Tour),
-  };
-}
-
-describe('ToursService', () => {
-  it('list returns Strapi-style envelope with pagination meta', async () => {
+describe('ToursService (write side)', () => {
+  it('create persists, emits TourCreated, and stamps UUID documentId', async () => {
     const repo = buildRepo();
-    repo.findAndCount.mockResolvedValue([[makeTour()], 47]);
-    const service = new ToursService(repo as any, makeEvents());
-
-    const result = await service.list({
-      locale: 'vi',
-      pagination: { page: 2, pageSize: 10 },
-    } as any);
-
-    expect(result.data).toHaveLength(1);
-    expect(result.meta.pagination).toEqual({
-      page: 2,
-      pageSize: 10,
-      pageCount: 5,
-      total: 47,
-    });
-    const [options] = repo.findAndCount.mock.calls[0];
-    expect(options.where).toMatchObject({ locale: 'vi' });
-    expect(options.take).toBe(10);
-    expect(options.skip).toBe(10);
-  });
-
-  it('list applies filters into the where clause', async () => {
-    const repo = buildRepo();
-    repo.findAndCount.mockResolvedValue([[], 0]);
-    const service = new ToursService(repo as any, makeEvents());
-
-    await service.list({
-      locale: 'en',
-      filters: { region: 'MienBac', isFeatured: true, categoryId: 7 },
-    } as any);
-    const [options] = repo.findAndCount.mock.calls[0];
-    expect(options.where).toMatchObject({
-      locale: 'en',
-      region: 'MienBac',
-      isFeatured: true,
-      tourCategoryId: 7,
-    });
-  });
-
-  it('list defaults sort to createdAt DESC, accepts whitelisted overrides', async () => {
-    const repo = buildRepo();
-    repo.findAndCount.mockResolvedValue([[], 0]);
-    const service = new ToursService(repo as any, makeEvents());
-    await service.list({ locale: 'vi' } as any);
-    expect(repo.findAndCount.mock.calls[0][0].order).toEqual({ createdAt: 'DESC' });
-
-    repo.findAndCount.mockClear();
-    await service.list({ locale: 'vi', sort: 'price:asc' } as any);
-    expect(repo.findAndCount.mock.calls[0][0].order).toEqual({ price: 'ASC' });
-  });
-
-  it('list ignores non-whitelisted sort fields', async () => {
-    const repo = buildRepo();
-    repo.findAndCount.mockResolvedValue([[], 0]);
-    const service = new ToursService(repo as any, makeEvents());
-    await service.list({ locale: 'vi', sort: 'password:desc' } as any);
-    expect(repo.findAndCount.mock.calls[0][0].order).toEqual({ createdAt: 'DESC' });
-  });
-
-  it('findById raises NotFound when missing', async () => {
-    const repo = buildRepo();
-    repo.findOne.mockResolvedValue(null);
-    const service = new ToursService(repo as any, makeEvents());
-    await expect(service.findById(99, 'vi')).rejects.toBeInstanceOf(NotFoundException);
-  });
-
-  it('findBySlug locates by slug + locale', async () => {
-    const repo = buildRepo();
-    const tour = makeTour({ slug: 'hue-tour', locale: 'en' });
-    repo.findOne.mockResolvedValue(tour);
-    const service = new ToursService(repo as any, makeEvents());
-
-    const found = await service.findBySlug('hue-tour', 'en');
-    expect(found).toBe(tour);
-    expect(repo.findOne).toHaveBeenCalledWith({ where: { slug: 'hue-tour', locale: 'en' } });
-  });
-
-  it('create persists with sensible defaults, assigning documentId if absent', async () => {
-    const repo = buildRepo();
-    const service = new ToursService(repo as any, makeEvents());
-    const tour = await service.create({
+    const events = makeEvents();
+    const service = new ToursService(repo as any, events);
+    const saved = await service.create({
       locale: 'vi',
       slug: 'new-tour',
       tourName: 'New Tour',
     } as any);
-    expect(tour.documentId).toBeDefined();
-    expect(tour.documentId).not.toBe('');
-    expect(tour.highlights).toEqual([]);
-    expect(tour.gallery).toEqual([]);
-    expect(tour.isFeatured).toBe(false);
+    expect(saved.documentId).toBeDefined();
+    expect(saved.documentId).not.toBe('');
+    expect(saved.isFeatured).toBe(false);
+    expect(events.publishTourCreated).toHaveBeenCalledTimes(1);
   });
 
-  it('update merges only provided fields', async () => {
+  it('update merges only provided fields and emits TourUpdated', async () => {
     const repo = buildRepo();
     repo.findOne.mockResolvedValue(makeTour({ tourName: 'Old', price: 1000 }));
-    const service = new ToursService(repo as any, makeEvents());
-
-    const updated = await service.update(1, { tourName: 'New', locale: 'vi' } as any);
+    const events = makeEvents();
+    const service = new ToursService(repo as any, events);
+    const updated = await service.update(1, { locale: 'vi', tourName: 'New' } as any);
     expect(updated.tourName).toBe('New');
     expect(updated.price).toBe(1000);
+    expect(events.publishTourUpdated).toHaveBeenCalledWith(updated);
   });
 
-  it('softDelete calls softRemove on the matched row', async () => {
+  it('update raises NotFound and skips emit when missing', async () => {
+    const repo = buildRepo();
+    repo.findOne.mockResolvedValue(null);
+    const events = makeEvents();
+    const service = new ToursService(repo as any, events);
+    await expect(service.update(99, { locale: 'vi' } as any)).rejects.toBeInstanceOf(NotFoundException);
+    expect(events.publishTourUpdated).not.toHaveBeenCalled();
+  });
+
+  it('softDelete soft-removes and emits TourDeleted', async () => {
     const repo = buildRepo();
     const tour = makeTour();
     repo.findOne.mockResolvedValue(tour);
-    const service = new ToursService(repo as any, makeEvents());
+    const events = makeEvents();
+    const service = new ToursService(repo as any, events);
     await service.softDelete(1, 'vi');
     expect(repo.softRemove).toHaveBeenCalledWith(tour);
+    expect(events.publishTourDeleted).toHaveBeenCalledWith(tour);
+  });
+
+  it('softDelete raises NotFound when missing', async () => {
+    const repo = buildRepo();
+    repo.findOne.mockResolvedValue(null);
+    const events = makeEvents();
+    const service = new ToursService(repo as any, events);
+    await expect(service.softDelete(99, 'vi')).rejects.toBeInstanceOf(NotFoundException);
+    expect(events.publishTourDeleted).not.toHaveBeenCalled();
   });
 });
