@@ -1,0 +1,60 @@
+version: "3.9"
+
+# Standalone Kong stack for local development of Sprint 1 features.
+# The full multi-service compose lives at infra/docker-compose.yml (added in
+# Sprint 0 F0.2). Use this file when you only need the gateway + chatbot.
+#
+# Usage:
+#   docker compose -f services/api-gateway/docker-compose.yml up
+
+services:
+  kong:
+    image: kong:3.7-alpine
+    container_name: travel-tvb-kong
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_LOG_LEVEL: info
+    volumes:
+      - ./kong.yml:/etc/kong/kong.yml:ro
+    ports:
+      - "8000:8000"   # proxy port (public API)
+      - "8001:8001"   # admin API (local only)
+    depends_on:
+      - ai-chatbot-service
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ai-chatbot-service:
+    build:
+      context: ../ai-chatbot-service
+      dockerfile: Dockerfile
+    container_name: travel-tvb-ai-chatbot
+    env_file:
+      - ../ai-chatbot-service/.env
+    environment:
+      CHROMADB_HOST: chromadb
+      CHROMADB_PORT: "8000"
+    expose:
+      - "8080"
+    depends_on:
+      - chromadb
+
+  chromadb:
+    image: chromadb/chroma:0.5.20
+    container_name: travel-tvb-chromadb
+    volumes:
+      - chroma-data:/chroma/chroma
+    ports:
+      - "8800:8000"
+
+volumes:
+  chroma-data:

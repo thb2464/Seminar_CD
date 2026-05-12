@@ -33,7 +33,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F1.3** Port `vectorStore.js` → Python ChromaDB client wrapper (query/upsert/delete), tested against a real ChromaDB.
 - [x] **F1.4** Port chatbot service logic — Gemini embedding call, RAG context build, prompt template, response shaping.
 - [x] **F1.5** Port `indexTours.js` → async indexing job. CLI: `python -m app.scripts.index_tours`.
-- [ ] **F1.6** Kong route `/api/chatbot/*` → ai-chatbot-service.
+- [x] **F1.6** Kong route `/api/chatbot/*` → ai-chatbot-service.
 - [ ] **F1.7** Remove `Travel_TVB_Server/src/api/chatbot/` from monolith; verify the frontend `ChatbotWidget` still works.
 - [ ] **F1.8** PyTest suite ≥75% coverage; contract test with the frontend payload schema.
 
@@ -291,6 +291,39 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F1.6** — Kong gateway route. `/api/chatbot/*` → ai-chatbot-service, with path rewrite `/api/chatbot → /api/chat` so the frontend `ChatbotWidget`'s existing URL keeps working. Declarative config under `services/api-gateway/kong.yml`.
+
+---
+
+### F1.6 — Kong gateway route for chatbot — 2026-05-12
+
+**What was done**
+- `services/api-gateway/kong.yml` — declarative DB-less Kong config (format 3.0). Defines the `ai-chatbot-service` upstream + two routes:
+  - `/api/chatbot/query` (POST, OPTIONS) → rewrites to `/api/chat/query` on the service so the existing frontend URL (`src/config/strapi.js: CHATBOT_QUERY = '/api/chatbot/query'`) keeps working unchanged.
+  - `/api/chatbot/health` (GET) → rewrites to `/health` for smoke checks via the gateway.
+- Global plugins:
+  - `cors` — allows the dev origin `http://localhost:5173` and the prod hostname; exposes `X-Trace-Id` to the browser.
+  - `correlation-id` — generates a UUID `X-Trace-Id` per request and echoes it downstream (sets up Phase 7 F0.4's trace propagation).
+- `services/api-gateway/docker-compose.yml` — standalone Kong + chatbot + ChromaDB stack so the route can be exercised locally without waiting for Sprint 0's full infra compose. Kong listens on 8000 (proxy) and 8001 (admin), ChromaDB on 8800 (mapped so the host 8000 stays free for Kong).
+- README documents validate / reload commands and the route table.
+
+**Files touched**
+- `services/api-gateway/kong.yml`
+- `services/api-gateway/docker-compose.yml`
+- `services/api-gateway/README.md`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **DB-less mode** for Kong — config is version-controlled, no Postgres dependency for the gateway itself. Switch to DB-backed if we ever need the Konnect / dynamic-config workflow.
+- **`request-transformer`** for the path rewrite rather than `strip_path` + Lua — simpler to read in `kong.yml`, no custom plugin needed.
+- **No rate limit at the gateway yet** — the service-level limiter (F1.2) is the source of truth; adding a second one at Kong would just duplicate the 429 logic. Will revisit if we ever need global throttling per IP across endpoints.
+- **`X-Trace-Id` header name** chosen over Kong's default `Kong-Request-ID` — keeps the contract consistent across services and short enough for log fields.
+
+**Issues / unknowns**
+- The standalone compose builds the chatbot image locally with `build: context: ../ai-chatbot-service`. Once Sprint 0 F0.6's CI workflow pushes images to a registry, switch to `image: registry/...:tag`.
+- The CORS origin list is hardcoded; should move to env-driven config (`KONG_NGINX_PROXY_CORS_ORIGINS`) in a future hardening pass — fine for the seminar capstone.
+
+**Next**
+- **F1.7** — remove `Travel_TVB_Server/src/api/chatbot/` from the monolith. Also delete `index-tours-cron.sh` and `index-tours-cron.log` (cron now invokes the Python CLI). Frontend stays unchanged — Kong is doing the path translation.
 
 ---
 
