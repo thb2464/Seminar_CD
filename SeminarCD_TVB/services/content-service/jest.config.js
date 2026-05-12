@@ -3,7 +3,7 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.test.js', '**/*.test.js'],
   testPathIgnorePatterns: ['/node_modules/', '/dist/', '/build/'],
   collectCoverageFrom: [
-    'src/api/**/utils/**/*.js',
+    'src/api/**/controllers/**/*.js',
     '!src/admin/**',
   ],
   coverageDirectory: 'coverage',
