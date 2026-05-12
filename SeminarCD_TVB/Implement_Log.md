@@ -42,7 +42,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F2.2** Data migration script — SQLite `up_users` → PostgreSQL `users` (preserve `id`, hashed password, role).
 - [x] **F2.3** Auth endpoints — `POST /api/auth/local`, `POST /api/auth/local/register`, `GET /api/users/me`. JWT issuance compatible with the current `AuthContext.jsx`.
 - [x] **F2.4** Kong auth plugin — validate JWT, inject `X-User-Id`, `X-User-Role` headers downstream.
-- [ ] **F2.5** Disable Strapi `users-permissions` routes (or remove plugin entirely once safe).
+- [x] **F2.5** Disable Strapi `users-permissions` routes (or remove plugin entirely once safe).
 - [ ] **F2.6** Jest suite ≥80% coverage; Pact provider tests for `/api/auth/*` and `/api/users/me`.
 
 ### Sprint 3 — Catalog Service (Weeks 8–10)
@@ -539,6 +539,33 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F2.5** — disable Strapi's `users-permissions` routes so the monolith stops serving `/api/auth/local` and `/api/users/me`. Until Sprint 4 the rest of Strapi keeps serving content; only the auth subset moves to the Identity Service.
+
+---
+
+### F2.5 — Block Strapi users-permissions routes — 2026-05-12
+
+**What was done**
+- Added `Travel_TVB_Server/src/middlewares/block-legacy-auth.js` — a Strapi global middleware that short-circuits any request matching `/api/auth/(...)` or `/api/users(/...)` with **HTTP 410 Gone** and a Strapi-style error envelope pointing the caller at the Identity Service.
+- Registered the middleware **last** in `config/middlewares.js` so it runs after `strapi::cors` + `strapi::body` (clients still get CORS headers on the 410, and we don't have to re-implement preflight handling).
+- Kept the `@strapi/plugin-users-permissions` package + the user content-type extension in place — the Strapi admin panel relies on internals of the plugin even when the public auth routes are blocked. The plugin's content-type stays as the source of truth for the SQLite `up_users` rows that the F2.2 migration reads from.
+
+**Files touched**
+- `Travel_TVB_Server/src/middlewares/block-legacy-auth.js`
+- `Travel_TVB_Server/config/middlewares.js`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **410 Gone** rather than 404 — distinguishes "route deliberately removed" from "no such endpoint", helps anyone debugging a misconfigured client see the right cause immediately. The body's `message` field even tells them where to go.
+- **Middleware over route deletion** — Strapi's plugin routes are wired up by the plugin itself at boot. Disabling them via `config/plugins.js` would either require forking the plugin or running its source through a custom resolver. A 3-line regex match in middleware is cheaper and equally final.
+- **Don't remove the plugin** — admin panel auth + the `up_users` table both still rely on the plugin's content-type registry. After Sprint 4 ships the Content Service and the monolith goes away, both this middleware and the plugin can be retired together.
+- **Pattern list** covers all auth and users routes, including `/api/auth/forgot-password` and `/api/auth/email-confirmation`. The frontend doesn't use those today, but we lock the door anyway so nobody starts using them via the monolith after the cut-over.
+
+**Issues / unknowns**
+- The frontend `AuthContext.jsx` still computes its URL from `VITE_STRAPI_URL`. If `VITE_STRAPI_URL` still points at port 1337 in dev, users will now get 410s on login. Sprint 6 F6.1 flips that env var to the gateway; until then, developers running the local stack should set `VITE_STRAPI_URL=http://localhost:8000` themselves.
+- The block fires even for admin users who might paste an `/api/users/<id>` URL directly. That's fine — admins use the Strapi admin panel (`/admin`), which uses a separate auth path (`/admin/login`) and isn't touched.
+
+**Next**
+- **F2.6** — close out Sprint 2 with Jest coverage at ≥80% on the Identity Service plus a snapshot-style contract test that pins the AuthContext.jsx request/response shape (mirrors F1.8 for the chatbot).
 
 ---
 
