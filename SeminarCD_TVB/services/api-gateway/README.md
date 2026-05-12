@@ -16,12 +16,22 @@ Brings up Kong + the AI chatbot service + ChromaDB. The frontend's `VITE_STRAPI_
 
 ## Routes currently configured
 
-| Public path | Methods | Upstream | Notes |
-|---|---|---|---|
-| `/api/chatbot/query` | POST | ai-chatbot-service `/api/chat/query` | path rewrite preserves the frontend URL |
-| `/api/chatbot/health` | GET | ai-chatbot-service `/health` | smoke check via the gateway |
+| Public path | Methods | Upstream | Auth | Notes |
+|---|---|---|---|---|
+| `/api/chatbot/query` | POST | ai-chatbot-service `/api/chat/query` | — | path rewrite |
+| `/api/chatbot/health` | GET | ai-chatbot-service `/health` | — | smoke check |
+| `/api/auth/local` | POST | identity-service | — | login |
+| `/api/auth/local/register` | POST | identity-service | — | register |
+| `/api/users/me` | GET | identity-service | JWT | gateway validates JWT, injects `X-User-Id` + `X-User-Role` |
 
-Sprint 2 will add `/api/auth/*` and `/api/users/me` → identity-service. Sprint 3 adds `/api/tours/*` and `/api/tour-categories/*` → catalog-service.
+Sprint 3 adds `/api/tours/*` and `/api/tour-categories/*` → catalog-service. Those routes reuse the same `jwt` + `post-function` plugin pair shown on `/api/users/me`.
+
+### JWT trust model
+
+- Identity Service signs JWTs with `HS256` and the secret in `JWT_SECRET`. Claims: `sub` (user id), `username`, `role`, `iss="identity-service"`, `exp`.
+- Kong validates the signature with the consumer `travel-tvb-frontend` whose `jwt_secrets[].key = identity-service` matches the `iss` claim.
+- After validation, Kong's `post-function` decodes the token and sets `X-User-Id` / `X-User-Role` on the upstream request. Downstream services trust those headers and never re-parse the JWT.
+- Kong's `JWT_SHARED_SECRET` in `kong.yml` MUST match the Identity Service's `JWT_SECRET`. Both should be templated at deploy time (e.g. `envsubst < kong.yml.tpl > kong.yml` in a Helm pre-install hook).
 
 ## Validate config
 

@@ -9,12 +9,32 @@ _transform: true
 #
 # Services added incrementally per the sprint plan:
 #   Sprint 1: ai-chatbot-service
-#   Sprint 2: identity-service
+#   Sprint 2: identity-service (JWT-validated routes)
 #   Sprint 3: catalog-service
 #   Sprint 4: content-service (Strapi)
 #   Sprint 5: booking-service, payment-service
 
+# --- Consumers & JWT credentials -------------------------------------------------
+# One shared consumer represents authenticated end-users. The Identity Service
+# signs JWTs with `iss = "identity-service"`; Kong validates the signature with
+# the same secret. In production this section should be replaced by an
+# Identity-Service-driven admin-API call so each user becomes its own consumer
+# (and rate limiting can be per-user). For the seminar capstone, one consumer
+# is enough.
+#
+# JWT_SHARED_SECRET must match the Identity Service's `JWT_SECRET`. Kong's
+# DB-less config does not template env vars natively; replace at deploy time
+# with `envsubst < kong.yml.tpl > kong.yml`, or use the Admin API patch.
+consumers:
+  - username: travel-tvb-frontend
+    custom_id: travel-tvb-frontend
+    jwt_secrets:
+      - key: identity-service
+        algorithm: HS256
+        secret: change-me-in-prod
+
 services:
+  # --- AI Chatbot Service (Sprint 1) ---------------------------------------------
   - name: ai-chatbot-service
     url: http://ai-chatbot-service:8080
     connect_timeout: 5000
@@ -30,8 +50,6 @@ services:
         strip_path: false
         preserve_host: false
         plugins:
-          # Frontend posts to /api/chatbot/query; service exposes /api/chat/query.
-          # Rewrite the upstream path while keeping the public URL stable.
           - name: request-transformer
             config:
               replace:
@@ -48,6 +66,66 @@ services:
             config:
               replace:
                 uri: /health
+
+  # --- Identity Service (Sprint 2) ----------------------------------------------
+  - name: identity-service
+    url: http://identity-service:3000
+    connect_timeout: 5000
+    write_timeout: 10000
+    read_timeout: 10000
+    retries: 1
+    routes:
+      # Public — login / register. No JWT required.
+      - name: auth-login
+        protocols: [http, https]
+        paths:
+          - /api/auth/local
+        methods: [POST, OPTIONS]
+        strip_path: false
+
+      - name: auth-register
+        protocols: [http, https]
+        paths:
+          - /api/auth/local/register
+        methods: [POST, OPTIONS]
+        strip_path: false
+
+      # Protected — validates JWT at the gateway and injects X-User-Id / X-User-Role
+      # so downstream services don't have to re-validate the token.
+      - name: users-me
+        protocols: [http, https]
+        paths:
+          - /api/users/me
+        methods: [GET, OPTIONS]
+        strip_path: false
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify: [exp]
+              key_claim_name: iss
+              run_on_preflight: false
+          - name: post-function
+            # After Kong's jwt plugin sets ngx.ctx.authenticated_jwt_token,
+            # decode the claims and forward sub/role downstream as the
+            # X-User-Id / X-User-Role headers our services trust.
+            config:
+              access:
+                - |
+                    local jwt_decoder = require "kong.plugins.jwt.jwt_parser"
+                    local token = kong.ctx.shared.authenticated_jwt_token
+                          or ngx.ctx.authenticated_jwt_token
+                    if token then
+                      local parsed, err = jwt_decoder:new(token)
+                      if parsed then
+                        local claims = parsed.claims
+                        if claims and claims.sub then
+                          kong.service.request.set_header("X-User-Id", tostring(claims.sub))
+                        end
+                        if claims and claims.role then
+                          kong.service.request.set_header("X-User-Role", tostring(claims.role))
+                        end
+                      end
+                    end
 
 plugins:
   # Global CORS for the frontend at localhost:5173 plus the production host.
