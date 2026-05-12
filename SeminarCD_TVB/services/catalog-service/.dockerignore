@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+.env
+.git
+.gitignore
+.eslintcache
+*.log
+README.md
+Dockerfile
+.dockerignore
+test
