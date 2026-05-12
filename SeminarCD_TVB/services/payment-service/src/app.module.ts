@@ -8,6 +8,7 @@ import { PaymentModule } from './payment/payment.module';
 import { VnpayTransactionModule } from './vnpay-transaction/vnpay-transaction.module';
 import { RefundRequestModule } from './refund-request/refund-request.module';
 import { envValidationSchema } from './config/env.validation';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { envValidationSchema } from './config/env.validation';
     PaymentModule,
     VnpayTransactionModule,
     RefundRequestModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

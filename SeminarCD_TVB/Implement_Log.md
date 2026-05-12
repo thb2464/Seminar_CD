@@ -69,8 +69,8 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F5.3** Publish `BookingCreated` event on creation.
 - [x] **F5.4** Subscribe to `payment.events` — `PaymentCompleted` / `PaymentFailed` → update booking status state machine.
 - [x] **F5.5** Payment NestJS scaffold (`services/payment-service/`) — Payment, VNPayTransaction, RefundRequest modules.
-- [ ] **F5.6** Port VNPay logic — `createPaymentUrl`, `vnpayReturn` (HMAC verification), `processVnpayRefund` from `vnpay-helpers.js`.
-- [ ] **F5.7** Publish `PaymentCompleted` / `PaymentFailed` after callback verification.
+- [x] **F5.6** Port VNPay logic — `createPaymentUrl`, `vnpayReturn` (HMAC verification), `processVnpayRefund` from `vnpay-helpers.js`.
+- [x] **F5.7** Publish `PaymentCompleted` / `PaymentFailed` after callback verification.
 - [ ] **F5.8** Circuit breaker around outbound VNPay calls.
 - [ ] **F5.9** Kong routes `/api/bookings/*`, `/api/payments/*`.
 - [ ] **F5.10** Saga end-to-end test — happy path, payment failure, timeout/compensation.
@@ -1236,6 +1236,32 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F5.6** Port VNPay logic — `createPaymentUrl`, `vnpayReturn` (HMAC verification), `processVnpayRefund` from `vnpay-helpers.js`.
+
+---
+
+### F5.6 & F5.7 — Port VNPay logic and Event Publishing — 2026-05-12
+
+**What was done**
+- Implemented `createPaymentUrl`, `processVnpayReturn` (HMAC verification), and `processRefund` in `payment.service.ts`.
+- Implemented the corresponding endpoints in `payment.controller.ts`.
+- Extracted and ported `sortObject` and `formatVnpDate` into `vnpay-helpers.ts`.
+- Integrated `PaymentEventsPublisher` into `processVnpayReturn` to publish `PaymentCompleted` and `PaymentFailed` events upon successful and failed VNPay callbacks respectively.
+- Created `BookingEventsSubscriber` to track `BookingCreated` events and maintain a local `Payment` entity replica containing booking details needed for payment generation (following Saga/Event-Carried State Transfer patterns).
+
+**Files touched**
+- `services/payment-service/src/payment/payment.service.ts`
+- `services/payment-service/src/payment/payment.controller.ts`
+- `services/payment-service/src/payment/entities/payment.entity.ts`
+- `services/payment-service/src/vnpay-transaction/vnpay-helpers.ts`
+- `services/payment-service/src/events/*`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Saga pattern implementation**: Instead of doing synchronous HTTP calls to the booking service to get the total amount during URL generation, the payment service creates a local `Payment` record asynchronously when it receives `BookingCreated`. This isolates failures and improves performance.
+- **Combined implementation**: Since F5.7 strictly depends on the VNPay return logic introduced in F5.6, they were implemented concurrently.
+
+**Next**
+- **F5.8** Circuit breaker around outbound VNPay calls.
 
 ---
 
