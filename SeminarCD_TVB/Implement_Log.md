@@ -46,7 +46,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F2.6** Jest suite ≥80% coverage; Pact provider tests for `/api/auth/*` and `/api/users/me`.
 
 ### Sprint 3 — Catalog Service (Weeks 8–10)
-- [ ] **F3.1** NestJS scaffold (`services/catalog-service/`) — Tour, TourCategory, Region, Itinerary, Highlight, Gallery, Pricing modules.
+- [x] **F3.1** NestJS scaffold (`services/catalog-service/`) — Tour, TourCategory, Region, Itinerary, Highlight, Gallery, Pricing modules.
 - [ ] **F3.2** Schema design — PostgreSQL tables matching Strapi tour entities incl. locale variants (vi/en/zh).
 - [ ] **F3.3** Data migration — SQLite tour tables → PostgreSQL `catalog_db`. Preserve slugs, IDs, locale links.
 - [ ] **F3.4** REST API — match every existing `/api/tours`, `/api/tour-categories` endpoint contract (filters, populate, locale, pagination).
@@ -607,6 +607,34 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 **Next — Sprint 2 closeout**
 - All 6 Sprint 2 features (F2.1–F2.6) are `[x]`. Identity Service is feature-complete and behind Kong with JWT validation + header injection. Strapi monolith no longer answers `/api/auth/*` or `/api/users/*`.
 - Sprint 3 begins with **F3.1** — NestJS scaffold for the Catalog Service.
+
+---
+
+### F3.1 — Catalog Service NestJS scaffold — 2026-05-12
+
+**What was done**
+- `services/catalog-service/` skeleton mirroring Identity Service: NestJS 10, TypeORM 0.3, PostgreSQL, `amqp-connection-manager`+`amqplib` for the F3.5 publisher, Joi env validation (DB + RabbitMQ + migration source), `nestjs-pino` with `service_name=catalog-service`, strict TS, multi-stage Dockerfile, `/health` endpoint, Jest threshold ≥80% lines/statements/functions.
+- Listens on **port 3001** (Identity is 3000) so both services can run side-by-side without Docker.
+- Global `ValidationPipe` has `enableImplicitConversion: true` because the catalog reads pagination + filter values from query strings (Strapi's `?pagination[page]=2&pagination[pageSize]=20` format).
+
+**Files touched**
+- `services/catalog-service/package.json`, `tsconfig.json`, `tsconfig.build.json`, `nest-cli.json`, `Dockerfile`, `.dockerignore`, `.gitignore`, `.env.example`, `README.md`
+- `src/main.ts`, `src/app.module.ts`, `src/config/env.validation.ts`
+- `src/health/{health.controller.ts, health.module.ts, health.controller.spec.ts}`
+- `test/jest-e2e.json`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **`enableImplicitConversion: true`** — query DTOs need string→number/boolean coercion for `?locale=vi&pagination[page]=2` to parse. Identity kept it `false` because its bodies are JSON.
+- **`amqp-connection-manager` over raw `amqplib`** — auto-reconnect with a single channel pool, also used by Booking + Payment in Sprint 5.
+- **No `@nestjs/jwt` in this scaffold** — catalog reads are public; writes will trust `X-User-Id`/`X-User-Role` headers set by Kong (F2.4) rather than re-validating the JWT.
+
+**Issues / unknowns**
+- `package-lock.json` deferred to F0.6 (CI templates).
+- Tour highlights are a Strapi `card.tour-highlight` component; F3.2 will model them as a JSONB column on `tours` rather than a separate table — simpler migration story and the chatbot already consumes them as a flat block.
+
+**Next**
+- **F3.2** — design the PostgreSQL schema. One `tour_categories` table + one `tours` table, both with `(document_id, locale)` unique key matching Strapi's locale model. Highlights / itinerary / gallery as JSONB columns on `tours`. First TypeORM migration.
 
 ---
 
