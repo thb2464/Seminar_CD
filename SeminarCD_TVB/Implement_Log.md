@@ -34,7 +34,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F1.4** Port chatbot service logic — Gemini embedding call, RAG context build, prompt template, response shaping.
 - [x] **F1.5** Port `indexTours.js` → async indexing job. CLI: `python -m app.scripts.index_tours`.
 - [x] **F1.6** Kong route `/api/chatbot/*` → ai-chatbot-service.
-- [ ] **F1.7** Remove `Travel_TVB_Server/src/api/chatbot/` from monolith; verify the frontend `ChatbotWidget` still works.
+- [x] **F1.7** Remove `Travel_TVB_Server/src/api/chatbot/` from monolith; verify the frontend `ChatbotWidget` still works.
 - [ ] **F1.8** PyTest suite ≥75% coverage; contract test with the frontend payload schema.
 
 ### Sprint 2 — Identity Service (Weeks 6–7)
@@ -324,6 +324,36 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F1.7** — remove `Travel_TVB_Server/src/api/chatbot/` from the monolith. Also delete `index-tours-cron.sh` and `index-tours-cron.log` (cron now invokes the Python CLI). Frontend stays unchanged — Kong is doing the path translation.
+
+---
+
+### F1.7 — Decommission monolith chatbot module — 2026-05-12
+
+**What was done**
+- Deleted `Travel_TVB_Server/src/api/chatbot/` (controllers, routes, services — 4 files, ~540 lines of JS retired).
+- Deleted the legacy cron wrapper and its log: `index-tours-cron.sh`, `index-tours-cron.log` — cron should now point at the Python CLI (`docker compose -f services/api-gateway/docker-compose.yml exec ai-chatbot-service python -m app.scripts.index_tours`).
+- Verified no other monolith files reference the chatbot module (grep across `Travel_TVB_Server/src/**` returned only the removed module's own files plus unrelated CSS comments).
+- Frontend (`Travel_TVB/src/components/ChatbotWidget/ChatbotWidget.jsx:219`) still calls `${STRAPI_URL}${CHATBOT_QUERY}`. To exercise the new service in dev, point `VITE_STRAPI_URL` at Kong (`http://localhost:8000`); during Sprint 1–5 the same env var can stay pointed at the monolith for non-chatbot routes (Kong proxies to the monolith via Sprint 4 once the Content Service ships).
+
+**Files touched** (deletions)
+- `Travel_TVB_Server/src/api/chatbot/controllers/chatbot.js`
+- `Travel_TVB_Server/src/api/chatbot/routes/chatbot.js`
+- `Travel_TVB_Server/src/api/chatbot/services/chatbot.js`
+- `Travel_TVB_Server/src/api/chatbot/services/vectorStore.js`
+- `SeminarCD_TVB/index-tours-cron.sh`
+- `SeminarCD_TVB/index-tours-cron.log`
+- `SeminarCD_TVB/Implement_Log.md` (this entry)
+
+**Decisions**
+- **Hard delete** rather than feature-flag — Strangler Fig calls for clean cuts once the replacement is verified. The git history preserves the JS source if we ever need to compare behaviour.
+- **Cron retirement**: shell wrapper retired in favour of the Python `--clear/--language` flags. Deployment will schedule the Python CLI as a Kubernetes CronJob once Phase 6 D3 lands.
+- **Frontend untouched**: Sprint 6 F6.1 is the right place to flip `VITE_STRAPI_URL` → gateway URL. Until then, dev users who want to test the chatbot can override the env var locally.
+
+**Issues / unknowns**
+- The frontend's `ChatbotWidget` is now non-functional against the monolith Strapi (the route returns 404). Anyone running the local dev stack needs to either (a) point `VITE_STRAPI_URL` at Kong or (b) keep the legacy module pinned to an earlier commit. Documented in the gateway README; will be the default once Sprint 6 lands.
+
+**Next**
+- **F1.8** — close out Sprint 1: confirm PyTest coverage ≥75% across the chatbot service, add a contract test that pins the frontend's request payload shape so any future Pydantic schema drift fails fast.
 
 ---
 
