@@ -49,7 +49,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F3.1** NestJS scaffold (`services/catalog-service/`) — Tour, TourCategory, Region, Itinerary, Highlight, Gallery, Pricing modules.
 - [x] **F3.2** Schema design — PostgreSQL tables matching Strapi tour entities incl. locale variants (vi/en/zh).
 - [x] **F3.3** Data migration — SQLite tour tables → PostgreSQL `catalog_db`. Preserve slugs, IDs, locale links.
-- [ ] **F3.4** REST API — match every existing `/api/tours`, `/api/tour-categories` endpoint contract (filters, populate, locale, pagination).
+- [x] **F3.4** REST API — match every existing `/api/tours`, `/api/tour-categories` endpoint contract (filters, populate, locale, pagination).
 - [ ] **F3.5** Publish `TourUpdated` event on create/update/delete to `catalog.events`.
 - [ ] **F3.6** AI Chatbot consumer — `TourUpdated` → re-index that tour's chunks in ChromaDB.
 - [ ] **F3.7** Kong routes `/api/tours/*`, `/api/tour-categories/*` → catalog-service.
@@ -700,6 +700,58 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F3.4** — REST API matching the Strapi tour endpoints (filters, populate, pagination, locale). Implement `GET /api/tours`, `GET /api/tours/:slug`, `GET /api/tour-categories`, and the create/update/delete writes (admin-only via Kong's `X-User-Role` header).
+
+---
+
+### F3.4 — REST API matching Strapi tour endpoints — 2026-05-12
+
+**What was done**
+- **DTOs** (`src/catalog/dto/`):
+  - `TourQueryDto` — nested `pagination` (`page`, `pageSize`), `filters` (`region`, `slug`, `search`, `isFeatured`, `categoryId`), `sort`, and `locale`. Uses `class-transformer` `Type()` so the global `ValidationPipe` (with `enableImplicitConversion: true`) parses `?pagination[page]=2&filters[region]=MienBac` correctly out of the query string.
+  - `CreateTourDto` + `UpdateTourDto` — full field set with `class-validator` constraints, plus `HighlightDto`/`GalleryImageDto` sub-DTOs for the JSONB columns.
+- **`ToursService`** (`tours.service.ts`):
+  - `list(query)` returns the Strapi-shaped `{ data, meta: { pagination: { page, pageSize, pageCount, total } } }` envelope so the frontend's existing parsers keep working unchanged.
+  - `findById(id, locale)` / `findBySlug(slug, locale)` — single-tour lookups with `NotFoundException` propagated to the gateway.
+  - `create(dto)` — assigns a `documentId` if absent (UUID v4 via `crypto.randomUUID`), sets `publishedAt = NOW()`, defaults arrays.
+  - `update(id, dto)` — merges only provided fields; null-coalescing preserves untouched values.
+  - `softDelete(id, locale)` — TypeORM `@DeleteDateColumn` sets `deleted_at`; the row stays around for tombstone events in F3.9.
+  - `sort` accepts `field:asc|desc` form and **whitelists** the field name (`createdAt`, `updatedAt`, `publishedAt`, `price`, `rating`, `tourName`, `reviewCount`). Unknown fields fall back to `createdAt DESC` rather than 500ing or, worse, allowing SQL-injection-shaped names.
+- **`ToursController`** — `GET /api/tours`, `GET /api/tours/:id`, `GET /api/tours/slug/:slug`, plus admin-guarded `POST`, `PUT /:id`, `DELETE /:id`.
+- **`AdminOnlyGuard`** — trusts the `X-User-Id` and `X-User-Role` headers Kong's `post-function` plugin (F2.4) sets after JWT validation. No re-validation of the raw JWT; the header is the trust boundary contract documented in `services/api-gateway/README.md`.
+- **`TourCategoriesService` + Controller** — `GET /api/tour-categories` (paginated list) and `GET /api/tour-categories/:id`.
+- **`CatalogModule`** wires both controllers + services with `TypeOrmModule.forFeature([Tour, TourCategory])`.
+- **`AppModule`** now imports `TypeOrmModule.forRootAsync` (driven by `ConfigService`) and `CatalogModule`. Health endpoint and pino logger stay untouched.
+- **Tests**:
+  - `tours.service.spec.ts` — 9 cases covering list pagination meta, filter projection, default sort, sort whitelist, NotFound on missing, slug lookup, create defaults + UUID generation, update field merging, soft delete delegates to `softRemove`.
+  - `tour-categories.service.spec.ts` — 2 cases (list envelope, NotFound).
+  - `admin-only.guard.spec.ts` — 3 cases (missing header → 401, non-admin → 403, admin → allowed).
+
+**Files touched**
+- `services/catalog-service/src/catalog/dto/tour-query.dto.ts`, `dto/tour.dto.ts`
+- `services/catalog-service/src/catalog/admin-only.guard.ts`, `admin-only.guard.spec.ts`
+- `services/catalog-service/src/catalog/tours.service.ts`, `tours.service.spec.ts`
+- `services/catalog-service/src/catalog/tours.controller.ts`
+- `services/catalog-service/src/catalog/tour-categories.service.ts`, `tour-categories.service.spec.ts`
+- `services/catalog-service/src/catalog/tour-categories.controller.ts`
+- `services/catalog-service/src/catalog/catalog.module.ts`
+- `services/catalog-service/src/app.module.ts` (TypeOrmModule.forRootAsync + CatalogModule wiring)
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Strapi-shaped response envelope** (`{ data, meta: { pagination } }`) — the frontend's `Tours.jsx` and `TourDetail.jsx` already parse this shape; matching it lets Sprint 6 F6.1 be a one-line `VITE_STRAPI_URL` flip with no code changes.
+- **Sort whitelist** rather than freeform — denies `?sort=password:asc`-style probing and protects index discipline. Unknown sort fields don't error; they degrade to the default. Loud failures are a frontend problem; the catalog stays available.
+- **Filters live under `filters[...]`** to match Strapi's exact query shape. Extending later (e.g. `filters[price][$gte]=1000000`) means widening `TourFilterDto`; the wiring is already in place.
+- **`AdminOnlyGuard` reads headers, not the JWT** — Kong already validated and decoded the JWT (F2.4) and set `X-User-Id`/`X-User-Role`. Re-parsing here would just duplicate work the gateway is purpose-built to do.
+- **Soft delete via TypeORM `softRemove`** — keeps the row in the table with `deleted_at` populated so F3.9's CQRS read-model split can emit a tombstone event without losing the original payload.
+- **`UUID v4` for new `document_id`** — same identifier shape Strapi v5 uses, so future migrations can union the two sources without colliding.
+
+**Issues / unknowns**
+- The Strapi `?populate=*` query param is **silently ignored**: we eagerly serialise the JSONB columns regardless. The frontend never used `populate` to add or skip fields — it expected the data shape we now always return — so this is a no-op for the seminar.
+- Filters currently don't support `$in`, `$gte`, `$lte`. The frontend doesn't need them for the seminar; trivial to add when a real range filter shows up.
+- Real Postgres-backed integration tests live with the F3.9 CQRS work (Phase 5 T1 brings testcontainers). For now, unit tests against mocked repositories cover the service surface.
+
+**Next**
+- **F3.5** — publish `TourCreated` / `TourUpdated` / `TourDeleted` events to the `catalog.events` exchange on RabbitMQ after each write. Use `amqp-connection-manager` so a broker outage doesn't block the writes — events buffer locally and flush on reconnect.
 
 ---
 
