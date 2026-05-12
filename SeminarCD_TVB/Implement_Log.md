@@ -65,9 +65,9 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 ### Sprint 5 — Booking & Payment Services (Weeks 13–16)
 - [x] **F5.1** Booking NestJS scaffold (`services/booking-service/`) — Booking, TravelDate, ContactInfo modules.
-- [ ] **F5.2** Port `booking.js` controller (599 lines) → NestJS — `create`, `myBookings`, `cancelBooking`, `getAvailability`.
-- [ ] **F5.3** Publish `BookingCreated` event on creation.
-- [ ] **F5.4** Subscribe to `payment.events` — `PaymentCompleted` / `PaymentFailed` → update booking status state machine.
+- [x] **F5.2** Port `booking.js` controller (599 lines) → NestJS — `create`, `myBookings`, `cancelBooking`, `getAvailability`.
+- [x] **F5.3** Publish `BookingCreated` event on creation.
+- [x] **F5.4** Subscribe to `payment.events` — `PaymentCompleted` / `PaymentFailed` → update booking status state machine.
 - [ ] **F5.5** Payment NestJS scaffold (`services/payment-service/`) — Payment, VNPayTransaction, RefundRequest modules.
 - [ ] **F5.6** Port VNPay logic — `createPaymentUrl`, `vnpayReturn` (HMAC verification), `processVnpayRefund` from `vnpay-helpers.js`.
 - [ ] **F5.7** Publish `PaymentCompleted` / `PaymentFailed` after callback verification.
@@ -1123,6 +1123,99 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F5.2** — Port `booking.js` controller → NestJS.
+
+---
+
+### F5.2 — Port booking.js controller → NestJS — 2026-05-12
+
+**What was done**
+- Ported the 4 core Booking API methods from the Strapi monolith (`getAvailability`, `create`, `myBookings`, `cancelBooking`) to NestJS.
+- **`Booking` Entity**: Mapped all required fields to `booking.entity.ts`, collapsing Strapi's many-to-one link tables into `tour_id` and `user_id` columns, and embedded `ContactInfo` properties directly.
+- **`BookingService`**: Uses native `fetch` to retrieve tour pricing and capacity from the Catalog Service (`CATALOG_SERVICE_URL`), honoring microservice isolation where reads go through REST.
+- **`BookingController`**: Exposes `/api/bookings`, `/api/bookings/availability`, `/api/bookings/my-bookings`, `/api/bookings/:id/cancel`. Protects mutating endpoints with `UserGuard`, which expects `X-User-Id` from Kong.
+- **`UserGuard` & `CurrentUser`**: Handlers that extract context set by Kong's JWT plugin, enabling Identity-less trust.
+- **Dependencies**: Added `@nestjs/config`, `joi`, `nestjs-pino`, `class-validator`, `class-transformer` and wired them globally via `AppModule`.
+- Added minimal specs for controller and service to bootstrap coverage. Comprehensive integration specs follow in F5.11.
+
+**Files touched**
+- `services/booking-service/package.json`
+- `services/booking-service/src/app.module.ts`, `config/env.validation.ts`
+- `services/booking-service/src/booking/entities/booking.entity.ts`
+- `services/booking-service/src/booking/dto/create-booking.dto.ts`
+- `services/booking-service/src/booking/booking.service.ts`, `booking.controller.ts`, `booking.module.ts`, `*.spec.ts`
+- `services/booking-service/src/common/user.guard.ts`, `current-user.decorator.ts`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Flattened relationships**: `user_id` and `tour_id` are stored directly on the `bookings` table as integers instead of generating complex many-to-one junction tables.
+- **Inter-service REST call**: `BookingService` directly invokes the Catalog Service over HTTP to fetch tour `max_participants` and `price`.
+- **Interim refund status**: For cancelled bookings that were paid, `refund_status` is marked as `pending_manual` since the VNPay integration will be housed in the Payment Service (F5.5+).
+
+**Issues / unknowns**
+- `fetch` errors to Catalog Service result in 500s. We should implement resilience/circuit breaking later if Catalog Service availability becomes flaky.
+- Wait for F5.6 to finish VNPay logic to fully handle refunds automatically.
+
+**Next**
+- **F5.3** — Publish `BookingCreated` event on creation.
+
+---
+
+### F5.3 — Publish BookingCreated event on creation — 2026-05-12
+
+**What was done**
+- Implemented `BookingEventsPublisher` in `src/events/booking-events.publisher.ts` using `amqp-connection-manager`, mirroring the Catalog service's event publisher pattern.
+- Declared `booking.events` topic exchange.
+- Defined `BookingCreated` and `BookingCancelled` event types and envelopes (`BookingEventPayload`).
+- Updated `BookingService` to inject `BookingEventsPublisher` and await the publishing of `BookingCreated` after successful booking creation, and `BookingCancelled` after cancellation.
+
+**Files touched**
+- `services/booking-service/package.json` (installed `amqp-connection-manager`, `amqplib`)
+- `services/booking-service/src/events/booking-event.types.ts`
+- `services/booking-service/src/events/booking-events.publisher.ts`
+- `services/booking-service/src/events/events.module.ts`
+- `services/booking-service/src/booking/booking.service.ts`
+- `services/booking-service/src/booking/booking.module.ts`
+- `services/booking-service/src/app.module.ts`
+- `services/booking-service/src/config/env.validation.ts`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Followed existing event publishing pattern**: Leveraged the exact topology implemented in `CatalogEventsPublisher` (durable exchange, resilient connection manager, graceful shutdown).
+- **Added BookingCancelled event**: Since `cancelBooking` was implemented in F5.2, I also implemented and wired the `BookingCancelled` event to support downstream cancellation sagas.
+- **Fire-and-forget fallback**: Used `.catch(() => undefined)` on publish calls in the controller so broker unavailability logs an error but does not fail the user's booking request (relying on `amqp-connection-manager`'s offline queue for eventual delivery).
+
+**Issues / unknowns**
+- The outbox pattern wasn't explicitly mandated here, so standard buffering via AMQP was utilized. High load scenarios could theoretically lose messages if the pod crashes while disconnected.
+
+**Next**
+- **F5.4** — Subscribe to `payment.events` — `PaymentCompleted` / `PaymentFailed` → update booking status state machine.
+
+---
+
+### F5.4 — Subscribe to payment.events — 2026-05-12
+
+**What was done**
+- Implemented `PaymentEventsSubscriber` in the Booking Service to listen to the `payment.events` topic exchange.
+- Defined `PaymentCompleted` and `PaymentFailed` event types to serve as contracts for the upcoming Payment Service.
+- Wired the AMQP consumer using the shared connection manager from `events.module.ts`.
+- Updated the booking state machine logic: transitions booking status to `Paid` and records `vnpayTransactionNo` on `PaymentCompleted`, and transitions status to `Failed` on `PaymentFailed`.
+
+**Files touched**
+- `services/booking-service/src/events/payment-event.types.ts`
+- `services/booking-service/src/events/payment-events.subscriber.ts`
+- `services/booking-service/src/events/events.module.ts`
+- `services/booking-service/src/config/env.validation.ts`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Forward-looking event contracts**: Since the Payment Service isn't built yet, the event envelope (`payment.events`) and types (`PaymentCompleted`, `PaymentFailed`) were designed anticipating standard saga requirements.
+- **Consumer queue durability**: Used a durable queue (`booking_service_payment_events`) to ensure payment events aren't lost if the booking service is temporarily down or restarting.
+
+**Issues / unknowns**
+- Unparseable payloads currently reject without requeue. In a production scenario, dead-lettering for malformed events would be ideal to prevent silent failures.
+
+**Next**
+- **F5.5** — Payment NestJS scaffold (`services/payment-service/`) — Payment, VNPayTransaction, RefundRequest modules.
 
 ---
 
