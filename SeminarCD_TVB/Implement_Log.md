@@ -39,7 +39,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 ### Sprint 2 — Identity Service (Weeks 6–7)
 - [x] **F2.1** NestJS scaffold (`services/identity-service/`) — modules, TypeORM, PostgreSQL, healthcheck.
-- [ ] **F2.2** Data migration script — SQLite `up_users` → PostgreSQL `users` (preserve `id`, hashed password, role).
+- [x] **F2.2** Data migration script — SQLite `up_users` → PostgreSQL `users` (preserve `id`, hashed password, role).
 - [ ] **F2.3** Auth endpoints — `POST /api/auth/local`, `POST /api/auth/local/register`, `GET /api/users/me`. JWT issuance compatible with the current `AuthContext.jsx`.
 - [ ] **F2.4** Kong auth plugin — validate JWT, inject `X-User-Id`, `X-User-Role` headers downstream.
 - [ ] **F2.5** Disable Strapi `users-permissions` routes (or remove plugin entirely once safe).
@@ -423,6 +423,46 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F2.2** — write the SQLite → PostgreSQL user migration script. Read `up_users` from `Travel_TVB_Server/.tmp/data.db` (via `better-sqlite3`) and write to the `users` table on Postgres, preserving `id` (so existing JWTs keep mapping) and the hashed password.
+
+---
+
+### F2.2 — User data migration (SQLite → PostgreSQL) — 2026-05-12
+
+**What was done**
+- `src/users/user.entity.ts` — TypeORM `User` entity (id, username, email, password, provider, confirmed, blocked, fullName, phone, role, createdAt, updatedAt). Functional indices on `LOWER(username)` and `LOWER(email)` to keep authentication case-insensitive against the Strapi data we're inheriting.
+- `src/database/data-source.ts` — TypeORM data source factory for both runtime and migrations CLI; reads env via `dotenv` so `npm run migration:run` works without booting the whole Nest app.
+- `src/database/migrations/1715515200000-InitUsersSchema.ts` — first migration creates the `users` table + unique lower-case indices. Reversible.
+- `src/database/migrate-from-sqlite.ts` — one-shot ETL script:
+  - Reads `up_users` from the Strapi SQLite file (`SQLITE_MIGRATION_SOURCE` env, defaults to `../../Travel_TVB_Server/.tmp/data.db`) via `better-sqlite3` in read-only mode.
+  - Inserts via TypeORM repo, preserving the SQLite `id` so JWTs issued by Strapi before cut-over still map to the same user on the new service.
+  - Idempotent: existing rows with the same `id` are skipped; rows missing a password hash are reported in the `failed` array with reason `"missing password hash"`.
+  - After the bulk insert, re-aligns the Postgres `users_id_seq` to `MAX(id)` so the next user gets a fresh PK.
+  - Returns a `MigrationResult` (`totalRead`, `inserted`, `skipped`, `failed`) plus prints it as JSON when invoked as a CLI; non-zero exit on any failures.
+- Tests: `user.entity.spec.ts` (2 cases — basic identity, nullable contact fields) and `migrate-from-sqlite.spec.ts` (3 cases — DataSource init failure propagates, row classification (1 inserted + 1 missing-password failed), pre-existing user is skipped). The migration tests build a real SQLite fixture in `os.tmpdir()` and mock only the Postgres repo + sequence query, so the SQLite read path is exercised end to end without needing a live Postgres in unit tests.
+
+**Files touched**
+- `services/identity-service/src/users/user.entity.ts`
+- `services/identity-service/src/users/user.entity.spec.ts`
+- `services/identity-service/src/database/data-source.ts`
+- `services/identity-service/src/database/migrations/1715515200000-InitUsersSchema.ts`
+- `services/identity-service/src/database/migrate-from-sqlite.ts`
+- `services/identity-service/src/database/migrate-from-sqlite.spec.ts`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Preserve `id`** rather than minting fresh ones — the Strapi-issued JWT carries `sub = <user id>`; if we renumbered, every user would be logged out at cut-over.
+- **Bcrypt hashes copied as-is** — Strapi's `users-permissions` plugin uses bcrypt with `$2a$10$...` cost; `bcrypt` library accepts that prefix unchanged. No re-hash needed.
+- **Read-only SQLite open** — the migration tool must never write back to the legacy DB even by accident.
+- **`SELECT setval(...)` after bulk insert** — without it, the sequence would still be at 1 and the next insert via the auth endpoints would collide with the migrated `id=1` user.
+- **Two distinct unique indices** (lower-case username, lower-case email) rather than `CITEXT` column type — keeps the table portable across Postgres versions and avoids the extension dependency.
+- **No e2e test against a live Postgres** at this layer — Sprint 5 / Phase 5 T1 brings in `testcontainers`; until then the migration script's destination side is mocked. The SOURCE side (SQLite) is real, which is the part that ships data integrity risk.
+
+**Issues / unknowns**
+- The frontend's `register` payload includes `full_name` and `phone`. Whether Strapi's `users-permissions` actually persists those fields depends on a custom controller extension that I haven't found in `Travel_TVB_Server/src/extensions/`. Migration handles both `full_name` and camelCase `fullName` columns just in case. If the live DB stores them under a different column entirely, we'll learn in F2.3 and patch.
+- `better-sqlite3` is a native binding — the multi-stage Dockerfile builds it during `npm ci`. If the production image base diverges from `node:20-alpine`, the binding may need to be rebuilt.
+
+**Next**
+- **F2.3** — auth endpoints (`POST /api/auth/local`, `POST /api/auth/local/register`, `GET /api/users/me`) + JWT issuance compatible with the existing `AuthContext.jsx`. Strapi-style error envelope (`{ error: { message } }`).
 
 ---
 
