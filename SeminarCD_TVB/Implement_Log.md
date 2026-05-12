@@ -28,7 +28,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 ### Sprint 1 — AI Chatbot Service (Weeks 3–5)
 *Lowest coupling — extracted first.*
-- [ ] **F1.1** FastAPI scaffold (`services/ai-chatbot-service/`) — pyproject, Dockerfile, `/health` route, structured logging.
+- [x] **F1.1** FastAPI scaffold (`services/ai-chatbot-service/`) — pyproject, Dockerfile, `/health` route, structured logging.
 - [ ] **F1.2** Port `chatbot.js` controller → `POST /api/chat/query` — request validation, rate limiter (15 req/min/IP), error handling.
 - [ ] **F1.3** Port `vectorStore.js` → Python ChromaDB client wrapper (query/upsert/delete), tested against a real ChromaDB.
 - [ ] **F1.4** Port chatbot service logic — Gemini embedding call, RAG context build, prompt template, response shaping.
@@ -136,6 +136,33 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F0.1**: repo reorganisation. Create `services/`, `libs/shared/`, `infra/` directories; keep `Travel_TVB/` and `Travel_TVB_Server/` in place during the transition.
+
+---
+
+### F1.1 — AI Chatbot FastAPI scaffold — 2026-05-12
+
+**What was done**
+- Created `services/ai-chatbot-service/` skeleton: pyproject (FastAPI, Pydantic v2, google-generativeai, chromadb, aio-pika, python-json-logger), Dockerfile (slim Python 3.11 + curl-based HEALTHCHECK), `.dockerignore`, `.env.example`, `.gitignore`, README.
+- Wired structured JSON logging (`app/logging.py`) injecting `service_name=ai-chatbot-service` into every record.
+- Pydantic `Settings` (`app/config.py`) covers Gemini, ChromaDB, RabbitMQ, Catalog service URL, and rate-limit knobs — all overridable via env.
+- FastAPI app (`app/main.py`) with `lifespan` handler that boots logging on startup; `/health` controller returns `{status:"ok", service:"ai-chatbot-service"}`.
+- Test scaffold: `conftest.py` provides a `TestClient` fixture; `test_health.py` asserts the 200 contract.
+
+**Files touched**
+- `SeminarCD_TVB/services/ai-chatbot-service/pyproject.toml`, `Dockerfile`, `.dockerignore`, `.env.example`, `.gitignore`, `README.md`
+- `app/__init__.py`, `app/config.py`, `app/logging.py`, `app/main.py`, `app/controllers/__init__.py`, `app/controllers/health.py`
+- `tests/__init__.py`, `tests/conftest.py`, `tests/test_health.py`
+
+**Decisions**
+- **Service port = 8080** internally; Kong will map it to `/api/chatbot/*` (F1.6).
+- **`pydantic-settings`** for typed config matches the NestJS services' style.
+- Sprint 0 infra is **not blocking** Sprint 1 — service runs standalone; gateway/RabbitMQ wiring deferred to F1.6 / F3.6.
+
+**Issues / unknowns**
+- ChromaDB default port differs between the monolith cron (42839) and the plan (8000). Service defaults to 8000; cron will be deleted in F1.7.
+
+**Next**
+- **F1.2** — port the controller: `POST /api/chat/query` with input validation, rate limit (15 req/min/IP), structured error envelope.
 
 ---
 
