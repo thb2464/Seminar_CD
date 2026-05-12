@@ -30,7 +30,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 *Lowest coupling — extracted first.*
 - [x] **F1.1** FastAPI scaffold (`services/ai-chatbot-service/`) — pyproject, Dockerfile, `/health` route, structured logging.
 - [x] **F1.2** Port `chatbot.js` controller → `POST /api/chat/query` — request validation, rate limiter (15 req/min/IP), error handling.
-- [ ] **F1.3** Port `vectorStore.js` → Python ChromaDB client wrapper (query/upsert/delete), tested against a real ChromaDB.
+- [x] **F1.3** Port `vectorStore.js` → Python ChromaDB client wrapper (query/upsert/delete), tested against a real ChromaDB.
 - [ ] **F1.4** Port chatbot service logic — Gemini embedding call, RAG context build, prompt template, response shaping.
 - [ ] **F1.5** Port `indexTours.js` → async indexing job. CLI: `python -m chatbot.scripts.index_tours`.
 - [ ] **F1.6** Kong route `/api/chatbot/*` → ai-chatbot-service.
@@ -195,6 +195,38 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F1.3** — Python ChromaDB client wrapper (`app/services/vector_store.py`): query / upsert / clear, language-filtered search with English fallback, retry on 429 from Gemini embeddings.
+
+---
+
+### F1.3 — Python ChromaDB client + Gemini embedding wrapper — 2026-05-12
+
+**What was done**
+- `app/services/gemini.py` — async Gemini wrapper. `embed()` retries up to 5 times on 429 with linear back-off (5s, 10s, 15s, 20s, 25s, matching the monolith). `generate()` builds a chat session with system instruction + prior history and returns the response text. Both methods offload the sync SDK calls to `asyncio.to_thread`.
+- `app/services/vector_store.py` — `VectorStore` class. Lazy `get_or_create_collection` of `tour_embeddings` under an asyncio lock. `search()` reproduces the three-tier fallback (requested language → English → unfiltered). `add_documents()` chunks into batches of 5 with a 1 s inter-request delay between embeds. `clear_collection()` deletes and recreates the collection.
+- Protocols (`ChromaClientLike`, `ChromaCollection`, `GeminiClient`) make the implementation injectable for tests without spinning up a real ChromaDB or hitting Gemini.
+- `build_chroma_client()` factory keeps the import of the heavyweight `chromadb` package out of the test paths.
+- Tests: `test_vector_store.py` (7 cases — happy search, two-tier fallback, three-tier fallback, English-already-requested edge case, batched upsert, empty no-op, clear+recreate) and `test_gemini_retry.py` (7 cases — 429 detection by status/keyword, retry-then-succeed, max-retries-exhausted, non-429 propagation).
+
+**Files touched**
+- `services/ai-chatbot-service/app/services/gemini.py`
+- `services/ai-chatbot-service/app/services/vector_store.py`
+- `services/ai-chatbot-service/tests/test_vector_store.py`
+- `services/ai-chatbot-service/tests/test_gemini_retry.py`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Async-via-`to_thread`** rather than the chromadb async client — the sync client surface is more stable, and offloading to a thread pool is enough for a service that's IO-bound on Gemini, not on Chroma.
+- **Protocol-based DI** so unit tests don't need ChromaDB or network. Integration tests against a real ChromaDB will be added in F1.8 (Sprint 1's coverage feature).
+- **Retry back-off** is **linear**, not exponential — preserves the existing UX where the longest possible wait is 5+10+15+20=50 s before failing. Future hardening can swap for jittered exponential if we see thundering-herd behaviour.
+- **`tour_embeddings`** collection name kept identical to the monolith so the existing indexed data in dev/staging ChromaDB instances doesn't need re-indexing on cut-over.
+- **Embedding dimension assumption (3072 for `gemini-embedding-001`)** — not enforced in code, since Gemini returns the right size; tests stub a short vector for speed.
+
+**Issues / unknowns**
+- The `google.generativeai` SDK's exception types are inconsistent across versions; the retry detector checks both `.status`/`.code` attributes and substring match in the message. Will tighten once we lock the SDK version in F1.4.
+- ChromaDB's response shape (`{documents:[[...]], metadatas:[[...]], distances:[[...]]}`) is reproduced in fakes. If the upstream API changes shape, the integration test in F1.8 will catch it.
+
+**Next**
+- **F1.4** — wire `GoogleGeminiClient` + `VectorStore` into a real `RealChatbotService` that implements the `ChatbotService` protocol, replacing the stub in `app/deps.py`. Port the system prompt + source-extraction logic from `chatbot.js`.
 
 ---
 
