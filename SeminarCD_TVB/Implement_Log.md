@@ -52,7 +52,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F3.4** REST API — match every existing `/api/tours`, `/api/tour-categories` endpoint contract (filters, populate, locale, pagination).
 - [x] **F3.5** Publish `TourUpdated` event on create/update/delete to `catalog.events`.
 - [ ] **F3.6** AI Chatbot consumer — `TourUpdated` → re-index that tour's chunks in ChromaDB.
-- [ ] **F3.7** Kong routes `/api/tours/*`, `/api/tour-categories/*` → catalog-service.
+- [x] **F3.7** Kong routes `/api/tours/*`, `/api/tour-categories/*` → catalog-service.
 - [ ] **F3.8** Remove tour APIs from monolith Strapi; verify frontend `Tours.jsx`, `TourDetail.jsx`.
 - [ ] **F3.9** Jest suite ≥80% coverage; CQRS read-model split for high-traffic list/detail queries.
 
@@ -836,6 +836,37 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F3.7** — register the Catalog Service routes in Kong (`/api/tours/*`, `/api/tour-categories/*`) and put the JWT-protected `POST/PUT/DELETE` behind the F2.4 `jwt` + `post-function` plugin pair so the catalog also receives `X-User-Id` / `X-User-Role` headers.
+
+---
+
+### F3.7 — Kong routes for the catalog service — 2026-05-12
+
+**What was done**
+- Extended `services/api-gateway/kong.yml` with a `catalog-service` upstream (port 3001) and six routes:
+  - **`catalog-tours-list`** — `GET /api/tours` (public).
+  - **`catalog-tours-by-id`** — `GET /api/tours/<numeric>` (public; regex prevents collision with the slug route).
+  - **`catalog-tours-by-slug`** — `GET /api/tours/slug/<anything>` (public).
+  - **`catalog-categories`** + **`catalog-categories-by-id`** — public reads.
+  - **`catalog-tours-write`** — `POST/PUT/PATCH/DELETE /api/tours` and `/api/tours/<id>`, **JWT-protected**, with the same `jwt` + `post-function` plugin pair as `/api/users/me`. The Lua snippet decodes the verified JWT and stamps `X-User-Id`/`X-User-Role` headers so the catalog's `AdminOnlyGuard` (F3.4) can enforce admin-only writes without re-validating the token.
+- README route table updated with the new entries.
+
+**Files touched**
+- `services/api-gateway/kong.yml`
+- `services/api-gateway/README.md`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Read routes split by URL shape** rather than one wildcard — gives explicit naming for observability/metrics and lets us tighten per-route timeouts later if a `slug` lookup gets hot.
+- **Regex routes for numeric paths** — `~/api/tours/(?<id>\d+)$` keeps `/api/tours/slug/...` from being shadowed by the read-by-id route.
+- **Same JWT + post-function pattern as F2.4** — copy-paste once, but the Lua is the contract; if we ever extract a custom plugin for header injection (Phase 7 hardening), every route updates in one place.
+- **No rate limiting on catalog reads** — they're cacheable; if catalog read traffic ever becomes a hot spot we'll add Kong's `proxy-cache` plugin first rather than throttle.
+
+**Issues / unknowns**
+- The route names are flat (`catalog-tours-list`, `catalog-tours-write`). When we add booking/payment, we should namespace consistently (e.g. `service.entity.verb`).
+- `run_on_preflight: false` on `jwt` is critical — without it, the browser's CORS preflight to `POST /api/tours` would 401 before the actual request reaches the gateway. Documented in `services/api-gateway/README.md`.
+
+**Next**
+- **F3.8** — remove the tour APIs from the monolith Strapi. Block `/api/tours/*` and `/api/tour-categories/*` with the same 410-Gone middleware pattern used in F2.5 (`block-legacy-auth.js`), keeping the rest of the Strapi content APIs untouched until Sprint 4.
 
 ---
 

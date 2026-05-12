@@ -127,6 +127,87 @@ services:
                       end
                     end
 
+  # --- Catalog Service (Sprint 3) -----------------------------------------------
+  - name: catalog-service
+    url: http://catalog-service:3001
+    connect_timeout: 5000
+    write_timeout: 10000
+    read_timeout: 10000
+    retries: 1
+    routes:
+      # Public reads — the chatbot and the public website both consume these.
+      - name: catalog-tours-list
+        protocols: [http, https]
+        paths:
+          - /api/tours
+          - /api/tours/
+        methods: [GET, OPTIONS]
+        strip_path: false
+
+      - name: catalog-tours-by-id
+        protocols: [http, https]
+        paths:
+          - ~/api/tours/(?<id>\d+)$
+        methods: [GET, OPTIONS]
+        strip_path: false
+
+      - name: catalog-tours-by-slug
+        protocols: [http, https]
+        paths:
+          - ~/api/tours/slug/.+
+        methods: [GET, OPTIONS]
+        strip_path: false
+
+      - name: catalog-categories
+        protocols: [http, https]
+        paths:
+          - /api/tour-categories
+          - /api/tour-categories/
+        methods: [GET, OPTIONS]
+        strip_path: false
+
+      - name: catalog-categories-by-id
+        protocols: [http, https]
+        paths:
+          - ~/api/tour-categories/\d+$
+        methods: [GET, OPTIONS]
+        strip_path: false
+
+      # Writes — JWT-protected. Same plugin pair as /api/users/me; the catalog
+      # service trusts the X-User-Id / X-User-Role headers set by post-function.
+      - name: catalog-tours-write
+        protocols: [http, https]
+        paths:
+          - /api/tours
+          - ~/api/tours/\d+$
+        methods: [POST, PUT, PATCH, DELETE]
+        strip_path: false
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify: [exp]
+              key_claim_name: iss
+              run_on_preflight: false
+          - name: post-function
+            config:
+              access:
+                - |
+                    local jwt_decoder = require "kong.plugins.jwt.jwt_parser"
+                    local token = kong.ctx.shared.authenticated_jwt_token
+                          or ngx.ctx.authenticated_jwt_token
+                    if token then
+                      local parsed = jwt_decoder:new(token)
+                      if parsed then
+                        local claims = parsed.claims
+                        if claims and claims.sub then
+                          kong.service.request.set_header("X-User-Id", tostring(claims.sub))
+                        end
+                        if claims and claims.role then
+                          kong.service.request.set_header("X-User-Role", tostring(claims.role))
+                        end
+                      end
+                    end
+
 plugins:
   # Global CORS for the frontend at localhost:5173 plus the production host.
   - name: cors
