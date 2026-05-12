@@ -52,4 +52,11 @@ warn_unused_configs = true
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
-addopts = "-ra --strict-markers --cov=app --cov-report=term-missing"
+addopts = "-ra --strict-markers --cov=app --cov-report=term-missing --cov-fail-under=75"
+
+[tool.coverage.run]
+branch = true
+omit = [
+    "app/scripts/index_tours.py",  # network-bound CLI; covered indirectly by chunk-builder tests
+    "app/services/gemini.py",      # google-generativeai SDK shim; covered by test_gemini_retry.py at the retry layer
+]
