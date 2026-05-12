@@ -1,0 +1,20 @@
+{
+  "kind": "singleType",
+  "collectionName": "home_statistics",
+  "info": {
+    "singularName": "home-statistic",
+    "pluralName": "home-statistics",
+    "displayName": "Home-Statistic"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "StatisticSlide": {
+      "type": "component",
+      "component": "slides.statistic-slide",
+      "repeatable": true
+    }
+  }
+}

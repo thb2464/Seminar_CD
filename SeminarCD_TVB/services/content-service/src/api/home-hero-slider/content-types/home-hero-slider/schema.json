@@ -1,0 +1,29 @@
+{
+  "kind": "singleType",
+  "collectionName": "home_hero_sliders",
+  "info": {
+    "singularName": "home-hero-slider",
+    "pluralName": "home-hero-sliders",
+    "displayName": "Home-HeroSlider"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "Slide": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "slides.slide",
+      "repeatable": true
+    }
+  }
+}

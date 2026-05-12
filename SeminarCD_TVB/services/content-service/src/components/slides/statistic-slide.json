@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_slides_statistic_slides",
+  "info": {
+    "displayName": "StatisticSlide"
+  },
+  "options": {},
+  "attributes": {
+    "value": {
+      "type": "string"
+    },
+    "line1": {
+      "type": "string"
+    },
+    "line2": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}
