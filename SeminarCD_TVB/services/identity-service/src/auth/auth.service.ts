@@ -42,7 +42,12 @@ export class AuthService {
   }
 
   private issue(user: User): AuthResponse {
-    const token = this.jwt.sign({ sub: user.id, username: user.username });
+    const token = this.jwt.sign({
+      sub: user.id,
+      username: user.username,
+      role: user.role,
+      iss: 'identity-service',
+    });
     return { jwt: token, user: this.users.toPublic(user) };
   }
 }

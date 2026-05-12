@@ -41,7 +41,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F2.1** NestJS scaffold (`services/identity-service/`) — modules, TypeORM, PostgreSQL, healthcheck.
 - [x] **F2.2** Data migration script — SQLite `up_users` → PostgreSQL `users` (preserve `id`, hashed password, role).
 - [x] **F2.3** Auth endpoints — `POST /api/auth/local`, `POST /api/auth/local/register`, `GET /api/users/me`. JWT issuance compatible with the current `AuthContext.jsx`.
-- [ ] **F2.4** Kong auth plugin — validate JWT, inject `X-User-Id`, `X-User-Role` headers downstream.
+- [x] **F2.4** Kong auth plugin — validate JWT, inject `X-User-Id`, `X-User-Role` headers downstream.
 - [ ] **F2.5** Disable Strapi `users-permissions` routes (or remove plugin entirely once safe).
 - [ ] **F2.6** Jest suite ≥80% coverage; Pact provider tests for `/api/auth/*` and `/api/users/me`.
 
@@ -504,6 +504,41 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F2.4** — wire Kong's JWT plugin so `Authorization: Bearer <jwt>` is validated at the gateway, and `X-User-Id` + `X-User-Role` headers are injected into upstream requests for downstream services to trust.
+
+---
+
+### F2.4 — Kong JWT validation + X-User-Id injection — 2026-05-12
+
+**What was done**
+- Extended `services/api-gateway/kong.yml` with:
+  - A `consumers:` section declaring one shared consumer (`travel-tvb-frontend`) with `jwt_secrets: [{ key: identity-service, algorithm: HS256, secret: ... }]`. The `key` matches the `iss` claim our service signs into every JWT.
+  - The `identity-service` service block with three routes: `auth-login`, `auth-register` (both public), and `users-me` (JWT-protected).
+  - The `users-me` route attaches two plugins:
+    - **`jwt`** — validates signature + `exp` claim, ties the request to a consumer via `iss → key_claim_name`.
+    - **`post-function`** — Lua snippet that reads the parsed JWT from `kong.ctx.shared.authenticated_jwt_token`, pulls `claims.sub` / `claims.role`, and writes them to the upstream request as `X-User-Id` / `X-User-Role`. Downstream services (Sprint 3+) trust those headers and never re-validate the JWT.
+- Identity Service now emits the `role` and `iss` claims (`AuthService.issue` updated). Tests updated to assert the new payload shape.
+- Gateway README now has a routes table including auth column + a "JWT trust model" section documenting the secret-sharing requirement and the Helm-time templating note (Kong DB-less doesn't expand env vars natively).
+
+**Files touched**
+- `services/api-gateway/kong.yml` (consumer + identity-service block + plugins)
+- `services/api-gateway/README.md` (route table + trust model)
+- `services/identity-service/src/auth/auth.service.ts` (sign `role` + `iss`)
+- `services/identity-service/src/auth/auth.service.spec.ts` (updated payload assertions)
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Single consumer for the seminar** — one `travel-tvb-frontend` consumer is enough for the capstone. In production, the Identity Service would call Kong's Admin API to register a consumer per user (or at least per role). The plan §3.3 describes this as "JWT in Authorization header → Gateway validates → injects user context"; the current setup is the simplest config that delivers that contract.
+- **`HS256` symmetric secret** — kept the simplest signing algorithm to ease the seminar demo. Production should rotate to RS256 with a JWKS endpoint hosted by the Identity Service; Kong's `jwt` plugin supports both modes. Filed as a Phase 7 hardening item.
+- **`post-function` over `pre-function`** — Kong evaluates `jwt` before `post-function`, so by the time the Lua runs, `kong.ctx.shared.authenticated_jwt_token` is populated. Choosing `pre-function` would mean re-parsing the JWT ourselves and skipping the verified signature, defeating the gateway's purpose.
+- **Don't re-validate downstream** — services that consume `X-User-Id` (Booking, Payment, eventually Catalog write endpoints) trust that header because the only thing reachable from outside the cluster is Kong. The header would only be spoofable by something already inside the trust boundary, in which case auth was already lost.
+- **`run_on_preflight: false`** — browsers send CORS preflights without an `Authorization` header; we don't want them 401'd before the actual request reaches the service.
+
+**Issues / unknowns**
+- `jwt.algorithms` defaults to `HS256` in Kong 3.x; pinning explicitly would future-proof against the default changing.
+- The Lua `post-function` snippet imports `kong.plugins.jwt.jwt_parser`. If Kong drops or rearranges that internal module, the route stops setting headers. We should add a smoke test in Phase 5 T1 that issues a real JWT, hits `/api/users/me` through Kong, and asserts the upstream sees `X-User-Id`.
+
+**Next**
+- **F2.5** — disable Strapi's `users-permissions` routes so the monolith stops serving `/api/auth/local` and `/api/users/me`. Until Sprint 4 the rest of Strapi keeps serving content; only the auth subset moves to the Identity Service.
 
 ---
 

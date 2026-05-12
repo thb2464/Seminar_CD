@@ -54,7 +54,12 @@ describe('AuthService', () => {
 
     const response = await service.login({ identifier: 'tan', password: 'secret123' });
 
-    expect(jwt.sign).toHaveBeenCalledWith({ sub: 1, username: 'tan' });
+    expect(jwt.sign).toHaveBeenCalledWith({
+      sub: 1,
+      username: 'tan',
+      role: 'authenticated',
+      iss: 'identity-service',
+    });
     expect(response.jwt).toBe('signed.jwt.token');
     expect((response.user as any).password).toBeUndefined();
   });
@@ -93,7 +98,12 @@ describe('AuthService', () => {
       fullName: 'New B.',
       phone: '0900000001',
     });
-    expect(jwt.sign).toHaveBeenCalledWith({ sub: 42, username: 'newby' });
+    expect(jwt.sign).toHaveBeenCalledWith({
+      sub: 42,
+      username: 'newby',
+      role: 'authenticated',
+      iss: 'identity-service',
+    });
     expect(response.user.id).toBe(42);
   });
 });
