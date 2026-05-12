@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_menu_item_contact_items",
+  "info": {
+    "displayName": "Contact_Item"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string"
+    },
+    "value": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

@@ -1,0 +1,151 @@
+{
+  "kind": "collectionType",
+  "collectionName": "single_posts",
+  "info": {
+    "singularName": "single-post",
+    "pluralName": "single-posts",
+    "displayName": "Single-Post"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "PostTitle": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "slug": {
+      "type": "uid",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "targetField": "PostTitle"
+    },
+    "Featured_Image": {
+      "type": "media",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "Social_Link": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "button.social-link",
+      "repeatable": true
+    },
+    "Audio_Button_Text": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "Audio_Pause_Text": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "AudioFile": {
+      "type": "media",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "Content": {
+      "type": "blocks",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "Related_Post_Highlight": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "PostType": {
+      "type": "enumeration",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "enum": [
+        "Integer",
+        "ThiTruong",
+        "TongHop"
+      ]
+    },
+    "Time_To_Read": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "TinThiTruong_Type": {
+      "type": "enumeration",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "enum": [
+        "TrongNuoc",
+        "QuocTe"
+      ]
+    },
+    "post_category": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::post-category.post-category"
+    },
+    "author": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::author.author"
+    }
+  }
+}

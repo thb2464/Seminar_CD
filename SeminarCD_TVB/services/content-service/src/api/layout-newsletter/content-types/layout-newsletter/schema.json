@@ -1,0 +1,35 @@
+{
+  "kind": "singleType",
+  "collectionName": "layout_newsletters",
+  "info": {
+    "singularName": "layout-newsletter",
+    "pluralName": "layout-newsletters",
+    "displayName": "Layout-Newsletter"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "Newsletter_banner_Text": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "Newsletter_button_text": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

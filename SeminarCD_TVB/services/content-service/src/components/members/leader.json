@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_members_leaders",
+  "info": {
+    "displayName": "Leader"
+  },
+  "options": {},
+  "attributes": {
+    "Leader_name": {
+      "type": "string"
+    },
+    "Leader_postition": {
+      "type": "string"
+    },
+    "Leader_email": {
+      "type": "email"
+    },
+    "Leader_image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "Leader_descriptions": {
+      "type": "text"
+    }
+  },
+  "config": {}
+}

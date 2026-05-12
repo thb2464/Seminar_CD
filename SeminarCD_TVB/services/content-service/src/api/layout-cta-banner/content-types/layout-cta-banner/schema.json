@@ -1,0 +1,37 @@
+{
+  "kind": "singleType",
+  "collectionName": "layout_cta_banners",
+  "info": {
+    "singularName": "layout-cta-banner",
+    "pluralName": "layout-cta-banners",
+    "displayName": "Layout-CtaBanner"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "Cta_Text": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "Cta_Banner_Button": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "button.cta-button",
+      "repeatable": false
+    }
+  }
+}

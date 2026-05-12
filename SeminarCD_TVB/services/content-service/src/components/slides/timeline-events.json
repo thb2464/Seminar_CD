@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_slides_timeline_events",
+  "info": {
+    "displayName": "TimelineEvents"
+  },
+  "options": {},
+  "attributes": {
+    "date": {
+      "type": "string"
+    },
+    "cardTitle": {
+      "type": "string"
+    },
+    "cardDescription": {
+      "type": "text"
+    }
+  },
+  "config": {}
+}
