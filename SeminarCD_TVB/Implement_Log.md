@@ -38,7 +38,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F1.8** PyTest suite ≥75% coverage; contract test with the frontend payload schema.
 
 ### Sprint 2 — Identity Service (Weeks 6–7)
-- [ ] **F2.1** NestJS scaffold (`services/identity-service/`) — modules, TypeORM, PostgreSQL, healthcheck.
+- [x] **F2.1** NestJS scaffold (`services/identity-service/`) — modules, TypeORM, PostgreSQL, healthcheck.
 - [ ] **F2.2** Data migration script — SQLite `up_users` → PostgreSQL `users` (preserve `id`, hashed password, role).
 - [ ] **F2.3** Auth endpoints — `POST /api/auth/local`, `POST /api/auth/local/register`, `GET /api/users/me`. JWT issuance compatible with the current `AuthContext.jsx`.
 - [ ] **F2.4** Kong auth plugin — validate JWT, inject `X-User-Id`, `X-User-Role` headers downstream.
@@ -388,6 +388,41 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 **Next — Sprint 1 closeout**
 - All 8 Sprint 1 features (F1.1–F1.8) are now `[x]`. AI Chatbot Service is feature-complete behind the gateway. Frontend cut-over to the gateway URL still pending (Sprint 6 F6.1).
 - Sprint 2 begins with **F2.1** — NestJS scaffold for the Identity Service.
+
+---
+
+### F2.1 — Identity Service NestJS scaffold — 2026-05-12
+
+**What was done**
+- `services/identity-service/` skeleton: `package.json` (NestJS 10, TypeORM 0.3, Passport-JWT, bcrypt, Joi, nestjs-pino, class-validator/transformer, `@nestjs/swagger` for future OpenAPI), strict `tsconfig.json` with `noUncheckedIndexedAccess`, `nest-cli.json`, multi-stage `Dockerfile` (build with `npm ci --ignore-scripts` then `npm prune --omit=dev`), `.dockerignore`, `.gitignore`, `.env.example`, README documenting the target endpoint contracts.
+- `src/main.ts` bootstrap with global `ValidationPipe` (`whitelist + forbidNonWhitelisted + transform`), Pino logger, and shutdown hooks.
+- `AppModule` wires `ConfigModule` (Joi-validated env) and `LoggerModule` (structured pino-http output with `service_name=identity-service`, `bindings` formatter, request-correlation, `/health` excluded from auto-logging).
+- `HealthModule` exposes `GET /health` → `{status:"ok", service:"identity-service"}` for Kong/K8s probes.
+- Jest configured in `package.json` with `coverageThreshold` ≥80% lines/statements/functions, ≥70% branches; `coveragePathIgnorePatterns` covers `main.ts`, migrations, and `*.module.ts` (pure DI plumbing).
+- `test/jest-e2e.json` ready for the supertest-based e2e suite that arrives with the auth endpoints in F2.3.
+- `HealthController` smoke test in place; future modules will land beside their controllers per `*.spec.ts` convention.
+
+**Files touched**
+- `services/identity-service/package.json`, `tsconfig.json`, `tsconfig.build.json`, `nest-cli.json`, `Dockerfile`, `.dockerignore`, `.gitignore`, `.env.example`, `README.md`
+- `src/main.ts`, `src/app.module.ts`
+- `src/config/env.validation.ts`
+- `src/health/health.module.ts`, `src/health/health.controller.ts`, `src/health/health.controller.spec.ts`
+- `test/jest-e2e.json`
+
+**Decisions**
+- **NestJS 10** (not 11) to match the wider ecosystem stability — every plugin (`@nestjs/jwt`, `@nestjs/typeorm`, `nestjs-pino`) has a green major against 10.
+- **TypeORM 0.3** over Prisma — closer to the migration story (raw SQL when needed for the SQLite → Postgres copy in F2.2) and matches the `data-source.ts` pattern used elsewhere in seminar deliverables.
+- **Joi for env validation** rather than Zod — already a peer dep of `@nestjs/config`; no extra weight.
+- **`nestjs-pino`** for logging — outputs the same `service_name` + structured-JSON shape as the chatbot service so Phase 7 M1 can ingest both into ELK without per-service parsers.
+- **Strict TS** including `noUncheckedIndexedAccess` — the auth layer will deal with optional/array fields and we want the compiler shouting before runtime does.
+- **Jest coverage gate at 80%** matches the plan's §5.2 target; will be raised to 85% for Booking/Payment in Sprint 5.
+
+**Issues / unknowns**
+- `npm ci` is not run as part of the scaffold commit — `package-lock.json` will be generated locally when a developer first runs `npm install`. That keeps the diff small; we'll commit the lockfile in F2.3 once the auth deps are nailed down and we're sure no churn is incoming.
+- The `.env.example` references `JWT_SECRET=change-me-in-prod` — the migration window will need to **share the same secret** with Strapi so old tokens keep validating. We'll wire that explicitly in F2.3 + F2.5.
+
+**Next**
+- **F2.2** — write the SQLite → PostgreSQL user migration script. Read `up_users` from `Travel_TVB_Server/.tmp/data.db` (via `better-sqlite3`) and write to the `users` table on Postgres, preserving `id` (so existing JWTs keep mapping) and the hashed password.
 
 ---
 
