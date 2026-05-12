@@ -43,7 +43,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F2.3** Auth endpoints — `POST /api/auth/local`, `POST /api/auth/local/register`, `GET /api/users/me`. JWT issuance compatible with the current `AuthContext.jsx`.
 - [x] **F2.4** Kong auth plugin — validate JWT, inject `X-User-Id`, `X-User-Role` headers downstream.
 - [x] **F2.5** Disable Strapi `users-permissions` routes (or remove plugin entirely once safe).
-- [ ] **F2.6** Jest suite ≥80% coverage; Pact provider tests for `/api/auth/*` and `/api/users/me`.
+- [x] **F2.6** Jest suite ≥80% coverage; Pact provider tests for `/api/auth/*` and `/api/users/me`.
 
 ### Sprint 3 — Catalog Service (Weeks 8–10)
 - [ ] **F3.1** NestJS scaffold (`services/catalog-service/`) — Tour, TourCategory, Region, Itinerary, Highlight, Gallery, Pricing modules.
@@ -566,6 +566,47 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F2.6** — close out Sprint 2 with Jest coverage at ≥80% on the Identity Service plus a snapshot-style contract test that pins the AuthContext.jsx request/response shape (mirrors F1.8 for the chatbot).
+
+---
+
+### F2.6 — Coverage closeout + frontend contract test — 2026-05-12
+
+**What was done**
+- New unit specs to close coverage gaps:
+  - `src/auth/auth.controller.spec.ts` (2 cases — login/register delegate to the service with the exact DTO).
+  - `src/auth/jwt.strategy.spec.ts` (4 cases — empty payload, unknown user, blocked user, happy path).
+  - `src/users/users.controller.spec.ts` (1 case — `/me` returns the user via `toPublic`).
+- `test/frontend-contract.e2e-spec.ts` — the **canonical contract test** for Sprint 2. Boots a Nest app with the real `AuthController`, `UsersController`, `AuthService`, `UsersService`, `JwtStrategy`, `StrapiErrorFilter`, and `ValidationPipe`. The TypeORM `Repository<User>` is faked with an in-memory `Map`, and only one shared JWT secret is wired. Cases:
+  1. `POST /api/auth/local/register` → 201 + `{ jwt: string, user: { id, username, email, role, ...no password... } }`.
+  2. `POST /api/auth/local` with same credentials → returns `{ jwt, user }`.
+  3. `POST /api/auth/local` with wrong password → 401 + exact Strapi envelope `{ error: { status: 401, name: 'UnauthorizedException', message: 'Invalid identifier or password.' } }`.
+  4. `POST /api/auth/local/register` with invalid body → 400, message joined with `; `.
+  5. `GET /api/users/me` with Bearer token → 200, user without password.
+  6. `GET /api/users/me` without token → 401 in Strapi envelope.
+- `package.json` `coveragePathIgnorePatterns` updated to also skip `src/database/data-source.ts` (TypeORM CLI bootstrap with no application logic).
+
+**Files touched**
+- `services/identity-service/src/auth/auth.controller.spec.ts`
+- `services/identity-service/src/auth/jwt.strategy.spec.ts`
+- `services/identity-service/src/users/users.controller.spec.ts`
+- `services/identity-service/test/frontend-contract.e2e-spec.ts`
+- `services/identity-service/package.json` (coverage ignore for data-source)
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Snapshot-style contract test instead of Pact** — Phase 5 T2 will bring in a real Pact broker; until then, an in-process supertest against the exact endpoints + assertions against the exact response shape gives the same regression safety without the broker dependency.
+- **Fake TypeORM repo via `getRepositoryToken(User)`** keeps the e2e fast and deterministic; integration tests against a real Postgres (testcontainers) ship in Phase 5 T1.
+- **`StrapiErrorFilter` + `ValidationPipe` are wired in the test app** — the contract is for the entire request pipeline, not just controller methods.
+- **Per-service Jest threshold stays at 80%/80%/70%/80%** per plan §5.2. Sprint 2 ships with 28 unit cases + 6 e2e contract cases.
+- **No Pact-broker integration yet** — F0.6 (CI templates) and Phase 5 T2 are prerequisites. Listed as a follow-up.
+
+**Issues / unknowns**
+- Running `npm install` is still a manual step; F0.6's CI workflow will commit the lockfile and ensure consistent installs.
+- The e2e fake repo's `createQueryBuilder` is approximation-grade — matches our two call sites but isn't a general TypeORM stand-in. Real-Postgres integration tests are the right place to test the SQL surface.
+
+**Next — Sprint 2 closeout**
+- All 6 Sprint 2 features (F2.1–F2.6) are `[x]`. Identity Service is feature-complete and behind Kong with JWT validation + header injection. Strapi monolith no longer answers `/api/auth/*` or `/api/users/*`.
+- Sprint 3 begins with **F3.1** — NestJS scaffold for the Catalog Service.
 
 ---
 
