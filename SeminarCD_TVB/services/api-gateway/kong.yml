@@ -1,0 +1,71 @@
+_format_version: "3.0"
+_transform: true
+
+# Travel TVB API Gateway — Kong declarative config (DB-less mode).
+#
+# Each microservice gets a `service` + one or more `routes`. Where the
+# downstream path differs from the public path, a `request-transformer`
+# plugin rewrites the prefix so the frontend's existing URLs keep working.
+#
+# Services added incrementally per the sprint plan:
+#   Sprint 1: ai-chatbot-service
+#   Sprint 2: identity-service
+#   Sprint 3: catalog-service
+#   Sprint 4: content-service (Strapi)
+#   Sprint 5: booking-service, payment-service
+
+services:
+  - name: ai-chatbot-service
+    url: http://ai-chatbot-service:8080
+    connect_timeout: 5000
+    write_timeout: 30000
+    read_timeout: 30000
+    retries: 1
+    routes:
+      - name: chatbot-query
+        protocols: [http, https]
+        paths:
+          - /api/chatbot/query
+        methods: [POST, OPTIONS]
+        strip_path: false
+        preserve_host: false
+        plugins:
+          # Frontend posts to /api/chatbot/query; service exposes /api/chat/query.
+          # Rewrite the upstream path while keeping the public URL stable.
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/chat/query
+
+      - name: chatbot-health
+        protocols: [http, https]
+        paths:
+          - /api/chatbot/health
+        methods: [GET]
+        strip_path: false
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /health
+
+plugins:
+  # Global CORS for the frontend at localhost:5173 plus the production host.
+  - name: cors
+    config:
+      origins:
+        - http://localhost:5173
+        - https://dashboard.lamweb.fun
+      methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+      headers: [Authorization, Content-Type, X-Requested-With, X-Forwarded-For]
+      exposed_headers: [X-Trace-Id]
+      credentials: true
+      max_age: 3600
+
+  # Trace ID propagation — Kong generates one if the client didn't send it,
+  # downstream services pick it up via the X-Trace-Id header (Phase 7 / F0.4).
+  - name: correlation-id
+    config:
+      header_name: X-Trace-Id
+      generator: uuid
+      echo_downstream: true
