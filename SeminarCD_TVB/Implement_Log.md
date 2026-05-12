@@ -64,7 +64,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F4.5** Strapi Jest suite ≥70% coverage on remaining controllers.
 
 ### Sprint 5 — Booking & Payment Services (Weeks 13–16)
-- [ ] **F5.1** Booking NestJS scaffold (`services/booking-service/`) — Booking, TravelDate, ContactInfo modules.
+- [x] **F5.1** Booking NestJS scaffold (`services/booking-service/`) — Booking, TravelDate, ContactInfo modules.
 - [ ] **F5.2** Port `booking.js` controller (599 lines) → NestJS — `create`, `myBookings`, `cancelBooking`, `getAvailability`.
 - [ ] **F5.3** Publish `BookingCreated` event on creation.
 - [ ] **F5.4** Subscribe to `payment.events` — `PaymentCompleted` / `PaymentFailed` → update booking status state machine.
@@ -1095,6 +1095,34 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - Proceed to Sprint 5 (Booking & Payment Services).
+
+---
+
+### F5.1 — Booking NestJS scaffold — 2026-05-12
+
+**What was done**
+- Scaffolded a fresh NestJS application in `services/booking-service/` using the Nest CLI.
+- Generated the foundational modules: `Booking`, `TravelDate`, and `ContactInfo`.
+- Added the basic Controller and Service to the `Booking` module.
+- Installed `typeorm`, `@nestjs/typeorm`, and `pg` for future PostgreSQL database integration.
+
+**Files touched**
+- `services/booking-service/` (new directory)
+- `services/booking-service/src/app.module.ts` (modified)
+- `services/booking-service/src/booking/*` (new)
+- `services/booking-service/src/travel-date/*` (new)
+- `services/booking-service/src/contact-info/*` (new)
+- `services/booking-service/package.json` (modified)
+- `SeminarCD_TVB/Implement_Log.md` (modified)
+
+**Decisions**
+- Kept `TravelDate` and `ContactInfo` as separate structural modules within NestJS to support DDD, matching the project plan despite them originating as flat properties in the Strapi monolith.
+
+**Issues / unknowns**
+- Next step (F5.2) will involve porting the massive 599-line `booking.js` from the Strapi monolith to this new NestJS structure.
+
+**Next**
+- **F5.2** — Port `booking.js` controller → NestJS.
 
 ---
 
