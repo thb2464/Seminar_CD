@@ -48,7 +48,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 ### Sprint 3 — Catalog Service (Weeks 8–10)
 - [x] **F3.1** NestJS scaffold (`services/catalog-service/`) — Tour, TourCategory, Region, Itinerary, Highlight, Gallery, Pricing modules.
 - [x] **F3.2** Schema design — PostgreSQL tables matching Strapi tour entities incl. locale variants (vi/en/zh).
-- [ ] **F3.3** Data migration — SQLite tour tables → PostgreSQL `catalog_db`. Preserve slugs, IDs, locale links.
+- [x] **F3.3** Data migration — SQLite tour tables → PostgreSQL `catalog_db`. Preserve slugs, IDs, locale links.
 - [ ] **F3.4** REST API — match every existing `/api/tours`, `/api/tour-categories` endpoint contract (filters, populate, locale, pagination).
 - [ ] **F3.5** Publish `TourUpdated` event on create/update/delete to `catalog.events`.
 - [ ] **F3.6** AI Chatbot consumer — `TourUpdated` → re-index that tour's chunks in ChromaDB.
@@ -666,6 +666,40 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F3.3** — write the SQLite → PostgreSQL data migration for tours + tour_categories. Read Strapi's locale-lookup tables, fan rows into the new tables preserving `document_id` and slugs.
+
+---
+
+### F3.3 — Tour data migration (SQLite → PostgreSQL) — 2026-05-12
+
+**What was done**
+- `src/database/migrate-from-sqlite.ts` — one-shot ETL mirroring the Identity Service's F2.2 pattern. Reads `tour_categories` and `tours` from the legacy SQLite file via `better-sqlite3` (read-only), preserves `id` + `document_id` + `slug` + `locale`, parses JSON for `description` / `itinerary`, walks `tours_cmps` + the matching `components_card_tour_highlights*` table to fold the Strapi `card.tour-highlight` component into the new `highlights` JSONB array, and after each table re-aligns the Postgres sequence to `MAX(id)`.
+- Field-name fall-throughs handle both Strapi's PascalCase columns (`Tour_Name`, `Short_Description`, `Price`, etc.) and the lowercase variants used in some custom migrations.
+- The migration is **idempotent** — rows that already exist in Postgres are skipped (`findOne({ where: { id } })` short-circuit) so the script can be re-run safely after partial failures.
+- Returns a structured `MigrationResult` with per-table counters (`read`, `inserted`, `skipped`, `failed`) plus a `errors[]` list of `{table, id, reason}`. Non-zero exit on any failure when run as a CLI.
+- **Gallery left empty** in this pass — Strapi's media library lives in a separate `files` table joined via morph relations; properly migrating it requires duplicating those joins and is out of scope for the seminar capstone. Documented in the script's `gallery: [] satisfies GalleryImage[]` comment.
+- Tests build a real SQLite fixture in `os.tmpdir()` (one tour + one category + the relevant timestamps) and mock the Postgres repo via `getRepository` overrides:
+  1. DataSource init failure propagates.
+  2. Happy path — categories + tours inserted, sequence alignment ran, `description` and `itinerary` parsed back to objects, `is_featured` cast to boolean.
+  3. Already-existing rows skipped without re-inserting.
+
+**Files touched**
+- `services/catalog-service/src/database/migrate-from-sqlite.ts`
+- `services/catalog-service/src/database/migrate-from-sqlite.spec.ts`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Preserve `id` and `document_id` together** — the Strapi-issued tour URLs use the slug, but the AI Chatbot's vector store keyed chunks by slug + locale (F1.5), so anything that mapped against the old IDs continues to map.
+- **`tours_cmps` + dynamic component table lookup** — Strapi 5 renames component-link tables across versions. We discover the `components_card_tour_highlights*` table via `sqlite_master` lookup rather than hard-coding a name, so the migration survives the next minor Strapi upgrade.
+- **Defensive `parseJson`** — some Strapi databases store `Description` as a string (JSON-encoded), others as a native JSON column; we accept both and fall back to `null` on parse failure rather than crashing the row.
+- **Gallery deferred** — Strapi media joins are intricate (`upload_file_morph` + `files` + signing URLs); leaving the column empty keeps F3.3 shippable and lets us migrate the gallery later as a backfill job once a CDN is wired up.
+- **No transactional batching** — individual row inserts run inside the repo's per-call transaction. The plan §1.4 calls for "blue-green migration with rollback scripts"; for this seminar a script that's idempotent + observably partial-failure-safe gives the same operational story.
+
+**Issues / unknowns**
+- The fixture covers the happy path. A real Strapi dump may have NULL `Tour_Name` or missing locale rows; the script reports those as `failed` rather than aborting. Operators should review the `errors[]` list after each run.
+- Gallery + featured image URLs are still served by the monolith via the original `featured_image_url` column when present. Once Sprint 4 splits Strapi into a Content Service the media URLs will need rewriting at the gateway.
+
+**Next**
+- **F3.4** — REST API matching the Strapi tour endpoints (filters, populate, pagination, locale). Implement `GET /api/tours`, `GET /api/tours/:slug`, `GET /api/tour-categories`, and the create/update/delete writes (admin-only via Kong's `X-User-Role` header).
 
 ---
 
