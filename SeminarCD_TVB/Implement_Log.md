@@ -797,6 +797,48 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 ---
 
+### F3.6 — AI Chatbot consumer for TourUpdated — 2026-05-12
+
+**What was done**
+- `app/services/event_consumer.py` — `CatalogEventConsumer` using `aio-pika.connect_robust`:
+  - Asserts the `catalog.events` topic exchange (durable) on start.
+  - Declares two durable queues: `chatbot.catalog.tour-changed` (binds `TourCreated`, `TourUpdated`) and `chatbot.catalog.tour-deleted` (binds `TourDeleted`).
+  - `prefetch_count=8` keeps per-channel back-pressure modest so a large bulk update from F3.3 doesn't starve query handling.
+  - Each message goes through `message.process(requeue=False)` so the broker ack/nack reflects whether the handler ran. On unparseable JSON or missing slug/locale we ack-and-drop (logging at warn) rather than NACK-loop into a poison cycle.
+  - Catches handler exceptions inside `_handle` so one bad event never poison-pills the queue; structured log + skip.
+- `app/services/tour_indexer.py` — `TourIndexer.reindex_tour(document_id, locale, slug)` fetches the tour from the Catalog Service's `/api/tours/slug/<slug>?locale=<locale>`, re-uses F1.5's `to_vector_documents()` to build the 4 chunks, and upserts via the existing `VectorStore`. If the catalog returns 404, falls back to `remove_tour` so the chatbot's view never lags behind a deletion that came in out of order. `HttpxCatalogClient` is the production HTTP wrapper; a `CatalogClient` Protocol makes the indexer fully unit-testable.
+- `VectorStore.client_delete(collection, ids)` (new helper) plus a `delete` method on the `ChromaCollection` Protocol — gives `TourIndexer.remove_tour` a way to drop the 4 chunk IDs (`<locale>::<slug>::<chunkType>`) without resetting the whole collection.
+- `app/deps.py` exposes `build_catalog_event_consumer(settings)` — returns `None` when `RABBITMQ_URL` or `GOOGLE_AI_API_KEY` are missing so local dev still boots.
+- `app/main.py` lifespan now starts the consumer on app boot and stops it on shutdown. Start failures are logged but don't crash the service.
+- Tests: `test_event_consumer.py` (8 cases — TourUpdated reindex, TourDeleted remove, unknown event ignored, missing slug skipped, invalid JSON dropped, handler swallows exceptions, start no-op without URL, stop idempotent before start) plus `test_tour_indexer.py` (3 cases — happy reindex, 404 fallback to remove, remove deletes all four chunk IDs).
+
+**Files touched**
+- `services/ai-chatbot-service/app/services/event_consumer.py`
+- `services/ai-chatbot-service/app/services/tour_indexer.py`
+- `services/ai-chatbot-service/app/services/vector_store.py` (added `client_delete` + Protocol `delete`)
+- `services/ai-chatbot-service/app/deps.py` (added `build_catalog_event_consumer`)
+- `services/ai-chatbot-service/app/main.py` (lifespan starts/stops the consumer)
+- `services/ai-chatbot-service/tests/test_event_consumer.py`
+- `services/ai-chatbot-service/tests/test_tour_indexer.py`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Two queues, not one** — separating reindex and delete bindings means each consumer can be sized / scaled independently and a stuck reindex (slow Gemini) won't block deletions from propagating.
+- **`requeue=False` on poison messages** — better to ack-and-log than infinite-retry a malformed event. We accept losing the occasional misformed message in exchange for queue health. A real DLQ ships in Phase 5 T1.
+- **Protocol-based seams** — `TourReindexer`, `CatalogClient`, and `ChromaCollection` are all Protocols so the unit tests don't touch RabbitMQ, ChromaDB, or HTTP. F1.8's coverage gate covers the new modules.
+- **Re-uses `to_vector_documents` from F1.5** — same chunking + metadata + IDs. The vector store's upsert is idempotent (Chroma `upsert` overwrites by ID), so reindex is safe to invoke repeatedly without duplicating chunks.
+- **404 → delete fallback** — when a `TourUpdated` arrives after a `TourDeleted` has been processed by the catalog but before its corresponding event lands (or vice-versa), the chatbot stays consistent without a full DLQ workflow.
+- **Lifespan-managed startup** — keeps the consumer's lifecycle tied to FastAPI's; tests that use `TestClient` automatically exercise the same start/stop path.
+
+**Issues / unknowns**
+- `client_delete` uses a `getattr` lookup for the underlying Chroma client's `delete` to keep the Protocol minimal. If the chromadb library renames the method (`remove` vs `delete`) we'll need to follow.
+- The consumer doesn't yet expose a metric for "events lagged behind by N seconds". Phase 7 M3 brings Prometheus instrumentation; until then the structured logs in `_handle` are the operator's lens.
+
+**Next**
+- **F3.7** — register the Catalog Service routes in Kong (`/api/tours/*`, `/api/tour-categories/*`) and put the JWT-protected `POST/PUT/DELETE` behind the F2.4 `jwt` + `post-function` plugin pair so the catalog also receives `X-User-Id` / `X-User-Role` headers.
+
+---
+
 ## How to update this log
 After each feature:
 1. Mark the checkbox `[x]` next to the feature ID above.

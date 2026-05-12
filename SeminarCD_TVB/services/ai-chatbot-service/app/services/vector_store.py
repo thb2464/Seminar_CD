@@ -41,6 +41,8 @@ class ChromaCollection(Protocol):
         metadatas: list[dict[str, Any]],
     ) -> None: ...
 
+    def delete(self, ids: list[str]) -> None: ...
+
 
 class ChromaClientLike(Protocol):
     def get_or_create_collection(
@@ -154,6 +156,13 @@ class VectorStore:
             if index < len(texts) - 1:
                 await asyncio.sleep(_INTER_REQUEST_DELAY_SECONDS)
         return embeddings
+
+    async def client_delete(self, collection: ChromaCollection, ids: list[str]) -> None:
+        """Delete the given chunk IDs from the collection (used by event-driven removal)."""
+        delete = getattr(collection, "delete", None)
+        if delete is None:
+            return
+        await asyncio.to_thread(delete, ids)
 
     async def clear_collection(self) -> None:
         await asyncio.to_thread(self._client.delete_collection, self._collection_name)
