@@ -29,7 +29,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 ### Sprint 1 — AI Chatbot Service (Weeks 3–5)
 *Lowest coupling — extracted first.*
 - [x] **F1.1** FastAPI scaffold (`services/ai-chatbot-service/`) — pyproject, Dockerfile, `/health` route, structured logging.
-- [ ] **F1.2** Port `chatbot.js` controller → `POST /api/chat/query` — request validation, rate limiter (15 req/min/IP), error handling.
+- [x] **F1.2** Port `chatbot.js` controller → `POST /api/chat/query` — request validation, rate limiter (15 req/min/IP), error handling.
 - [ ] **F1.3** Port `vectorStore.js` → Python ChromaDB client wrapper (query/upsert/delete), tested against a real ChromaDB.
 - [ ] **F1.4** Port chatbot service logic — Gemini embedding call, RAG context build, prompt template, response shaping.
 - [ ] **F1.5** Port `indexTours.js` → async indexing job. CLI: `python -m chatbot.scripts.index_tours`.
@@ -163,6 +163,38 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F1.2** — port the controller: `POST /api/chat/query` with input validation, rate limit (15 req/min/IP), structured error envelope.
+
+---
+
+### F1.2 — Chatbot controller, validation, rate limit — 2026-05-12
+
+**What was done**
+- Pydantic schemas (`app/models/chat.py`): `ChatRequest` (whitespace-stripped message ≤500 chars, language ∈ {vi,en,zh}, history ≤10 items, optional `sessionId` accepting camelCase), `ChatReply`, `ChatSource`, `ChatResponse`, `ErrorResponse`. Matches the response envelope the existing frontend `ChatbotWidget` already parses.
+- Sliding-window rate limiter (`app/middleware/rate_limit.py`): thread-safe deque-per-IP, injectable clock for tests, configurable via env (`RATE_LIMIT_MAX_REQUESTS=15`, `RATE_LIMIT_WINDOW_SECONDS=60`).
+- Controller (`app/controllers/chat.py`): `POST /api/chat/query`, derives client IP from `X-Forwarded-For` (first hop) → `request.client.host`, returns Strapi-style `{error:{status,message}}` envelopes on 400/429/500.
+- `app/deps.py`: cached `get_rate_limiter` and `get_chatbot_service` factories so tests can override.
+- Stub chatbot service (`app/services/chatbot.py`) returns a polite language-aware fallback — the real Gemini+RAG pipeline lands in F1.4.
+- Tests: `test_rate_limit.py` (4 cases — block-at-max, window-expiry, per-IP isolation, prune) and `test_chat_controller.py` (8 cases — happy path, message stripping, default language, empty/unsupported/invalid history, 429, 500, camelCase sessionId, malformed JSON).
+
+**Files touched**
+- `services/ai-chatbot-service/app/models/__init__.py`, `models/chat.py`
+- `services/ai-chatbot-service/app/middleware/__init__.py`, `middleware/rate_limit.py`
+- `services/ai-chatbot-service/app/services/__init__.py`, `services/chatbot.py`
+- `services/ai-chatbot-service/app/controllers/chat.py`, `app/deps.py`, `app/main.py` (router include)
+- `services/ai-chatbot-service/tests/test_rate_limit.py`, `tests/test_chat_controller.py`
+
+**Decisions**
+- **Error envelope** kept identical to Strapi's `{error: {status, message}}` so the frontend doesn't need changes when Kong starts routing here.
+- **camelCase compatibility** via `populate_by_name` + alias `sessionId` — the original frontend sends `sessionId`, the new service stores `session_id` internally.
+- **History `role`** kept as `'user'|'bot'` (not `'user'|'model'`) at the API boundary; conversion to Gemini's `model` role happens inside the service layer in F1.4.
+- **Rate limiter is in-process** — fine for one replica behind Kong. Once we scale to 2+ chatbot replicas, swap to Redis (Phase 7 op concern, not Sprint 1).
+- **Service interface** declared via `typing.Protocol` so the stub today and the real Gemini implementation in F1.4 are drop-in interchangeable.
+
+**Issues / unknowns**
+- The original controller logged via `strapi.log`; here we use the stdlib root logger configured by F1.1's JSON formatter. Trace-id propagation (planned for F0.4) will be retro-fitted as middleware later.
+
+**Next**
+- **F1.3** — Python ChromaDB client wrapper (`app/services/vector_store.py`): query / upsert / clear, language-filtered search with English fallback, retry on 429 from Gemini embeddings.
 
 ---
 
