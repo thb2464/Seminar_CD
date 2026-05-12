@@ -31,7 +31,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F1.1** FastAPI scaffold (`services/ai-chatbot-service/`) — pyproject, Dockerfile, `/health` route, structured logging.
 - [x] **F1.2** Port `chatbot.js` controller → `POST /api/chat/query` — request validation, rate limiter (15 req/min/IP), error handling.
 - [x] **F1.3** Port `vectorStore.js` → Python ChromaDB client wrapper (query/upsert/delete), tested against a real ChromaDB.
-- [ ] **F1.4** Port chatbot service logic — Gemini embedding call, RAG context build, prompt template, response shaping.
+- [x] **F1.4** Port chatbot service logic — Gemini embedding call, RAG context build, prompt template, response shaping.
 - [ ] **F1.5** Port `indexTours.js` → async indexing job. CLI: `python -m chatbot.scripts.index_tours`.
 - [ ] **F1.6** Kong route `/api/chatbot/*` → ai-chatbot-service.
 - [ ] **F1.7** Remove `Travel_TVB_Server/src/api/chatbot/` from monolith; verify the frontend `ChatbotWidget` still works.
@@ -227,6 +227,35 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F1.4** — wire `GoogleGeminiClient` + `VectorStore` into a real `RealChatbotService` that implements the `ChatbotService` protocol, replacing the stub in `app/deps.py`. Port the system prompt + source-extraction logic from `chatbot.js`.
+
+---
+
+### F1.4 — RealChatbotService (RAG orchestration) — 2026-05-12
+
+**What was done**
+- `RealChatbotService` in `app/services/chatbot.py` implements the same five-step pipeline as `chatbot.js`: search → build system prompt → convert history → call Gemini → extract sources.
+- Ported helpers: `_build_system_prompt(language, hits)` reproduces the 9-rule system instruction verbatim; `_to_gemini_history(history)` converts `bot → model` and drops leading-model turns (Gemini API requirement); `_extract_sources(hits, reply)` mirrors the JS heuristic of matching by slug, `[slug]` bracketed reference, or any 3+-char name word in the reply.
+- Language-aware error fallback messages preserved verbatim from `chatbot.js` (`_FRIENDLY_FALLBACK`).
+- `app/deps.py` now wires `RealChatbotService` by default; falls back to `StubChatbotService` if `GOOGLE_AI_API_KEY` is unset or wiring fails (defensive — local dev shouldn't 500 just because the key is missing).
+- Tests: `test_real_chatbot_service.py` (12 cases — prompt template content/language, no-context branch, history role mapping, leading-model drop, last-10 window, source extraction via slug/bracket/name-word/dedup/no-match, full chat happy path, vector-store error fallback, gemini error fallback, history wiring).
+
+**Files touched**
+- `services/ai-chatbot-service/app/services/chatbot.py` (added `RealChatbotService` + helpers; reorganised file)
+- `services/ai-chatbot-service/app/deps.py` (real service wiring with stub fallback)
+- `services/ai-chatbot-service/tests/test_real_chatbot_service.py`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Errors caught inside the service** return the friendly fallback (parity with the JS version) — the controller's `try/except` is now strictly defence-in-depth.
+- **`_to_gemini_history` slices last 10** at the service level even though the controller already caps at 10. Belt and suspenders; the service is callable from CLI/event consumers later (Sprint 3) and shouldn't trust upstream truncation.
+- **Stub fallback in `get_chatbot_service`** keeps local dev working without secrets and prevents a 500 on every `/api/chat/query` when the API key rotates and the new value isn't deployed yet.
+- Did NOT add an integration test against the real Gemini / ChromaDB — those belong in F1.8 (the dedicated coverage feature) where we can spin up a container via testcontainers.
+
+**Issues / unknowns**
+- The Gemini SDK's exact field name for embeddings varies between versions (`result.embedding.values` vs `result["embedding"]`). The wrapper supports both, but we should pin the SDK version in F1.8 to avoid surprises.
+
+**Next**
+- **F1.5** — `app/scripts/index_tours.py`: async CLI that fetches all tours from the Catalog Service (or the still-monolith Strapi during Sprint 1), chunks them (overview / description / highlights / itinerary), embeds, and upserts into ChromaDB. Mirrors the cron-driven `index-tours-cron.sh` workflow.
 
 ---
 
