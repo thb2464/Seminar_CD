@@ -40,7 +40,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 ### Sprint 2 — Identity Service (Weeks 6–7)
 - [x] **F2.1** NestJS scaffold (`services/identity-service/`) — modules, TypeORM, PostgreSQL, healthcheck.
 - [x] **F2.2** Data migration script — SQLite `up_users` → PostgreSQL `users` (preserve `id`, hashed password, role).
-- [ ] **F2.3** Auth endpoints — `POST /api/auth/local`, `POST /api/auth/local/register`, `GET /api/users/me`. JWT issuance compatible with the current `AuthContext.jsx`.
+- [x] **F2.3** Auth endpoints — `POST /api/auth/local`, `POST /api/auth/local/register`, `GET /api/users/me`. JWT issuance compatible with the current `AuthContext.jsx`.
 - [ ] **F2.4** Kong auth plugin — validate JWT, inject `X-User-Id`, `X-User-Role` headers downstream.
 - [ ] **F2.5** Disable Strapi `users-permissions` routes (or remove plugin entirely once safe).
 - [ ] **F2.6** Jest suite ≥80% coverage; Pact provider tests for `/api/auth/*` and `/api/users/me`.
@@ -463,6 +463,47 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F2.3** — auth endpoints (`POST /api/auth/local`, `POST /api/auth/local/register`, `GET /api/users/me`) + JWT issuance compatible with the existing `AuthContext.jsx`. Strapi-style error envelope (`{ error: { message } }`).
+
+---
+
+### F2.3 — Auth endpoints + JWT — 2026-05-12
+
+**What was done**
+- **`UsersService`** (`src/users/users.service.ts`) — `findById`, `findByIdentifier` (case-insensitive query against both username and email columns), `create` (bcrypt-hashes password, defaults provider=local, confirmed=true, role=authenticated; raises `ConflictException` when username or email is taken), `verifyPassword` (short-circuits on blocked users), `toPublic` (drops the password before returning to clients).
+- **`AuthService`** (`src/auth/auth.service.ts`) — `login` and `register`, both returning `{ jwt, user }`. Signs JWTs with `{ sub: id, username }` using `@nestjs/jwt`, secret + expiry from env.
+- **Controllers** — `AuthController` exposes `/api/auth/local` (POST) and `/api/auth/local/register` (POST); `UsersController` exposes `/api/users/me` (GET, guarded). Global prefix `api` set in `main.ts` and the `health` route excluded so Kong/K8s probes don't need rewrites.
+- **DTOs with `class-validator`** — `LoginDto` (identifier + password, length bounds), `RegisterDto` (username alphanumeric+`_.-`, valid email, password min length 6, optional `full_name`/`phone`).
+- **JWT pipeline** — `JwtStrategy` (Passport, Bearer header, hydrates the `User` from the DB and rejects blocked accounts), `JwtAuthGuard`, `@CurrentUser()` decorator for injecting the authenticated user into controllers.
+- **Strapi-compatible error envelope** — `StrapiErrorFilter` wraps every `HttpException` and uncaught error into `{ error: { status, name, message } }`. Array messages from `ValidationPipe` get joined with `; ` so the frontend gets a usable string. Registered as a global filter in `main.ts`.
+- **TypeOrmModule wiring** — `AppModule` now imports `TypeOrmModule.forRootAsync` driven by `ConfigService`, plus `UsersModule` and `AuthModule`.
+- **Tests**:
+  - `users.service.spec.ts` (7 cases — findByIdOrFail miss, identifier normalisation, password hashing on create, conflict detection, blocked user short-circuits verify, bcrypt happy/sad paths, toPublic drops password).
+  - `auth.service.spec.ts` (4 cases — login happy path, unknown identifier, wrong password, register happy path).
+  - `strapi-error.filter.spec.ts` (4 cases — Unauthorized wrapping, ValidationPipe array join, ConflictException, unknown exception → 500 with generic message).
+
+**Files touched**
+- `services/identity-service/src/users/users.service.ts`, `users.controller.ts`, `users.module.ts`, `users.service.spec.ts`
+- `services/identity-service/src/auth/auth.service.ts`, `auth.controller.ts`, `auth.module.ts`, `auth.service.spec.ts`
+- `services/identity-service/src/auth/jwt.strategy.ts`, `jwt-auth.guard.ts`, `current-user.decorator.ts`
+- `services/identity-service/src/auth/dto/login.dto.ts`, `dto/register.dto.ts`
+- `services/identity-service/src/common/strapi-error.filter.ts`, `strapi-error.filter.spec.ts`
+- `services/identity-service/src/app.module.ts` (TypeOrmModule wiring + AuthModule + UsersModule)
+- `services/identity-service/src/main.ts` (global prefix `api`, exclude `/health`; register `StrapiErrorFilter`)
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Same JWT secret as Strapi** — F2.5 ensures the new service signs with the same `JWT_SECRET` that Strapi used, so tokens issued by either side stay valid during the cut-over window. After Sprint 6 we rotate.
+- **Path prefix `api`** is set by Nest's `setGlobalPrefix('api', { exclude: ['health'] })` — keeps `/health` as a clean Kong upstream path while everything else lives under `/api/*`.
+- **No refresh tokens** in this sprint. The plan calls for parity with current Strapi behaviour first (30-day token); refresh-token rotation is a Sprint 7+ hardening pass.
+- **`@CurrentUser()` injects the full entity**, not a payload, because the JWT strategy already pre-fetches the user (defensive against revoked-after-issue accounts). One small DB hit per authenticated request — acceptable for a service that scales to 2 replicas per plan §6.3.
+- **Conflict reason discrimination** in `UsersService.create` (`email` vs `username` taken) — the frontend's register form benefits from a targeted message; we surface it through the standard `{ error: { message } }` envelope.
+
+**Issues / unknowns**
+- The JWT payload includes `sub` + `username`. Kong's request-injection plugin in F2.4 will read `sub` → `X-User-Id`. The `username` is for debugging only — downstream services should not trust it.
+- `bcrypt` cost factor 10 matches Strapi's default; logins should feel identical performance-wise.
+
+**Next**
+- **F2.4** — wire Kong's JWT plugin so `Authorization: Bearer <jwt>` is validated at the gateway, and `X-User-Id` + `X-User-Role` headers are injected into upstream requests for downstream services to trust.
 
 ---
 

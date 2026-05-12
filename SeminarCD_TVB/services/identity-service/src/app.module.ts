@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from 'nestjs-pino';
 
+import { AuthModule } from './auth/auth.module';
 import { envValidationSchema } from './config/env.validation';
 import { HealthModule } from './health/health.module';
+import { User } from './users/user.entity';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -42,7 +46,25 @@ import { HealthModule } from './health/health.module';
         },
       }),
     }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'postgres' as const,
+        host: config.get<string>('DATABASE_HOST'),
+        port: config.get<number>('DATABASE_PORT'),
+        username: config.get<string>('DATABASE_USER'),
+        password: config.get<string>('DATABASE_PASSWORD'),
+        database: config.get<string>('DATABASE_NAME'),
+        ssl:
+          config.get<boolean>('DATABASE_SSL') === true ? { rejectUnauthorized: false } : false,
+        entities: [User],
+        synchronize: config.get<boolean>('DATABASE_SYNCHRONIZE') === true,
+        autoLoadEntities: true,
+      }),
+    }),
     HealthModule,
+    UsersModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
