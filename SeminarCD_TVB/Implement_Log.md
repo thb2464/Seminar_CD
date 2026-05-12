@@ -60,7 +60,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F4.1** Re-package remaining Strapi as `services/content-service/` (blogs, FAQ, page sections, about, services, layout, newsletter).
 - [x] **F4.2** Migrate Strapi tables SQLite → PostgreSQL `content_db`; switch `config/database.js`.
 - [x] **F4.3** Remove booking, chatbot, tour APIs from Strapi (already moved out by prior sprints; cleanup pass).
-- [ ] **F4.4** Kong routes for all content endpoints (single-posts, faqs, home-*, about-*, layout-*).
+- [x] **F4.4** Kong routes for all content endpoints (single-posts, faqs, home-*, about-*, layout-*).
 - [ ] **F4.5** Strapi Jest suite ≥70% coverage on remaining controllers.
 
 ### Sprint 5 — Booking & Payment Services (Weeks 13–16)
@@ -1038,6 +1038,32 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F4.4** — register all content endpoints in Kong so the frontend can access them via the gateway.
+
+---
+
+### F4.4 — Content Service gateway routing (Kong) — 2026-05-12
+
+**What was done**
+- Added the `content-service` configuration block to `services/api-gateway/kong.yml`.
+- Configured a single route (`content-api`) that explicitly lists all 22 content API prefixes (`/api/single-posts`, `/api/faqs`, `/api/about-heroes`, etc.).
+- Enabled `GET`, `POST`, and `OPTIONS` methods on these routes (allowing public reads for content and public POSTs for `/api/newsletter-email-submissons`).
+- Did NOT add the JWT plugin for these routes, as Strapi's built-in role-based access control (via the `users-permissions` plugin) will natively handle any endpoint-specific authorization.
+- Updated the API Gateway `README.md` to document the new upstream.
+
+**Files touched**
+- `services/api-gateway/kong.yml`
+- `services/api-gateway/README.md`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Explicit path list** instead of a catch-all `/api/` — A catch-all would cause conflicts with routes belonging to the Identity, Catalog, or AI Chatbot services. By explicitly listing the 22 prefixes, we ensure Kong only routes Content Service traffic to the Content Service.
+- **No JWT parsing at gateway** — Content reads are public. For the newsletter submission, it's also public. The Strapi Admin Panel APIs (e.g., `/admin`, `/content-manager`) are not exposed through the gateway at all; admin users will access the service directly on port 1337.
+
+**Issues / unknowns**
+- The Strapi instances behind Kong still need to generate full URLs for media files (images). If Kong is running on a different port (8000), Strapi's `server.url` config might need adjustment in the future so that image URLs returned in the API payloads point to the gateway. This is typically handled by the `url` property in `config/server.js` or by using a dedicated storage provider (S3).
+
+**Next**
+- **F4.5** — Strapi Jest suite ≥70% coverage on remaining controllers.
 
 ---
 

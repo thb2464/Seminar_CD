@@ -208,6 +208,42 @@ services:
                       end
                     end
 
+  # --- Content Service (Sprint 4) -----------------------------------------------
+  - name: content-service
+    url: http://content-service:1337
+    connect_timeout: 5000
+    write_timeout: 10000
+    read_timeout: 10000
+    retries: 1
+    routes:
+      - name: content-api
+        protocols: [http, https]
+        paths:
+          - /api/single-posts
+          - /api/single-community-posts
+          - /api/post-categories
+          - /api/authors
+          - /api/faqs
+          - /api/newsletter-email-submissons
+          - /api/about-heroes
+          - /api/about-core-values
+          - /api/about-journeys
+          - /api/about-teams
+          - /api/home-hero-sliders
+          - /api/home-commitments
+          - /api/home-diagrams
+          - /api/home-portfolios
+          - /api/home-statistics
+          - /api/community-heroes
+          - /api/news-heroes
+          - /api/service-heroes
+          - /api/layout-navbars
+          - /api/layout-footers
+          - /api/layout-cta-banners
+          - /api/layout-newsletters
+        methods: [GET, POST, OPTIONS]
+        strip_path: false
+
 plugins:
   # Global CORS for the frontend at localhost:5173 plus the production host.
   - name: cors

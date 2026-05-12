@@ -26,6 +26,7 @@ Brings up Kong + the AI chatbot service + ChromaDB. The frontend's `VITE_STRAPI_
 | `/api/tours`, `/api/tours/:id`, `/api/tours/slug/:slug` | GET | catalog-service | — | public reads |
 | `/api/tours`, `/api/tours/:id` | POST/PUT/PATCH/DELETE | catalog-service | JWT | gateway validates JWT + injects user headers; service enforces admin role |
 | `/api/tour-categories`, `/api/tour-categories/:id` | GET | catalog-service | — | public reads |
+| `/api/single-posts`, `/api/faqs`, `/api/home-*`, `/api/about-*`, etc. | GET, POST | content-service | — | public content reads + newsletter submissions |
 
 ### JWT trust model
 
