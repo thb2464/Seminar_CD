@@ -13,5 +13,8 @@ export const envValidationSchema = Joi.object({
   DATABASE_SSL: Joi.boolean().default(false),
   DATABASE_SYNCHRONIZE: Joi.boolean().default(false),
 
+  RABBITMQ_URL: Joi.string().default('amqp://guest:guest@localhost:5672/'),
+  BOOKING_EVENTS_EXCHANGE: Joi.string().default('booking.events'),
+
   CATALOG_SERVICE_URL: Joi.string().default('http://localhost:3001'),
 });

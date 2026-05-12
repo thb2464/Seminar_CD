@@ -66,7 +66,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 ### Sprint 5 — Booking & Payment Services (Weeks 13–16)
 - [x] **F5.1** Booking NestJS scaffold (`services/booking-service/`) — Booking, TravelDate, ContactInfo modules.
 - [x] **F5.2** Port `booking.js` controller (599 lines) → NestJS — `create`, `myBookings`, `cancelBooking`, `getAvailability`.
-- [ ] **F5.3** Publish `BookingCreated` event on creation.
+- [x] **F5.3** Publish `BookingCreated` event on creation.
 - [ ] **F5.4** Subscribe to `payment.events` — `PaymentCompleted` / `PaymentFailed` → update booking status state machine.
 - [ ] **F5.5** Payment NestJS scaffold (`services/payment-service/`) — Payment, VNPayTransaction, RefundRequest modules.
 - [ ] **F5.6** Port VNPay logic — `createPaymentUrl`, `vnpayReturn` (HMAC verification), `processVnpayRefund` from `vnpay-helpers.js`.
@@ -1157,6 +1157,38 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F5.3** — Publish `BookingCreated` event on creation.
+
+---
+
+### F5.3 — Publish BookingCreated event on creation — 2026-05-12
+
+**What was done**
+- Implemented `BookingEventsPublisher` in `src/events/booking-events.publisher.ts` using `amqp-connection-manager`, mirroring the Catalog service's event publisher pattern.
+- Declared `booking.events` topic exchange.
+- Defined `BookingCreated` and `BookingCancelled` event types and envelopes (`BookingEventPayload`).
+- Updated `BookingService` to inject `BookingEventsPublisher` and await the publishing of `BookingCreated` after successful booking creation, and `BookingCancelled` after cancellation.
+
+**Files touched**
+- `services/booking-service/package.json` (installed `amqp-connection-manager`, `amqplib`)
+- `services/booking-service/src/events/booking-event.types.ts`
+- `services/booking-service/src/events/booking-events.publisher.ts`
+- `services/booking-service/src/events/events.module.ts`
+- `services/booking-service/src/booking/booking.service.ts`
+- `services/booking-service/src/booking/booking.module.ts`
+- `services/booking-service/src/app.module.ts`
+- `services/booking-service/src/config/env.validation.ts`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Followed existing event publishing pattern**: Leveraged the exact topology implemented in `CatalogEventsPublisher` (durable exchange, resilient connection manager, graceful shutdown).
+- **Added BookingCancelled event**: Since `cancelBooking` was implemented in F5.2, I also implemented and wired the `BookingCancelled` event to support downstream cancellation sagas.
+- **Fire-and-forget fallback**: Used `.catch(() => undefined)` on publish calls in the controller so broker unavailability logs an error but does not fail the user's booking request (relying on `amqp-connection-manager`'s offline queue for eventual delivery).
+
+**Issues / unknowns**
+- The outbox pattern wasn't explicitly mandated here, so standard buffering via AMQP was utilized. High load scenarios could theoretically lose messages if the pod crashes while disconnected.
+
+**Next**
+- **F5.4** — Subscribe to `payment.events` — `PaymentCompleted` / `PaymentFailed` → update booking status state machine.
 
 ---
 

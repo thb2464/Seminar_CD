@@ -5,6 +5,7 @@ import { Booking } from './entities/booking.entity';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
+import { BookingEventsPublisher } from '../events/booking-events.publisher';
 
 @Injectable()
 export class BookingService {
@@ -12,6 +13,7 @@ export class BookingService {
     @InjectRepository(Booking)
     private readonly bookingRepo: Repository<Booking>,
     private readonly configService: ConfigService,
+    private readonly eventsPublisher: BookingEventsPublisher,
   ) {}
 
   private get catalogUrl() {
@@ -120,6 +122,8 @@ export class BookingService {
     });
 
     const savedBooking = await this.bookingRepo.save(booking);
+    
+    await this.eventsPublisher.publishBookingCreated(savedBooking).catch(() => undefined);
 
     return {
       data: {
@@ -225,6 +229,8 @@ export class BookingService {
     booking.cancelledAt = now;
 
     await this.bookingRepo.save(booking);
+
+    await this.eventsPublisher.publishBookingCancelled(booking).catch(() => undefined);
 
     return {
       data: {
