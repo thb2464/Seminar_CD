@@ -50,7 +50,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F3.2** Schema design — PostgreSQL tables matching Strapi tour entities incl. locale variants (vi/en/zh).
 - [x] **F3.3** Data migration — SQLite tour tables → PostgreSQL `catalog_db`. Preserve slugs, IDs, locale links.
 - [x] **F3.4** REST API — match every existing `/api/tours`, `/api/tour-categories` endpoint contract (filters, populate, locale, pagination).
-- [ ] **F3.5** Publish `TourUpdated` event on create/update/delete to `catalog.events`.
+- [x] **F3.5** Publish `TourUpdated` event on create/update/delete to `catalog.events`.
 - [ ] **F3.6** AI Chatbot consumer — `TourUpdated` → re-index that tour's chunks in ChromaDB.
 - [ ] **F3.7** Kong routes `/api/tours/*`, `/api/tour-categories/*` → catalog-service.
 - [ ] **F3.8** Remove tour APIs from monolith Strapi; verify frontend `Tours.jsx`, `TourDetail.jsx`.
@@ -752,6 +752,48 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F3.5** — publish `TourCreated` / `TourUpdated` / `TourDeleted` events to the `catalog.events` exchange on RabbitMQ after each write. Use `amqp-connection-manager` so a broker outage doesn't block the writes — events buffer locally and flush on reconnect.
+
+---
+
+### F3.5 — Publish catalog events to RabbitMQ — 2026-05-12
+
+**What was done**
+- `src/events/catalog-event.types.ts` defines the event constants (`TourCreated`, `TourUpdated`, `TourDeleted`), the `CatalogEventEnvelope<T>` shape (`type`, `occurredAt`, `service`, `payload`), and a `toTourPayload(tour)` projection. Only the fields that downstream consumers actually need land in the wire format — `id`, `documentId`, `locale`, `slug`, `tourName`, `region`, `isFeatured`, `updatedAt` — so a future schema change on the tour entity doesn't break the contract.
+- `CatalogEventsPublisher` (`src/events/catalog-events.publisher.ts`) wraps `amqp-connection-manager`:
+  - `onModuleInit` asserts the `catalog.events` topic exchange (durable) and opens a JSON channel.
+  - `publishTourCreated`/`Updated`/`Deleted` build the envelope, publish to the exchange with the event type as routing key, set `persistent: true`, and use `messageId = "<type>:<id>:<locale>"` for idempotent dedup downstream.
+  - When `RABBITMQ_URL` is missing OR a publish fails, errors are logged but never thrown — the catalog HTTP response succeeds even if the broker is down, matching the plan's "events buffer locally and flush on reconnect" requirement.
+  - `onApplicationShutdown` closes the channel + connection so Nest's graceful shutdown finishes cleanly.
+  - The `amqp.connect` factory is injected via the `AMQP_CONNECTION` token so tests can substitute a fake without touching the real broker.
+- `EventsModule` provides the publisher + the injection token; exported for `CatalogModule` consumption.
+- `ToursService` now takes `CatalogEventsPublisher` as a constructor dep:
+  - `create()` emits `TourCreated` after save.
+  - `update()` emits `TourUpdated` after save.
+  - `softDelete()` emits `TourDeleted` after `softRemove`.
+- `tours.service.spec.ts` updated to inject a fake events publisher into every test; the existing 9 cases still pass with the new constructor signature.
+- New `catalog-events.publisher.spec.ts` (7 cases): `toTourPayload` projection, no-op when env missing, happy publish of TourCreated with correct routing key + envelope, parametric coverage of TourUpdated/TourDeleted, drop-on-disconnect, swallow-on-publish-failure.
+
+**Files touched**
+- `services/catalog-service/src/events/catalog-event.types.ts`, `catalog-events.publisher.ts`, `catalog-events.publisher.spec.ts`, `events.module.ts`
+- `services/catalog-service/src/catalog/tours.service.ts` (events injection + 3 emit points)
+- `services/catalog-service/src/catalog/tours.service.spec.ts` (events stub helper)
+- `services/catalog-service/src/catalog/catalog.module.ts` (import `EventsModule`)
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- **Topic exchange `catalog.events`** with routing keys equal to the event type — matches the convention from the plan's §3.3, makes future filtering (`booking.events.PaymentCompleted` later) trivial, and lets a single consumer bind multiple types via `catalog.events.*`.
+- **`persistent: true` + `durable: true` exchange** — events outlive a broker restart. Consumers can replay from a queue without losing reindex commands.
+- **`messageId` derived from `<type>:<id>:<locale>`** — gives consumers a stable dedup key. The AI Chatbot's vector store already keys chunks by `<locale>::<slug>::<chunkType>`, so cross-checking is cheap.
+- **Fire-and-forget at the HTTP layer** — a swallowed publish error logs at error level but never blocks the user-facing response. `amqp-connection-manager` buffers messages until the broker comes back; the rare unbuffered drop is preferable to 5xx-ing every write while the broker is restarting.
+- **No outbox table** — plan calls for outbox in §3.2 (Booking↔Payment saga) but tour writes are CRUD on a single aggregate. The lighter "publish after commit" pattern is sufficient and avoids a 4th table on the catalog DB.
+- **Injection token + factory** — keeps `amqp.connect` mockable; spec tests run without docker.
+
+**Issues / unknowns**
+- The publish happens **after** the DB commit but inside the same HTTP request. If the broker is up and the DB write succeeds, but the publish hangs longer than the request timeout, the client sees a slow response. `amqp-connection-manager`'s default publish timeout is short (~5s) so this is mostly a non-issue, but we should add a metric in Phase 7 M3 to track publish latency.
+- We don't have a Dead Letter Queue declared yet. F3.6 will add the consumer side, including DLQ + retry topology, on the chatbot service.
+
+**Next**
+- **F3.6** — wire the AI Chatbot Service to consume `catalog.events`. On `TourCreated`/`TourUpdated`, re-fetch the tour from the Catalog Service and re-embed its chunks; on `TourDeleted`, remove the matching IDs from ChromaDB.
 
 ---
 

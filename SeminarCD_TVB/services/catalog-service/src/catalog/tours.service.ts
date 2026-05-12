@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { ILike, Repository } from 'typeorm';
 
+import { CatalogEventsPublisher } from '../events/catalog-events.publisher';
 import { TourQueryDto } from './dto/tour-query.dto';
 import { CreateTourDto, UpdateTourDto } from './dto/tour.dto';
 import { SupportedLocale } from './entities/tour-category.entity';
@@ -30,6 +31,7 @@ export class ToursService {
   constructor(
     @InjectRepository(Tour)
     private readonly tours: Repository<Tour>,
+    private readonly events: CatalogEventsPublisher,
   ) {}
 
   async list(query: TourQueryDto): Promise<PaginatedTours> {
@@ -103,7 +105,9 @@ export class ToursService {
       tourCategoryId: dto.tourCategoryId ?? null,
       publishedAt: new Date(),
     });
-    return this.tours.save(tour);
+    const saved = await this.tours.save(tour);
+    await this.events.publishTourCreated(saved);
+    return saved;
   }
 
   async update(id: number, dto: UpdateTourDto): Promise<Tour> {
@@ -132,12 +136,15 @@ export class ToursService {
       featuredImageUrl: dto.featuredImageUrl ?? tour.featuredImageUrl,
       tourCategoryId: dto.tourCategoryId ?? tour.tourCategoryId,
     });
-    return this.tours.save(tour);
+    const saved = await this.tours.save(tour);
+    await this.events.publishTourUpdated(saved);
+    return saved;
   }
 
   async softDelete(id: number, locale: SupportedLocale = 'vi'): Promise<Tour> {
     const tour = await this.findById(id, locale);
     await this.tours.softRemove(tour);
+    await this.events.publishTourDeleted(tour);
     return tour;
   }
 

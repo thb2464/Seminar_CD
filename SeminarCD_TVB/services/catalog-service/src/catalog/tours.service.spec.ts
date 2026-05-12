@@ -43,6 +43,14 @@ function makeTour(partial: Partial<Tour> = {}): Tour {
   return tour;
 }
 
+function makeEvents() {
+  return {
+    publishTourCreated: jest.fn().mockResolvedValue(undefined),
+    publishTourUpdated: jest.fn().mockResolvedValue(undefined),
+    publishTourDeleted: jest.fn().mockResolvedValue(undefined),
+  } as any;
+}
+
 function buildRepo() {
   return {
     findOne: jest.fn(),
@@ -57,7 +65,7 @@ describe('ToursService', () => {
   it('list returns Strapi-style envelope with pagination meta', async () => {
     const repo = buildRepo();
     repo.findAndCount.mockResolvedValue([[makeTour()], 47]);
-    const service = new ToursService(repo as any);
+    const service = new ToursService(repo as any, makeEvents());
 
     const result = await service.list({
       locale: 'vi',
@@ -80,7 +88,7 @@ describe('ToursService', () => {
   it('list applies filters into the where clause', async () => {
     const repo = buildRepo();
     repo.findAndCount.mockResolvedValue([[], 0]);
-    const service = new ToursService(repo as any);
+    const service = new ToursService(repo as any, makeEvents());
 
     await service.list({
       locale: 'en',
@@ -98,7 +106,7 @@ describe('ToursService', () => {
   it('list defaults sort to createdAt DESC, accepts whitelisted overrides', async () => {
     const repo = buildRepo();
     repo.findAndCount.mockResolvedValue([[], 0]);
-    const service = new ToursService(repo as any);
+    const service = new ToursService(repo as any, makeEvents());
     await service.list({ locale: 'vi' } as any);
     expect(repo.findAndCount.mock.calls[0][0].order).toEqual({ createdAt: 'DESC' });
 
@@ -110,7 +118,7 @@ describe('ToursService', () => {
   it('list ignores non-whitelisted sort fields', async () => {
     const repo = buildRepo();
     repo.findAndCount.mockResolvedValue([[], 0]);
-    const service = new ToursService(repo as any);
+    const service = new ToursService(repo as any, makeEvents());
     await service.list({ locale: 'vi', sort: 'password:desc' } as any);
     expect(repo.findAndCount.mock.calls[0][0].order).toEqual({ createdAt: 'DESC' });
   });
@@ -118,7 +126,7 @@ describe('ToursService', () => {
   it('findById raises NotFound when missing', async () => {
     const repo = buildRepo();
     repo.findOne.mockResolvedValue(null);
-    const service = new ToursService(repo as any);
+    const service = new ToursService(repo as any, makeEvents());
     await expect(service.findById(99, 'vi')).rejects.toBeInstanceOf(NotFoundException);
   });
 
@@ -126,7 +134,7 @@ describe('ToursService', () => {
     const repo = buildRepo();
     const tour = makeTour({ slug: 'hue-tour', locale: 'en' });
     repo.findOne.mockResolvedValue(tour);
-    const service = new ToursService(repo as any);
+    const service = new ToursService(repo as any, makeEvents());
 
     const found = await service.findBySlug('hue-tour', 'en');
     expect(found).toBe(tour);
@@ -135,7 +143,7 @@ describe('ToursService', () => {
 
   it('create persists with sensible defaults, assigning documentId if absent', async () => {
     const repo = buildRepo();
-    const service = new ToursService(repo as any);
+    const service = new ToursService(repo as any, makeEvents());
     const tour = await service.create({
       locale: 'vi',
       slug: 'new-tour',
@@ -151,7 +159,7 @@ describe('ToursService', () => {
   it('update merges only provided fields', async () => {
     const repo = buildRepo();
     repo.findOne.mockResolvedValue(makeTour({ tourName: 'Old', price: 1000 }));
-    const service = new ToursService(repo as any);
+    const service = new ToursService(repo as any, makeEvents());
 
     const updated = await service.update(1, { tourName: 'New', locale: 'vi' } as any);
     expect(updated.tourName).toBe('New');
@@ -162,7 +170,7 @@ describe('ToursService', () => {
     const repo = buildRepo();
     const tour = makeTour();
     repo.findOne.mockResolvedValue(tour);
-    const service = new ToursService(repo as any);
+    const service = new ToursService(repo as any, makeEvents());
     await service.softDelete(1, 'vi');
     expect(repo.softRemove).toHaveBeenCalledWith(tour);
   });
