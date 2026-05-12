@@ -15,6 +15,7 @@ export const envValidationSchema = Joi.object({
 
   RABBITMQ_URL: Joi.string().default('amqp://guest:guest@localhost:5672/'),
   BOOKING_EVENTS_EXCHANGE: Joi.string().default('booking.events'),
+  PAYMENT_EVENTS_EXCHANGE: Joi.string().default('payment.events'),
 
   CATALOG_SERVICE_URL: Joi.string().default('http://localhost:3001'),
 });
