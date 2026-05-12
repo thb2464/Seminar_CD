@@ -1,8 +1,13 @@
+import logging
 from functools import lru_cache
 
-from app.config import get_settings
+from app.config import Settings, get_settings
 from app.middleware.rate_limit import InMemoryRateLimiter
-from app.services.chatbot import ChatbotService, StubChatbotService
+from app.services.chatbot import ChatbotService, RealChatbotService, StubChatbotService
+from app.services.gemini import GoogleGeminiClient
+from app.services.vector_store import VectorStore, build_chroma_client
+
+logger = logging.getLogger(__name__)
 
 
 @lru_cache(maxsize=1)
@@ -16,4 +21,27 @@ def get_rate_limiter() -> InMemoryRateLimiter:
 
 @lru_cache(maxsize=1)
 def get_chatbot_service() -> ChatbotService:
-    return StubChatbotService()
+    settings = get_settings()
+    if not settings.google_ai_api_key:
+        logger.warning("GOOGLE_AI_API_KEY missing — using stub chatbot")
+        return StubChatbotService()
+    try:
+        return _build_real_service(settings)
+    except Exception:
+        logger.exception("failed to wire RealChatbotService — falling back to stub")
+        return StubChatbotService()
+
+
+def _build_real_service(settings: Settings) -> ChatbotService:
+    gemini = GoogleGeminiClient(
+        api_key=settings.google_ai_api_key,
+        llm_model=settings.gemini_llm_model,
+        embedding_model=settings.gemini_embedding_model,
+    )
+    chroma_client = build_chroma_client(
+        host=settings.chromadb_host,
+        port=settings.chromadb_port,
+        ssl=settings.chromadb_ssl,
+    )
+    vector_store = VectorStore(chroma_client, gemini, settings.chroma_collection)
+    return RealChatbotService(gemini, vector_store)
