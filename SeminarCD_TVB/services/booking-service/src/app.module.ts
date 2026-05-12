@@ -9,6 +9,7 @@ import { ContactInfoModule } from './contact-info/contact-info.module';
 import { BookingModule } from './booking/booking.module';
 import { envValidationSchema } from './config/env.validation';
 import { Booking } from './booking/entities/booking.entity';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { Booking } from './booking/entities/booking.entity';
     TravelDateModule,
     ContactInfoModule,
     BookingModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
