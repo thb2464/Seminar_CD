@@ -69,17 +69,6 @@ export interface CardStackedCard extends Struct.ComponentSchema {
   };
 }
 
-export interface CardTourHighlight extends Struct.ComponentSchema {
-  collectionName: 'components_card_tour_highlights';
-  info: {
-    displayName: 'TourHighlight';
-  };
-  attributes: {
-    Highlight_Icon: Schema.Attribute.Media<'images'>;
-    Highlight_Text: Schema.Attribute.String & Schema.Attribute.Required;
-  };
-}
-
 export interface MembersDirector extends Struct.ComponentSchema {
   collectionName: 'components_members_directors';
   info: {
@@ -253,7 +242,6 @@ declare module '@strapi/strapi' {
       'button.social-link': ButtonSocialLink;
       'button.terms-and-services': ButtonTermsAndServices;
       'card.stacked-card': CardStackedCard;
-      'card.tour-highlight': CardTourHighlight;
       'members.director': MembersDirector;
       'members.expert': MembersExpert;
       'members.leader': MembersLeader;

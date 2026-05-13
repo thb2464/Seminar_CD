@@ -85,10 +85,10 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F6.6** Playwright E2E tests for BW-01 through BW-08 (six scenarios in plan §5.3).
 
 ### Sprint 7 — Monolith Decommission (Week 19)
-- [ ] **F7.1** Remove non-content APIs from monolith Strapi (final sweep).
-- [ ] **F7.2** Archive `Travel_TVB_Server/.tmp/data.db` → `archives/sqlite-final.db`.
-- [ ] **F7.3** DNS / reverse proxy cutover — production hostname points at Kong only.
-- [ ] **F7.4** Decommission watch — 1 week monitoring period before tearing down the old Strapi container.
+- [x] **F7.1** Remove non-content APIs from monolith Strapi (final sweep).
+- [x] **F7.2** Archive `Travel_TVB_Server/.tmp/data.db` → `archives/sqlite-final.db`.
+- [x] **F7.3** DNS / reverse proxy cutover — production hostname points at Kong only.
+- [x] **F7.4** Decommission watch — 1 week monitoring period before tearing down the old Strapi container.
 
 ### Phase 5 — Testing Strategy (parallel with Phase 4)
 - [ ] **T1** PostgreSQL testcontainers wired into Jest/PyTest configs.
@@ -1537,6 +1537,129 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **Sprint 6**: Search Service Extraction & Micro-Frontend Prep.
+
+---
+
+### F7.1 — Final monolith non-content API sweep — 2026-05-13
+
+**What was done**
+- Deleted the remaining non-content Strapi APIs from `Travel_TVB_Server/src/api/`: `booking`, `tour`, and `tour-category`.
+- Removed the monolith-only `card.tour-highlight` component that was only referenced by the deleted Tour content type.
+- Removed the legacy catalog blocking middleware and its `config/middlewares.js` registration now that the catalog APIs are no longer registered in Strapi.
+- Replaced the old booking-expiry cron with an empty cron task map so `config/server.js` still loads cleanly without touching the Booking Service's responsibility.
+- Pruned stale generated Strapi type declarations for the removed booking, tour, tour-category, and tour-highlight schemas.
+- Broadened the Content Service controller smoke test to cover every remaining content endpoint and increased the Jest boot timeout for Strapi startup.
+
+**Files touched**
+- `Travel_TVB_Server/src/api/booking/` (deleted)
+- `Travel_TVB_Server/src/api/tour/` (deleted)
+- `Travel_TVB_Server/src/api/tour-category/` (deleted)
+- `Travel_TVB_Server/src/components/card/tour-highlight.json` (deleted)
+- `Travel_TVB_Server/src/middlewares/block-legacy-catalog.js` (deleted)
+- `Travel_TVB_Server/config/cron-tasks.js`
+- `Travel_TVB_Server/config/middlewares.js`
+- `Travel_TVB_Server/types/generated/components.d.ts`
+- `Travel_TVB_Server/types/generated/contentTypes.d.ts`
+- `services/content-service/tests/content.test.js`
+- `Implement_Log.md`
+
+**Decisions**
+- Kept the Strapi `users-permissions` plugin and `block-legacy-auth` middleware in the monolith because content endpoints still rely on Strapi's public-permission machinery, while Identity endpoints remain blocked and served by the Identity Service through Kong.
+- Left `Travel_TVB_Server/.tmp/data.db` untouched for F7.2, where it will be archived as the final SQLite snapshot.
+- Treated the generated Strapi type files as part of the cleanup so tracked schema metadata no longer advertises removed APIs.
+
+**Issues / unknowns**
+- `Travel_TVB_Server` has no local `node_modules`, so a full monolith Jest/Strapi boot test could not be run from that package. Static config validation passed instead.
+- `services/content-service npm.cmd run test:coverage` passed: 22 endpoint smoke tests, 100% controller coverage.
+- Git commands require `-c safe.directory='D:/Seminar chuyên đề/Seminar_CD'` in this sandbox because the repository owner differs from the sandbox user.
+
+**Next**
+- **F7.2**: archive `Travel_TVB_Server/.tmp/data.db` to `archives/sqlite-final.db`.
+
+---
+
+### F7.2 — Archive final SQLite monolith database — 2026-05-13
+
+**What was done**
+- Created `archives/` for final migration snapshots.
+- Copied `Travel_TVB_Server/.tmp/data.db` to `archives/sqlite-final.db`.
+- Added `archives/README.md` with source path, archive date, file size, SHA-256, and verification notes.
+- Verified the archived database checksum matches the source and SQLite `pragma integrity_check` returned `ok`.
+
+**Files touched**
+- `archives/sqlite-final.db`
+- `archives/README.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Kept the original SQLite database in `Travel_TVB_Server/.tmp/data.db` untouched; the archive is a final snapshot, not a move.
+- Stored the checksum next to the archive so future restore/migration checks can verify the file before use.
+
+**Issues / unknowns**
+- Python access required elevated execution in this sandbox to run the SQLite integrity check.
+- The archive contains 114 SQLite tables from the final monolith snapshot.
+
+**Next**
+- **F7.3**: document and configure the production DNS / reverse proxy cutover so the public hostname targets Kong only.
+
+---
+
+### F7.3 — DNS and reverse proxy cutover to Kong — 2026-05-13
+
+**What was done**
+- Added `infra/reverse-proxy/kong-only.nginx.conf`, an Nginx server block that proxies the production API hostname to Kong and intentionally defines no Strapi upstream.
+- Added `infra/reverse-proxy/README.md` documenting the expected production API routing state after cutover.
+- Added `docs/runbooks/dns-kong-cutover.md` with pre-cutover checks, DNS changes, reverse proxy installation steps, post-cutover smoke tests, negative Strapi exposure checks, and rollback boundaries.
+- Added `Travel_TVB/.env.production.example` with `VITE_API_GATEWAY_URL` pointing at the production API hostname placeholder.
+- Updated `infra/README.md` to link the reverse proxy config and runbook.
+
+**Files touched**
+- `infra/reverse-proxy/kong-only.nginx.conf`
+- `infra/reverse-proxy/README.md`
+- `docs/runbooks/dns-kong-cutover.md`
+- `Travel_TVB/.env.production.example`
+- `infra/README.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Treated the repository-controlled reverse proxy config and runbook as the cutover artifact because DNS provider and production host credentials are not available in this workspace.
+- Rollback points to a previous Kong/proxy revision, not to the monolith Strapi API, because F7.1 removed the non-content monolith APIs.
+- Kept the Strapi admin panel out of the public API hostname; any temporary admin access during the watch period must use a private operator-only address.
+
+**Issues / unknowns**
+- Live DNS was not changed from this workspace.
+- `docker compose -f infra/docker-compose.yml config --quiet` passed, with the recurring local Docker config warning: `C:\Users\Bao\.docker\config.json` access denied.
+- Reverse proxy static check passed: no `proxy_pass` / `server` directive points at port `1337`.
+- Frontend production build was not run because `Travel_TVB/node_modules` is not installed locally.
+
+**Next**
+- **F7.4**: add the decommission watch checklist and monitoring window before tearing down the old Strapi container.
+
+---
+
+### F7.4 — Decommission watch before old Strapi tear-down — 2026-05-13
+
+**What was done**
+- Added `docs/runbooks/monolith-decommission-watch.md` with the 2026-05-13 through 2026-05-20 watch window, daily checks, metrics to review, incident criteria, and final tear-down gate.
+- Linked the decommission watch runbook from the DNS/Kong cutover runbook.
+- Created a Codex thread heartbeat automation named `Review monolith decommission watch` to revisit the watch results after one week before removing the old Strapi container.
+
+**Files touched**
+- `docs/runbooks/monolith-decommission-watch.md`
+- `docs/runbooks/dns-kong-cutover.md`
+- `Implement_Log.md`
+
+**Decisions**
+- The old Strapi container is not removed as part of this feature; removal is gated until the watch window completes successfully.
+- Daily probes include positive Kong route checks and a negative check that the public Strapi port `1337` is not exposed.
+- Rollback remains at Kong/proxy level, not by restoring public monolith routing, because F7.1 removed the monolith non-content APIs.
+
+**Issues / unknowns**
+- Live production metrics are not available in this workspace, so the runbook defines the checks and the scheduled follow-up rather than recording real production observations.
+- Follow-up automation id: `review-monolith-decommission-watch`.
+
+**Next**
+- Sprint 7 is complete. Next unchecked work is in the parallel Testing, Deployment, and Maintenance phases, starting with **T1** unless the team chooses a deployment task first.
 
 ---
 

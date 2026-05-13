@@ -25,3 +25,9 @@ RabbitMQ loads its local exchange/queue topology from `rabbitmq/definitions.json
 ## Kubernetes
 
 The `k8s/` folder is reserved for Kubernetes manifests, ingress, HPAs, and environment namespaces.
+
+## Production Reverse Proxy
+
+The `reverse-proxy/` folder contains the Sprint 7 cutover config for routing the
+production API hostname to Kong only. Use `docs/runbooks/dns-kong-cutover.md`
+as the checklist for DNS and proxy validation.
