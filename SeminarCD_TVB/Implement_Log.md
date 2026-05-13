@@ -86,7 +86,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 ### Sprint 7 — Monolith Decommission (Week 19)
 - [x] **F7.1** Remove non-content APIs from monolith Strapi (final sweep).
-- [ ] **F7.2** Archive `Travel_TVB_Server/.tmp/data.db` → `archives/sqlite-final.db`.
+- [x] **F7.2** Archive `Travel_TVB_Server/.tmp/data.db` → `archives/sqlite-final.db`.
 - [ ] **F7.3** DNS / reverse proxy cutover — production hostname points at Kong only.
 - [ ] **F7.4** Decommission watch — 1 week monitoring period before tearing down the old Strapi container.
 
@@ -1575,6 +1575,32 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F7.2**: archive `Travel_TVB_Server/.tmp/data.db` to `archives/sqlite-final.db`.
+
+---
+
+### F7.2 — Archive final SQLite monolith database — 2026-05-13
+
+**What was done**
+- Created `archives/` for final migration snapshots.
+- Copied `Travel_TVB_Server/.tmp/data.db` to `archives/sqlite-final.db`.
+- Added `archives/README.md` with source path, archive date, file size, SHA-256, and verification notes.
+- Verified the archived database checksum matches the source and SQLite `pragma integrity_check` returned `ok`.
+
+**Files touched**
+- `archives/sqlite-final.db`
+- `archives/README.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Kept the original SQLite database in `Travel_TVB_Server/.tmp/data.db` untouched; the archive is a final snapshot, not a move.
+- Stored the checksum next to the archive so future restore/migration checks can verify the file before use.
+
+**Issues / unknowns**
+- Python access required elevated execution in this sandbox to run the SQLite integrity check.
+- The archive contains 114 SQLite tables from the final monolith snapshot.
+
+**Next**
+- **F7.3**: document and configure the production DNS / reverse proxy cutover so the public hostname targets Kong only.
 
 ---
 
