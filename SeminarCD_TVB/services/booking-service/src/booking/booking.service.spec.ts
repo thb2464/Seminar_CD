@@ -3,6 +3,7 @@ import { BookingService } from './booking.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Booking } from './entities/booking.entity';
 import { ConfigService } from '@nestjs/config';
+import { BookingEventsPublisher } from '../events/booking-events.publisher';
 
 describe('BookingService', () => {
   let service: BookingService;
@@ -35,6 +36,13 @@ describe('BookingService', () => {
         {
           provide: ConfigService,
           useValue: mockConfig,
+        },
+        {
+          provide: BookingEventsPublisher,
+          useValue: {
+            publishBookingCreated: jest.fn().mockResolvedValue(undefined),
+            publishBookingCancelled: jest.fn().mockResolvedValue(undefined),
+          },
         },
       ],
     }).compile();

@@ -44,7 +44,11 @@ class StubChatbotService:
             reply=(
                 "Xin lỗi, dịch vụ chatbot đang được khởi tạo. Vui lòng thử lại sau."
                 if language == "vi"
-                else _FRIENDLY_FALLBACK[language]
+                else (
+                    "Sorry, the chatbot service is initialising. Please try again later."
+                    if language == "en"
+                    else _FRIENDLY_FALLBACK[language]
+                )
             ),
             sources=[],
         )

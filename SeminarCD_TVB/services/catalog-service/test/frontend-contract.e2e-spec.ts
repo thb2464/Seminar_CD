@@ -1,7 +1,7 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import * as request from 'supertest';
+import request from 'supertest';
 
 import { AdminOnlyGuard } from '../src/catalog/admin-only.guard';
 import { TourCategoriesController } from '../src/catalog/tour-categories.controller';
@@ -45,7 +45,7 @@ function makeTour(overrides: Partial<Tour> = {}): Tour {
     createdAt: new Date(),
     updatedAt: new Date(),
     deletedAt: null,
-  } as Tour, overrides);
+  } as unknown as Tour, overrides);
   return tour;
 }
 

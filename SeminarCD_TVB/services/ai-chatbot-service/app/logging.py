@@ -16,7 +16,8 @@ class ServiceJsonFormatter(jsonlogger.JsonFormatter):
     ) -> None:
         super().add_fields(log_record, record, message_dict)
         log_record.setdefault("service_name", SERVICE_NAME)
-        log_record.setdefault("level", record.levelname)
+        if not log_record.get("level"):
+            log_record["level"] = record.levelname
         log_record.setdefault("logger", record.name)
 
 

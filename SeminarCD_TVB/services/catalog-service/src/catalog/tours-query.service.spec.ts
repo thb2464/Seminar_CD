@@ -20,7 +20,7 @@ function makeTour(partial: Partial<Tour> = {}): Tour {
       publishedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Tour,
+    } as unknown as Tour,
     partial,
   );
   return tour;

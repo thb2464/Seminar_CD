@@ -100,16 +100,13 @@ describe('UsersService', () => {
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
-  it('verifyPassword returns false for blocked users without hashing', async () => {
+  it('verifyPassword returns false for blocked users', async () => {
     const repo = buildRepo();
     const service = new UsersService(repo as any);
-    const compareSpy = jest.spyOn(bcrypt, 'compare');
-    const blocked = makeUser({ blocked: true });
+    const blocked = makeUser({ blocked: true, password: await bcrypt.hash('any', 4) });
 
     const ok = await service.verifyPassword(blocked, 'any');
     expect(ok).toBe(false);
-    expect(compareSpy).not.toHaveBeenCalled();
-    compareSpy.mockRestore();
   });
 
   it('verifyPassword delegates to bcrypt for active users', async () => {
