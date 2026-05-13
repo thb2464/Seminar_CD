@@ -1,0 +1,25 @@
+name: API Gateway CI
+
+on:
+  pull_request:
+    paths:
+      - "SeminarCD_TVB/services/api-gateway/**"
+      - ".github/workflows/_service.yml"
+  push:
+    branches:
+      - main
+      - claude/happy-cerf-cc9584
+    paths:
+      - "SeminarCD_TVB/services/api-gateway/**"
+      - ".github/workflows/_service.yml"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_service.yml
+    with:
+      service_name: API Gateway
+      service_path: SeminarCD_TVB/services/api-gateway
+      language: docker
+      docker_image_name: ghcr.io/${{ github.repository }}/api-gateway
+      push_image: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    secrets: inherit

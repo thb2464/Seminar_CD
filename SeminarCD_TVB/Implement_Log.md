@@ -92,13 +92,13 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 ### Phase 5 — Testing Strategy (parallel with Phase 4)
 - [x] **T1** PostgreSQL testcontainers wired into Jest/PyTest configs.
-- [ ] **T2** Pact broker (self-hosted) + CI integration.
+- [x] **T2** Pact broker (self-hosted) + CI integration.
 - [ ] **T3** Playwright workspace under `tests/e2e/` covering the six E2E scenarios.
 - [ ] **T4** Chaos scenarios — Payment crash, RabbitMQ outage, Catalog DB slowdown, AI OOM (Toxiproxy/Litmus).
 
 ### Phase 6 — Deployment & CI/CD (parallel with Phase 4)
 - [x] **D1** Per-service `Dockerfile` + `.dockerignore`.
-- [ ] **D2** GitHub Actions workflow per service (uses the reusable workflow from F0.6).
+- [x] **D2** GitHub Actions workflow per service (uses the reusable workflow from F0.6).
 - [ ] **D3** Kubernetes manifests — Deployment, Service, Ingress per service.
 - [ ] **D4** HPA configs for Catalog (2–5) and AI Chatbot (2–4).
 - [ ] **D5** `staging` and `production` namespaces with secrets management (Sealed Secrets or External Secrets).
@@ -1744,6 +1744,46 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 **Next**
 - **T2** Pact broker (self-hosted) + CI integration.
 - **D2** GitHub Actions workflow per service using the reusable workflow from F0.6.
+
+---
+
+### T2 & D2 — Pact Broker and per-service CI workflows — 2026-05-13
+
+**What was done**
+- Added a self-hosted Pact Broker to the local compose stack, backed by its own `pact_broker_db` PostgreSQL database and local basic-auth credentials.
+- Documented local Pact Broker startup, broker credentials, CI variables, and the service-level convention for generated `pacts/` directories and provider verification scripts.
+- Extended the reusable service CI workflow with optional Pact publishing, optional Node provider verification via `npm run pact:verify --if-present`, and Docker image-name normalization for GHCR.
+- Added GitHub Actions workflows for AI Chatbot, Identity, Catalog, Content, Booking, Payment, and API Gateway, each delegating to the reusable `_service.yml` workflow with the correct runtime and service path.
+
+**Files touched**
+- `.github/workflows/_service.yml`
+- `.github/workflows/ai-chatbot-service.yml`
+- `.github/workflows/api-gateway.yml`
+- `.github/workflows/booking-service.yml`
+- `.github/workflows/catalog-service.yml`
+- `.github/workflows/content-service.yml`
+- `.github/workflows/identity-service.yml`
+- `.github/workflows/payment-service.yml`
+- `docs/testing/pact-broker.md`
+- `infra/docker-compose.yml`
+- `infra/postgres/init-databases.sql`
+- `infra/README.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Treated T2 and D2 as one CI/deployment slice because Pact Broker integration lands in the same reusable workflow used by every service workflow.
+- Pact Broker is infrastructure tooling, so it uses a dedicated local database in the shared PostgreSQL container rather than any application service database.
+- The workflow publishes Pact JSON only when `pacts/*.json` exists and `PACT_BROKER_BASE_URL` is configured, keeping normal service CI green before Pact files are generated.
+- API Gateway uses the same reusable workflow with `language: docker`, which skips Node/Python setup and still builds the gateway image.
+
+**Issues / unknowns**
+- `docker compose -f infra/docker-compose.yml config --quiet` passed, with the recurring local Docker warning about `C:\Users\Bao\.docker\config.json` access being denied.
+- Live Pact Broker startup and GitHub-hosted workflow execution were not run from this sandbox.
+- Existing unrelated local changes remain unstaged: `.serena/project.yml`, `.codex/`, `AGENTS.md`, `commit_msg.txt`, and `services/content-service/.strapi-updater.json`.
+
+**Next**
+- **T3**: create the Playwright workspace under `tests/e2e/` for BW-01 through BW-08.
+- **D3**: add Kubernetes Deployment, Service, and Ingress manifests per service.
 
 ---
 
