@@ -6,7 +6,15 @@ Single entrypoint for the Travel TVB microservices. Declarative DB-less Kong con
 - **Admin** (dev only): `http://localhost:8001`
 - **Config**: [kong.yml](kong.yml) — versioned, applied at container start
 
-## Local stack
+## Local stacks
+
+Full shared infrastructure stack:
+
+```bash
+docker compose -f infra/docker-compose.yml up
+```
+
+Gateway + chatbot-only stack:
 
 ```bash
 docker compose -f services/api-gateway/docker-compose.yml up
@@ -26,7 +34,11 @@ Brings up Kong + the AI chatbot service + ChromaDB. The frontend's `VITE_STRAPI_
 | `/api/tours`, `/api/tours/:id`, `/api/tours/slug/:slug` | GET | catalog-service | — | public reads |
 | `/api/tours`, `/api/tours/:id` | POST/PUT/PATCH/DELETE | catalog-service | JWT | gateway validates JWT + injects user headers; service enforces admin role |
 | `/api/tour-categories`, `/api/tour-categories/:id` | GET | catalog-service | — | public reads |
-| `/api/single-posts`, `/api/faqs`, `/api/home-*`, `/api/about-*`, etc. | GET, POST | content-service | — | public content reads + newsletter submissions |
+| `/api/single-posts`, `/api/faq`, `/api/home-*`, `/api/about-*`, etc. | GET, POST | content-service | — | public content reads + newsletter submissions |
+| `/api/bookings/availability` | GET | booking-service | — | public availability lookup |
+| `/api/bookings` | GET/POST/PUT/PATCH/DELETE | booking-service | JWT | gateway validates JWT + injects user headers |
+| `/api/payments/vnpay-return` | GET | payment-service | — | public VNPay callback |
+| `/api/payments` | GET/POST/PUT/PATCH/DELETE | payment-service | JWT | gateway validates JWT + injects user headers |
 
 ### JWT trust model
 

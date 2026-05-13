@@ -20,7 +20,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 ### Sprint 0 — Infrastructure Setup (Weeks 1–2)
 - [x] **F0.1** Reorganise repo into `services/`, `libs/shared/`, `infra/` layout (monolith stays intact during transition).
 - [x] **F0.2** `infra/docker-compose.yml` — PostgreSQL (per-service schemas), RabbitMQ, ChromaDB, Redis, Kong gateway.
-- [ ] **F0.3** Kong gateway `kong.yml` — declarative routes with stubs for all 6 future services.
+- [x] **F0.3** Kong gateway `kong.yml` — declarative routes with stubs for all 6 future services.
 - [ ] **F0.4** `libs/shared/` — JWT validator middleware (TS + Py), RabbitMQ publisher/consumer abstractions, JSON logger.
 - [ ] **F0.5** RabbitMQ topology — exchanges `booking.events`, `catalog.events`, `payment.events`; queue conventions documented.
 - [ ] **F0.6** CI/CD template — `.github/workflows/_service.yml` reusable workflow (lint → test → build → push image).
@@ -196,6 +196,31 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F0.3**: verify and close the Kong declarative route stubs for all six services.
+
+---
+
+### F0.3 — Kong declarative route stubs — 2026-05-13
+
+**What was done**
+- Verified `services/api-gateway/kong.yml` already declares upstreams for all six target services: AI Chatbot, Identity, Catalog, Content, Booking, and Payment.
+- Verified the gateway routes cover the expected public and protected API prefixes for chatbot, auth/users, tours/categories, content, bookings, and payments.
+- Updated `services/api-gateway/README.md` so the local stack command references both the full infra compose and the chatbot-only compose.
+- Updated the gateway route inventory with Booking and Payment routes and corrected the content FAQ path to match `kong.yml`.
+
+**Files touched**
+- `services/api-gateway/README.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Reused the existing `services/api-gateway/kong.yml` as the canonical Kong config because later sprint work had already filled in concrete routes beyond the original Sprint 0 stubs.
+- Did not duplicate `kong.yml` under `infra/`; F0.2 mounts the canonical file into Kong.
+
+**Issues / unknowns**
+- Kong config parsing with a live Kong container was not run. Static verification confirmed service upstreams and routes in `kong.yml`; full runtime validation remains part of gateway/service integration runs.
+- Docker compose inspection still warns about `C:\Users\Bao\.docker\config.json` permissions, but it does not block config inspection.
+
+**Next**
+- **F0.4**: implement `libs/shared/` JWT header validation, RabbitMQ helpers, and JSON logger helpers for TypeScript and Python services.
 
 ---
 
