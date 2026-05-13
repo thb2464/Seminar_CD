@@ -72,7 +72,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F5.6** Port VNPay logic — `createPaymentUrl`, `vnpayReturn` (HMAC verification), `processVnpayRefund` from `vnpay-helpers.js`.
 - [x] **F5.7** Publish `PaymentCompleted` / `PaymentFailed` after callback verification.
 - [x] **F5.8** Circuit breaker around outbound VNPay calls.
-- [ ] **F5.9** Kong routes `/api/bookings/*`, `/api/payments/*`.
+- [x] **F5.9** Kong routes `/api/bookings/*`, `/api/payments/*`.
 - [ ] **F5.10** Saga end-to-end test — happy path, payment failure, timeout/compensation.
 - [ ] **F5.11** Jest suites ≥85% coverage; Pact consumer/provider tests for the Booking↔Payment contract.
 
@@ -1283,6 +1283,26 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F5.9** Kong routes `/api/bookings/*`, `/api/payments/*`.
+
+---
+
+### F5.9 — Kong routes /api/bookings/*, /api/payments/* — 2026-05-13
+
+**What was done**
+- Configured Kong API Gateway declarative config (`kong.yml`) with `booking-service` and `payment-service`.
+- Exposed public route `GET /api/bookings/availability` without authentication.
+- Exposed public route `GET /api/payments/vnpay-return` for VNPay callbacks without authentication.
+- Configured JWT-protected routes for all other endpoints under `/api/bookings` and `/api/payments`, injecting `X-User-Id` and `X-User-Role` headers downstream using the custom Lua post-function.
+
+**Files touched**
+- `services/api-gateway/kong.yml`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- Kept the same standard declarative JWT validation block. Relying on Kong to reject unauthenticated requests and passing trusted identity variables downstream.
+
+**Next**
+- **F5.10** Saga end-to-end test — happy path, payment failure, timeout/compensation.
 
 ---
 

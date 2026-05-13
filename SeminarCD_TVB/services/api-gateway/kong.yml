@@ -244,6 +244,98 @@ services:
         methods: [GET, POST, OPTIONS]
         strip_path: false
 
+  # --- Booking Service (Sprint 5) -----------------------------------------------
+  - name: booking-service
+    url: http://booking-service:3002
+    connect_timeout: 5000
+    write_timeout: 10000
+    read_timeout: 10000
+    retries: 1
+    routes:
+      - name: booking-public
+        protocols: [http, https]
+        paths:
+          - /api/bookings/availability
+        methods: [GET, OPTIONS]
+        strip_path: false
+
+      - name: booking-protected
+        protocols: [http, https]
+        paths:
+          - /api/bookings
+        methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+        strip_path: false
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify: [exp]
+              key_claim_name: iss
+              run_on_preflight: false
+          - name: post-function
+            config:
+              access:
+                - |
+                    local jwt_decoder = require "kong.plugins.jwt.jwt_parser"
+                    local token = kong.ctx.shared.authenticated_jwt_token or ngx.ctx.authenticated_jwt_token
+                    if token then
+                      local parsed = jwt_decoder:new(token)
+                      if parsed then
+                        local claims = parsed.claims
+                        if claims and claims.sub then
+                          kong.service.request.set_header("X-User-Id", tostring(claims.sub))
+                        end
+                        if claims and claims.role then
+                          kong.service.request.set_header("X-User-Role", tostring(claims.role))
+                        end
+                      end
+                    end
+
+  # --- Payment Service (Sprint 5) -----------------------------------------------
+  - name: payment-service
+    url: http://payment-service:3003
+    connect_timeout: 5000
+    write_timeout: 15000
+    read_timeout: 30000
+    retries: 1
+    routes:
+      - name: payment-public
+        protocols: [http, https]
+        paths:
+          - /api/payments/vnpay-return
+        methods: [GET, OPTIONS]
+        strip_path: false
+
+      - name: payment-protected
+        protocols: [http, https]
+        paths:
+          - /api/payments
+        methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+        strip_path: false
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify: [exp]
+              key_claim_name: iss
+              run_on_preflight: false
+          - name: post-function
+            config:
+              access:
+                - |
+                    local jwt_decoder = require "kong.plugins.jwt.jwt_parser"
+                    local token = kong.ctx.shared.authenticated_jwt_token or ngx.ctx.authenticated_jwt_token
+                    if token then
+                      local parsed = jwt_decoder:new(token)
+                      if parsed then
+                        local claims = parsed.claims
+                        if claims and claims.sub then
+                          kong.service.request.set_header("X-User-Id", tostring(claims.sub))
+                        end
+                        if claims and claims.role then
+                          kong.service.request.set_header("X-User-Role", tostring(claims.role))
+                        end
+                      end
+                    end
+
 plugins:
   # Global CORS for the frontend at localhost:5173 plus the production host.
   - name: cors
