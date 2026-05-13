@@ -85,7 +85,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F6.6** Playwright E2E tests for BW-01 through BW-08 (six scenarios in plan §5.3).
 
 ### Sprint 7 — Monolith Decommission (Week 19)
-- [ ] **F7.1** Remove non-content APIs from monolith Strapi (final sweep).
+- [x] **F7.1** Remove non-content APIs from monolith Strapi (final sweep).
 - [ ] **F7.2** Archive `Travel_TVB_Server/.tmp/data.db` → `archives/sqlite-final.db`.
 - [ ] **F7.3** DNS / reverse proxy cutover — production hostname points at Kong only.
 - [ ] **F7.4** Decommission watch — 1 week monitoring period before tearing down the old Strapi container.
@@ -1537,6 +1537,44 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **Sprint 6**: Search Service Extraction & Micro-Frontend Prep.
+
+---
+
+### F7.1 — Final monolith non-content API sweep — 2026-05-13
+
+**What was done**
+- Deleted the remaining non-content Strapi APIs from `Travel_TVB_Server/src/api/`: `booking`, `tour`, and `tour-category`.
+- Removed the monolith-only `card.tour-highlight` component that was only referenced by the deleted Tour content type.
+- Removed the legacy catalog blocking middleware and its `config/middlewares.js` registration now that the catalog APIs are no longer registered in Strapi.
+- Replaced the old booking-expiry cron with an empty cron task map so `config/server.js` still loads cleanly without touching the Booking Service's responsibility.
+- Pruned stale generated Strapi type declarations for the removed booking, tour, tour-category, and tour-highlight schemas.
+- Broadened the Content Service controller smoke test to cover every remaining content endpoint and increased the Jest boot timeout for Strapi startup.
+
+**Files touched**
+- `Travel_TVB_Server/src/api/booking/` (deleted)
+- `Travel_TVB_Server/src/api/tour/` (deleted)
+- `Travel_TVB_Server/src/api/tour-category/` (deleted)
+- `Travel_TVB_Server/src/components/card/tour-highlight.json` (deleted)
+- `Travel_TVB_Server/src/middlewares/block-legacy-catalog.js` (deleted)
+- `Travel_TVB_Server/config/cron-tasks.js`
+- `Travel_TVB_Server/config/middlewares.js`
+- `Travel_TVB_Server/types/generated/components.d.ts`
+- `Travel_TVB_Server/types/generated/contentTypes.d.ts`
+- `services/content-service/tests/content.test.js`
+- `Implement_Log.md`
+
+**Decisions**
+- Kept the Strapi `users-permissions` plugin and `block-legacy-auth` middleware in the monolith because content endpoints still rely on Strapi's public-permission machinery, while Identity endpoints remain blocked and served by the Identity Service through Kong.
+- Left `Travel_TVB_Server/.tmp/data.db` untouched for F7.2, where it will be archived as the final SQLite snapshot.
+- Treated the generated Strapi type files as part of the cleanup so tracked schema metadata no longer advertises removed APIs.
+
+**Issues / unknowns**
+- `Travel_TVB_Server` has no local `node_modules`, so a full monolith Jest/Strapi boot test could not be run from that package. Static config validation passed instead.
+- `services/content-service npm.cmd run test:coverage` passed: 22 endpoint smoke tests, 100% controller coverage.
+- Git commands require `-c safe.directory='D:/Seminar chuyên đề/Seminar_CD'` in this sandbox because the repository owner differs from the sandbox user.
+
+**Next**
+- **F7.2**: archive `Travel_TVB_Server/.tmp/data.db` to `archives/sqlite-final.db`.
 
 ---
 
