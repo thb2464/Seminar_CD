@@ -24,7 +24,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F0.4** `libs/shared/` — JWT validator middleware (TS + Py), RabbitMQ publisher/consumer abstractions, JSON logger.
 - [x] **F0.5** RabbitMQ topology — exchanges `booking.events`, `catalog.events`, `payment.events`; queue conventions documented.
 - [x] **F0.6** CI/CD template — `.github/workflows/_service.yml` reusable workflow (lint → test → build → push image).
-- [ ] **F0.7** Sprint 0 retrospective — capture decisions and unknowns in this log.
+- [x] **F0.7** Sprint 0 retrospective — capture decisions and unknowns in this log.
 
 ### Sprint 1 — AI Chatbot Service (Weeks 3–5)
 *Lowest coupling — extracted first.*
@@ -321,6 +321,34 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F0.7**: Sprint 0 retrospective in this log.
+
+---
+
+### F0.7 — Sprint 0 retrospective — 2026-05-13
+
+**What was done**
+- Closed the previously unchecked Sprint 0 items by reconciling the actual repository state with the task list.
+- Captured the Sprint 0 infrastructure decisions for workspace layout, local compose, gateway config ownership, shared helpers, RabbitMQ topology, and reusable CI.
+- Recorded local verification gaps so future sessions do not mistake static validation for full runtime validation.
+
+**Files touched**
+- `Implement_Log.md`
+
+**Decisions**
+- **Canonical gateway config** remains `services/api-gateway/kong.yml`; `infra/docker-compose.yml` mounts it rather than copying it.
+- **Local PostgreSQL** uses one container with separate service databases and owners. This keeps local dev lightweight while preserving the database-per-service boundary in service config.
+- **RabbitMQ definitions** are loaded by the local container and mirror existing consumer queue names instead of imposing new names.
+- **Shared helpers** stay dependency-light and framework-adjacent. They provide common identity/event/logging primitives without forcing services to adopt a new abstraction layer immediately.
+- **CI reusable workflow** lives at the actual Git root `.github/workflows/_service.yml`; per-service caller workflows are deferred to D2.
+
+**Issues / unknowns**
+- `docker compose config` works but emits a local permission warning for `C:\Users\Bao\.docker\config.json`.
+- Python `ruff` and `mypy` are not installed locally; F0.4 only ran Python unit tests.
+- The RabbitMQ definitions and Kong declarative config were statically validated but not boot-tested in running containers.
+- The task log still contains later sprint items that were previously marked done out of chronological order. Sprint 0 is now consistent, but future work should continue from the next unchecked task with caution.
+
+**Next**
+- Next unchecked feature in the log is **F7.1** (final monolith decommission sweep). That is a high-risk cleanup milestone and should only remove code already proven replaced behind Kong.
 
 ---
 
