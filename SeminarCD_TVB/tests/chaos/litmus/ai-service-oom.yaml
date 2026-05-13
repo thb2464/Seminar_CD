@@ -1,0 +1,35 @@
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: ai-service-oom
+  namespace: staging
+  labels:
+    app.kubernetes.io/name: ai-service-oom
+    app.kubernetes.io/part-of: travel-tvb
+    travel-tvb.io/phase: T4
+    travel-tvb.io/scenario: ai-service-oom
+  annotations:
+    travel-tvb.io/expected-behavior: Chatbot returns fallback messaging while Catalog, Booking, Payment, Identity, and Content remain healthy.
+    travel-tvb.io/pre-checks: Ask a grounded chatbot question and confirm other service health endpoints are green.
+    travel-tvb.io/post-checks: Confirm chatbot fallback behavior and verify non-chat workflows still pass smoke checks.
+spec:
+  engineState: "stop"
+  annotationCheck: "false"
+  appinfo:
+    appns: staging
+    applabel: "app.kubernetes.io/name=ai-chatbot-service"
+    appkind: deployment
+  chaosServiceAccount: travel-tvb-chaos-sa
+  experiments:
+    - name: pod-memory-hog
+      spec:
+        components:
+          env:
+            - name: MEMORY_CONSUMPTION
+              value: "1200"
+            - name: NUMBER_OF_WORKERS
+              value: "1"
+            - name: PODS_AFFECTED_PERC
+              value: "50"
+            - name: TOTAL_CHAOS_DURATION
+              value: "60"

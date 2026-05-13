@@ -1,0 +1,39 @@
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: rabbitmq-outage
+  namespace: staging
+  labels:
+    app.kubernetes.io/name: rabbitmq-outage
+    app.kubernetes.io/part-of: travel-tvb
+    travel-tvb.io/phase: T4
+    travel-tvb.io/scenario: rabbitmq-outage
+  annotations:
+    travel-tvb.io/expected-behavior: Services buffer events and retry RabbitMQ publishes with exponential backoff.
+    travel-tvb.io/pre-checks: Confirm RabbitMQ connections are healthy, then create a booking event source.
+    travel-tvb.io/post-checks: Confirm publish failures are retried, queues recover after the fault, and no events are lost.
+spec:
+  engineState: "stop"
+  annotationCheck: "false"
+  appinfo:
+    appns: staging
+    applabel: "app.kubernetes.io/part-of=travel-tvb"
+    appkind: deployment
+  chaosServiceAccount: travel-tvb-chaos-sa
+  experiments:
+    - name: pod-network-loss
+      spec:
+        components:
+          env:
+            - name: NETWORK_PACKET_LOSS_PERCENTAGE
+              value: "100"
+            - name: DESTINATION_HOSTS
+              value: rabbitmq.staging.svc.cluster.local,rabbitmq
+            - name: DESTINATION_PORTS
+              value: "5672"
+            - name: PODS_AFFECTED_PERC
+              value: "100"
+            - name: TOTAL_CHAOS_DURATION
+              value: "120"
+            - name: RAMP_TIME
+              value: "10"

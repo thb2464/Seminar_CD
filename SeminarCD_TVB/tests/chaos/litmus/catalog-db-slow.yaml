@@ -1,0 +1,41 @@
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: catalog-db-slow
+  namespace: staging
+  labels:
+    app.kubernetes.io/name: catalog-db-slow
+    app.kubernetes.io/part-of: travel-tvb
+    travel-tvb.io/phase: T4
+    travel-tvb.io/scenario: catalog-db-slow
+  annotations:
+    travel-tvb.io/expected-behavior: Catalog circuit breaker opens and cached or degraded tour data is served.
+    travel-tvb.io/pre-checks: Warm a tour list/detail request and confirm Catalog health before injecting latency.
+    travel-tvb.io/post-checks: Confirm Catalog returns cached or degraded responses and downstream services do not cascade fail.
+spec:
+  engineState: "stop"
+  annotationCheck: "false"
+  appinfo:
+    appns: staging
+    applabel: "app.kubernetes.io/name=catalog-service"
+    appkind: deployment
+  chaosServiceAccount: travel-tvb-chaos-sa
+  experiments:
+    - name: pod-network-latency
+      spec:
+        components:
+          env:
+            - name: NETWORK_LATENCY
+              value: "2000"
+            - name: JITTER
+              value: "250"
+            - name: DESTINATION_HOSTS
+              value: catalog-postgres.staging.svc.cluster.local,catalog-postgres
+            - name: DESTINATION_PORTS
+              value: "5432"
+            - name: PODS_AFFECTED_PERC
+              value: "100"
+            - name: TOTAL_CHAOS_DURATION
+              value: "120"
+            - name: RAMP_TIME
+              value: "10"

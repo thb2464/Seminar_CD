@@ -94,7 +94,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **T1** PostgreSQL testcontainers wired into Jest/PyTest configs.
 - [x] **T2** Pact broker (self-hosted) + CI integration.
 - [x] **T3** Playwright workspace under `tests/e2e/` covering the six E2E scenarios.
-- [ ] **T4** Chaos scenarios — Payment crash, RabbitMQ outage, Catalog DB slowdown, AI OOM (Toxiproxy/Litmus).
+- [x] **T4** Chaos scenarios — Payment crash, RabbitMQ outage, Catalog DB slowdown, AI OOM (Toxiproxy/Litmus).
 
 ### Phase 6 — Deployment & CI/CD (parallel with Phase 4)
 - [x] **D1** Per-service `Dockerfile` + `.dockerignore`.
@@ -1973,6 +1973,41 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **T4**: add chaos scenario definitions for Payment crash, RabbitMQ outage, Catalog DB slowdown, and AI OOM.
+
+---
+
+### T4 — Litmus chaos scenario definitions — 2026-05-14
+
+**What was done**
+- Added a Phase 5 chaos-test workspace under `tests/chaos/`.
+- Added shared Litmus RBAC for running chaos experiments in the `staging` namespace.
+- Added stopped-by-default `ChaosEngine` definitions for Payment pod crashes, RabbitMQ egress outage, Catalog DB latency, and AI Chatbot memory pressure.
+- Documented prerequisites, render commands, one-scenario run commands, and expected behavior for each fault.
+
+**Files touched**
+- `tests/chaos/README.md`
+- `tests/chaos/litmus/kustomization.yaml`
+- `tests/chaos/litmus/rbac.yaml`
+- `tests/chaos/litmus/payment-service-crash.yaml`
+- `tests/chaos/litmus/rabbitmq-outage.yaml`
+- `tests/chaos/litmus/catalog-db-slow.yaml`
+- `tests/chaos/litmus/ai-service-oom.yaml`
+- `Implement_Log.md`
+
+**Decisions**
+- Used Litmus `ChaosEngine` manifests instead of Toxiproxy because the Phase 6 Kubernetes deployment path is now available and is the right environment for service-fault isolation checks.
+- Kept every engine at `engineState: "stop"` so committing or applying definitions cannot start destructive fault injection without an explicit patch to `active`.
+- Targeted RabbitMQ and Catalog DB faults with destination-host network chaos to keep the blast radius on the dependency path being tested.
+
+**Issues / unknowns**
+- `kubectl kustomize tests/chaos/litmus` passed.
+- Static render check confirmed four stopped `ChaosEngine` resources and the expected Litmus experiments: `pod-delete`, `pod-network-loss`, `pod-network-latency`, and `pod-memory-hog`.
+- `git diff --check` passed with only Git's existing LF-to-CRLF working-copy warning on `Implement_Log.md`.
+- `kubectl apply --dry-run=client --validate=false -k tests/chaos/litmus` could not run without a reachable local Kubernetes API server; `kubectl` again tried `localhost:8080` and connection was refused.
+- A real staging cluster still needs Litmus Operator plus the four ChaosExperiment CRDs installed before execution.
+
+**Next**
+- Phase 5 and Phase 6 are complete. The next pending work is **M1**: ELK stack with Fluentbit, Elasticsearch, and Kibana.
 
 ---
 

@@ -1,0 +1,35 @@
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: payment-service-crash
+  namespace: staging
+  labels:
+    app.kubernetes.io/name: payment-service-crash
+    app.kubernetes.io/part-of: travel-tvb
+    travel-tvb.io/phase: T4
+    travel-tvb.io/scenario: payment-service-crash
+  annotations:
+    travel-tvb.io/expected-behavior: Booking stays Pending; user can retry; Catalog and Chatbot remain healthy.
+    travel-tvb.io/pre-checks: Create a booking that has not completed payment, then confirm Catalog and Chatbot health.
+    travel-tvb.io/post-checks: Confirm the booking remains Pending, payment retry works, and Catalog plus Chatbot endpoints respond.
+spec:
+  engineState: "stop"
+  annotationCheck: "false"
+  appinfo:
+    appns: staging
+    applabel: "app.kubernetes.io/name=payment-service"
+    appkind: deployment
+  chaosServiceAccount: travel-tvb-chaos-sa
+  experiments:
+    - name: pod-delete
+      spec:
+        components:
+          env:
+            - name: FORCE
+              value: "true"
+            - name: PODS_AFFECTED_PERC
+              value: "50"
+            - name: CHAOS_INTERVAL
+              value: "20"
+            - name: TOTAL_CHAOS_DURATION
+              value: "60"
