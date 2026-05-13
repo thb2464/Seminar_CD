@@ -31,6 +31,16 @@ on:
         required: false
         default: ""
         type: string
+      pact_dir:
+        description: Directory containing generated Pact JSON files, relative to service_path.
+        required: false
+        default: pacts
+        type: string
+      publish_pacts:
+        description: Publish generated Pact files to the configured Pact Broker.
+        required: false
+        default: true
+        type: boolean
       push_image:
         description: Push the built Docker image to GHCR.
         required: false
@@ -44,6 +54,11 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      PACT_BROKER_BASE_URL: ${{ vars.PACT_BROKER_BASE_URL }}
+      PACT_BROKER_USERNAME: ${{ secrets.PACT_BROKER_USERNAME }}
+      PACT_BROKER_PASSWORD: ${{ secrets.PACT_BROKER_PASSWORD }}
+      PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN }}
 
     steps:
       - name: Checkout
@@ -71,6 +86,11 @@ jobs:
         if: inputs.language == 'node'
         working-directory: ${{ inputs.service_path }}
         run: npm run test --if-present
+
+      - name: Verify Node provider contracts
+        if: inputs.language == 'node' && env.PACT_BROKER_BASE_URL != ''
+        working-directory: ${{ inputs.service_path }}
+        run: npm run pact:verify --if-present
 
       - name: Build Node service
         if: inputs.language == 'node'
@@ -106,12 +126,39 @@ jobs:
         working-directory: ${{ inputs.service_path }}
         run: python -m pytest
 
+      - name: Publish Pact files
+        if: inputs.publish_pacts && env.PACT_BROKER_BASE_URL != '' && hashFiles(format('{0}/{1}/*.json', inputs.service_path, inputs.pact_dir)) != ''
+        env:
+          PACT_DIR: ${{ inputs.service_path }}/${{ inputs.pact_dir }}
+        run: |
+          auth_args=()
+          if [ -n "${PACT_BROKER_TOKEN:-}" ]; then
+            auth_args+=(--broker-token "$PACT_BROKER_TOKEN")
+          elif [ -n "${PACT_BROKER_USERNAME:-}" ] && [ -n "${PACT_BROKER_PASSWORD:-}" ]; then
+            auth_args+=(--broker-username "$PACT_BROKER_USERNAME" --broker-password "$PACT_BROKER_PASSWORD")
+          fi
+
+          docker run --rm \
+            -v "$PWD/$PACT_DIR:/pacts:ro" \
+            pactfoundation/pact-broker-cli:latest publish /pacts \
+            --broker-base-url "$PACT_BROKER_BASE_URL" \
+            --consumer-app-version "$GITHUB_SHA" \
+            --branch "$GITHUB_REF_NAME" \
+            --validate \
+            "${auth_args[@]}"
+
+      - name: Prepare Docker image name
+        if: inputs.docker_image_name != ''
+        run: |
+          image_name="$(printf '%s' '${{ inputs.docker_image_name }}' | tr '[:upper:]' '[:lower:]')"
+          echo "SERVICE_IMAGE_NAME=$image_name" >> "$GITHUB_ENV"
+
       - name: Build Docker image
         if: inputs.docker_image_name != ''
         run: |
           docker build \
-            --tag ${{ inputs.docker_image_name }}:${{ github.sha }} \
-            --tag ${{ inputs.docker_image_name }}:latest \
+            --tag "$SERVICE_IMAGE_NAME:${{ github.sha }}" \
+            --tag "$SERVICE_IMAGE_NAME:latest" \
             ${{ inputs.service_path }}
 
       - name: Login to GHCR
@@ -125,5 +172,5 @@ jobs:
       - name: Push Docker image
         if: inputs.push_image && inputs.docker_image_name != ''
         run: |
-          docker push ${{ inputs.docker_image_name }}:${{ github.sha }}
-          docker push ${{ inputs.docker_image_name }}:latest
+          docker push "$SERVICE_IMAGE_NAME:${{ github.sha }}"
+          docker push "$SERVICE_IMAGE_NAME:latest"

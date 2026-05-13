@@ -21,6 +21,31 @@ services:
     networks:
       - travel-tvb-local
 
+  pact-broker:
+    image: pactfoundation/pact-broker:latest
+    container_name: travel-tvb-pact-broker
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PACT_BROKER_DATABASE_ADAPTER: postgres
+      PACT_BROKER_DATABASE_HOST: postgres
+      PACT_BROKER_DATABASE_USERNAME: pact_broker
+      PACT_BROKER_DATABASE_PASSWORD: pact_broker
+      PACT_BROKER_DATABASE_NAME: pact_broker_db
+      PACT_BROKER_BASE_URL: http://localhost:9292
+      PACT_BROKER_BASIC_AUTH_ENABLED: "true"
+      PACT_BROKER_BASIC_AUTH_USERNAME: pact_ci
+      PACT_BROKER_BASIC_AUTH_PASSWORD: pact_ci
+      PACT_BROKER_BASIC_AUTH_READ_ONLY_USERNAME: pact_read
+      PACT_BROKER_BASIC_AUTH_READ_ONLY_PASSWORD: pact_read
+      PACT_BROKER_PUBLIC_HEARTBEAT: "true"
+      PACT_BROKER_LOG_LEVEL: INFO
+    ports:
+      - "9292:9292"
+    networks:
+      - travel-tvb-local
+
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
     container_name: travel-tvb-rabbitmq

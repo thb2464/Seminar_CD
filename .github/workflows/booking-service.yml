@@ -1,0 +1,25 @@
+name: Booking Service CI
+
+on:
+  pull_request:
+    paths:
+      - "SeminarCD_TVB/services/booking-service/**"
+      - ".github/workflows/_service.yml"
+  push:
+    branches:
+      - main
+      - claude/happy-cerf-cc9584
+    paths:
+      - "SeminarCD_TVB/services/booking-service/**"
+      - ".github/workflows/_service.yml"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_service.yml
+    with:
+      service_name: Booking Service
+      service_path: SeminarCD_TVB/services/booking-service
+      language: node
+      docker_image_name: ghcr.io/${{ github.repository }}/booking-service
+      push_image: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    secrets: inherit
