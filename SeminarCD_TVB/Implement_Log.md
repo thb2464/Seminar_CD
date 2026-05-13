@@ -18,7 +18,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F0.0** Create `CLAUDE.md` + `Implement_Log.md`; lock in workflow, commit/push policy, and task breakdown.
 
 ### Sprint 0 — Infrastructure Setup (Weeks 1–2)
-- [ ] **F0.1** Reorganise repo into `services/`, `libs/shared/`, `infra/` layout (monolith stays intact during transition).
+- [x] **F0.1** Reorganise repo into `services/`, `libs/shared/`, `infra/` layout (monolith stays intact during transition).
 - [ ] **F0.2** `infra/docker-compose.yml` — PostgreSQL (per-service schemas), RabbitMQ, ChromaDB, Redis, Kong gateway.
 - [ ] **F0.3** Kong gateway `kong.yml` — declarative routes with stubs for all 6 future services.
 - [ ] **F0.4** `libs/shared/` — JWT validator middleware (TS + Py), RabbitMQ publisher/consumer abstractions, JSON logger.
@@ -136,6 +136,37 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F0.1**: repo reorganisation. Create `services/`, `libs/shared/`, `infra/` directories; keep `Travel_TVB/` and `Travel_TVB_Server/` in place during the transition.
+
+---
+
+### F0.1 — Repo reorganisation — 2026-05-13
+
+**What was done**
+- Confirmed the monolith folders `Travel_TVB/` and `Travel_TVB_Server/` remain at the repo root.
+- Confirmed `services/` already contains the extracted services and added a top-level `services/README.md` registry.
+- Created the missing `libs/shared/` workspace with `ts/` and `py/` placeholders for the upcoming shared helper feature.
+- Created the missing `infra/` workspace with a `k8s/` placeholder for later infrastructure and deployment features.
+
+**Files touched**
+- `services/README.md`
+- `libs/shared/README.md`
+- `libs/shared/ts/.gitkeep`
+- `libs/shared/py/.gitkeep`
+- `infra/README.md`
+- `infra/k8s/.gitkeep`
+- `Implement_Log.md`
+
+**Decisions**
+- Used small README anchors instead of empty directories so the intended ownership and future contents are visible in Git.
+- Did not move any monolith or service files; this keeps the Strangler Fig transition stable and avoids changing runtime behavior.
+- Left shared helper implementations for F0.4 and local stack wiring for F0.2.
+
+**Issues / unknowns**
+- The task log shows later sprint work already completed before this Sprint 0 checkbox was closed. F0.1 was therefore treated as a layout reconciliation feature rather than a large file move.
+- No runtime tests were needed because this change only adds documentation and tracked placeholder directories.
+
+**Next**
+- **F0.2**: create `infra/docker-compose.yml` for PostgreSQL databases, RabbitMQ, ChromaDB, Redis, and Kong.
 
 ---
 
