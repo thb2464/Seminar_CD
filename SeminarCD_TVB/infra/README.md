@@ -20,6 +20,8 @@ The compose stack provides:
 
 The shared Docker network is named `travel-tvb-local` so service-specific compose files can join the same network during migration.
 
+RabbitMQ loads its local exchange/queue topology from `rabbitmq/definitions.json`.
+
 ## Kubernetes
 
 The `k8s/` folder is reserved for Kubernetes manifests, ingress, HPAs, and environment namespaces.
