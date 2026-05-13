@@ -223,24 +223,30 @@ services:
           - /api/single-community-posts
           - /api/post-categories
           - /api/authors
-          - /api/faqs
+          - /api/faq
           - /api/newsletter-email-submissons
-          - /api/about-heroes
-          - /api/about-core-values
-          - /api/about-journeys
-          - /api/about-teams
-          - /api/home-hero-sliders
-          - /api/home-commitments
-          - /api/home-diagrams
-          - /api/home-portfolios
-          - /api/home-statistics
-          - /api/community-heroes
-          - /api/news-heroes
-          - /api/service-heroes
-          - /api/layout-navbars
-          - /api/layout-footers
-          - /api/layout-cta-banners
-          - /api/layout-newsletters
+          - /api/about-hero
+          - /api/about-core-value
+          - /api/about-journey
+          - /api/about-team
+          - /api/home-hero-slider
+          - /api/home-commitment
+          - /api/home-diagram
+          - /api/home-portfolio
+          - /api/home-statistic
+          - /api/community-hero
+          - /api/news-hero
+          - /api/service-hero
+          - /api/layout-navbar
+          - /api/layout-footer
+          - /api/layout-cta-banner
+          - /api/layout-newsletter
+          - /api/form-submissions
+          - /api/contact-map
+          - /api/contact-form
+          - /api/services-insurance-type
+          - /api/individual-services
+          - /api/layout-popular-post
         methods: [GET, POST, OPTIONS]
         strip_path: false
 

@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, Query, Req, Res } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 
-@Controller('payments')
+@Controller('api/payments')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
@@ -9,7 +9,7 @@ export class PaymentController {
   async createPaymentUrl(@Body() body: { bookingId: number }, @Req() req: any) {
     const ipAddr = req.ip || '127.0.0.1';
     const paymentUrl = await this.paymentService.createPaymentUrl(body.bookingId, ipAddr);
-    return { data: { paymentUrl } };
+    return { paymentUrl };
   }
 
   @Get('vnpay-return')
