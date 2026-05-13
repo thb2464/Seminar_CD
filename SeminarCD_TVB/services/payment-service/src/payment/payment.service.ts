@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import * as crypto from 'crypto';
 import * as qs from 'qs';
 import axios from 'axios';
-import * as CircuitBreaker from 'opossum';
+import CircuitBreaker from 'opossum';
 import { Payment } from './entities/payment.entity';
 import { sortObject, formatVnpDate } from '../vnpay-transaction/vnpay-helpers';
 import { PaymentEventsPublisher } from '../events/payment-events.publisher';
