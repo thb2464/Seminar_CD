@@ -88,7 +88,7 @@ describe('migrateUsersFromSqlite', () => {
       }),
     } as unknown as ReturnType<typeof AppDataSource.getRepository>;
 
-    jest.spyOn(AppDataSource, 'isInitialized', 'get').mockReturnValue(true);
+    jest.replaceProperty(AppDataSource, 'isInitialized', true);
     jest
       .spyOn(AppDataSource, 'getRepository')
       .mockReturnValue(fakeRepo as ReturnType<typeof AppDataSource.getRepository>);
@@ -119,7 +119,7 @@ describe('migrateUsersFromSqlite', () => {
       insert: jest.fn().mockResolvedValue(undefined),
     } as unknown as ReturnType<typeof AppDataSource.getRepository>;
 
-    jest.spyOn(AppDataSource, 'isInitialized', 'get').mockReturnValue(true);
+    jest.replaceProperty(AppDataSource, 'isInitialized', true);
     jest
       .spyOn(AppDataSource, 'getRepository')
       .mockReturnValue(fakeRepo as ReturnType<typeof AppDataSource.getRepository>);

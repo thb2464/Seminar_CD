@@ -3,7 +3,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import * as request from 'supertest';
+import request from 'supertest';
 
 import { AuthController } from '../src/auth/auth.controller';
 import { AuthService } from '../src/auth/auth.service';
@@ -134,7 +134,7 @@ describe('Frontend contract (AuthContext.jsx)', () => {
   it('login with wrong password → Strapi error envelope, 401', async () => {
     const response = await request(app.getHttpServer())
       .post('/api/auth/local')
-      .send({ identifier: 'tan', password: 'wrong' })
+      .send({ identifier: 'tan', password: 'wrong123' })
       .expect(401);
 
     expect(response.body).toEqual({

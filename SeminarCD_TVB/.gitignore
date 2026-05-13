@@ -4,6 +4,11 @@ Translations.md
 FunctionalReg.md
 migrate-strapi-locales.mjs
 
+# Generated dependency/build artifacts
+**/node_modules/
+**/dist/
+**/coverage/
+
 # Server-specific CD files
 deploy.sh
 deploy.log
