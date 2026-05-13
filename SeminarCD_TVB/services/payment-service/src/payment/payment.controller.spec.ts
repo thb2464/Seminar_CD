@@ -27,7 +27,7 @@ describe('PaymentController', () => {
 
   it('should create payment url', async () => {
     const res = await controller.createPaymentUrl({ bookingId: 1 }, { ip: '127.0.0.1' });
-    expect(res.data.paymentUrl).toBe('http://vnpay.url');
+    expect(res.paymentUrl).toBe('http://vnpay.url');
     expect(service.createPaymentUrl).toHaveBeenCalledWith(1, '127.0.0.1');
   });
 

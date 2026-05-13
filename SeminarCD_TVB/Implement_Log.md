@@ -54,7 +54,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F3.6** AI Chatbot consumer — `TourUpdated` → re-index that tour's chunks in ChromaDB.
 - [x] **F3.7** Kong routes `/api/tours/*`, `/api/tour-categories/*` → catalog-service.
 - [x] **F3.8** Remove tour APIs from monolith Strapi; verify frontend `Tours.jsx`, `TourDetail.jsx`.
-- [ ] **F3.9** Jest suite ≥80% coverage; CQRS read-model split for high-traffic list/detail queries.
+- [x] **F3.9** Jest suite ≥80% coverage; CQRS read-model split for high-traffic list/detail queries.
 
 ### Sprint 4 — Content Service (Weeks 11–12)
 - [x] **F4.1** Re-package remaining Strapi as `services/content-service/` (blogs, FAQ, page sections, about, services, layout, newsletter).
@@ -77,12 +77,12 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F5.11** Jest suites ≥85% coverage; Pact consumer/provider tests for the Booking↔Payment contract.
 
 ### Sprint 6 — Frontend Migration (Weeks 17–18)
-- [ ] **F6.1** Update `VITE_STRAPI_URL` → `VITE_API_GATEWAY_URL`; refactor `src/config/strapi.js` to point at the gateway.
-- [ ] **F6.2** Audit all `fetch`/API calls in `src/page/` and `src/components/` — confirm paths still resolve through Kong.
-- [ ] **F6.3** Add per-service error boundaries / graceful degradation (e.g. chatbot down ≠ tours down).
-- [ ] **F6.4** Update `AuthContext.jsx` to point to Identity Service endpoints.
-- [ ] **F6.5** Update `BookingForm/` flow to call Booking + Payment services in correct order.
-- [ ] **F6.6** Playwright E2E tests for BW-01 through BW-08 (six scenarios in plan §5.3).
+- [x] **F6.1** Update `VITE_STRAPI_URL` → `VITE_API_GATEWAY_URL`; refactor `src/config/strapi.js` to point at the gateway.
+- [x] **F6.2** Audit all `fetch`/API calls in `src/page/` and `src/components/` — confirm paths still resolve through Kong.
+- [x] **F6.3** Add per-service error boundaries / graceful degradation (e.g. chatbot down ≠ tours down).
+- [x] **F6.4** Update `AuthContext.jsx` to point to Identity Service endpoints.
+- [x] **F6.5** Update `BookingForm/` flow to call Booking + Payment services in correct order.
+- [x] **F6.6** Playwright E2E tests for BW-01 through BW-08 (six scenarios in plan §5.3).
 
 ### Sprint 7 — Monolith Decommission (Week 19)
 - [ ] **F7.1** Remove non-content APIs from monolith Strapi (final sweep).

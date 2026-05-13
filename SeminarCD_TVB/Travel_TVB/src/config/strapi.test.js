@@ -1,10 +1,14 @@
 import config from './strapi';
 
 describe('strapi config', () => {
-  it('should export STRAPI_URL', () => {
-    expect(config.STRAPI_URL).toBeDefined();
-    expect(typeof config.STRAPI_URL).toBe('string');
-    expect(config.STRAPI_URL.length).toBeGreaterThan(0);
+  it('should export API_URL', () => {
+    expect(config.API_URL).toBeDefined();
+    expect(typeof config.API_URL).toBe('string');
+    expect(config.API_URL.length).toBeGreaterThan(0);
+  });
+
+  it('should export backward-compatible STRAPI_URL alias', () => {
+    expect(config.STRAPI_URL).toBe(config.API_URL);
   });
 
   it('should export API_ENDPOINTS object', () => {
@@ -21,7 +25,9 @@ describe('strapi config', () => {
       'SINGLE_POST', 'SINGLE_COMMUNITY_POST',
       'AUTH_LOCAL', 'AUTH_REGISTER', 'USERS_ME',
       'TOURS', 'TOUR_CATEGORIES',
-      'BOOKINGS', 'BOOKING_CREATE_PAYMENT', 'BOOKING_MY_BOOKINGS',
+      'BOOKINGS', 'BOOKING_MY_BOOKINGS', 'BOOKING_AVAILABILITY',
+      'PAYMENT_CREATE_URL', 'PAYMENT_VNPAY_RETURN',
+      'BOOKING_CREATE_PAYMENT',
       'CHATBOT_QUERY',
     ];
 
@@ -44,7 +50,18 @@ describe('strapi config', () => {
     expect(config.API_ENDPOINTS.AUTH_REGISTER).toBe('/api/auth/local/register');
   });
 
-  it('should have correct BOOKING_CREATE_PAYMENT endpoint', () => {
-    expect(config.API_ENDPOINTS.BOOKING_CREATE_PAYMENT).toBe('/api/bookings/create-payment-url');
+  it('should route BOOKING_CREATE_PAYMENT to Payment Service', () => {
+    expect(config.API_ENDPOINTS.BOOKING_CREATE_PAYMENT).toBe('/api/payments/create-url');
+    expect(config.API_ENDPOINTS.PAYMENT_CREATE_URL).toBe('/api/payments/create-url');
+  });
+
+  it('should have correct booking endpoints', () => {
+    expect(config.API_ENDPOINTS.BOOKINGS).toBe('/api/bookings');
+    expect(config.API_ENDPOINTS.BOOKING_MY_BOOKINGS).toBe('/api/bookings/my-bookings');
+    expect(config.API_ENDPOINTS.BOOKING_AVAILABILITY).toBe('/api/bookings/availability');
+  });
+
+  it('should have correct chatbot endpoint', () => {
+    expect(config.API_ENDPOINTS.CHATBOT_QUERY).toBe('/api/chatbot/query');
   });
 });
