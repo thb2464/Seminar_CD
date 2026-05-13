@@ -101,7 +101,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **D2** GitHub Actions workflow per service (uses the reusable workflow from F0.6).
 - [x] **D3** Kubernetes manifests — Deployment, Service, Ingress per service.
 - [x] **D4** HPA configs for Catalog (2–5) and AI Chatbot (2–4).
-- [ ] **D5** `staging` and `production` namespaces with secrets management (Sealed Secrets or External Secrets).
+- [x] **D5** `staging` and `production` namespaces with secrets management (Sealed Secrets or External Secrets).
 
 ### Phase 7 — Maintenance & Operations
 - [ ] **M1** ELK stack — Fluentbit DaemonSet → Elasticsearch → Kibana.
@@ -1935,6 +1935,44 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 **Next**
 - **D5**: add staging/production namespaces and real secret-management overlays.
 - **T4**: add chaos scenario definitions.
+
+---
+
+### D5 — Staging/production overlays and External Secrets — 2026-05-14
+
+**What was done**
+- Added Kustomize overlays for `staging` and `production` namespaces.
+- Patched each environment's public Kong Ingress host and VNPay return URL.
+- Added ExternalSecret resources for all service runtime secrets plus the shared RabbitMQ connection secret.
+- Documented the overlay layout and External Secrets Operator prerequisite.
+
+**Files touched**
+- `infra/k8s/README.md`
+- `infra/k8s/overlays/staging/namespace.yaml`
+- `infra/k8s/overlays/staging/kustomization.yaml`
+- `infra/k8s/overlays/staging/ingress-host.patch.yaml`
+- `infra/k8s/overlays/staging/payment-return-url.patch.yaml`
+- `infra/k8s/overlays/staging/external-secrets.yaml`
+- `infra/k8s/overlays/production/namespace.yaml`
+- `infra/k8s/overlays/production/kustomization.yaml`
+- `infra/k8s/overlays/production/ingress-host.patch.yaml`
+- `infra/k8s/overlays/production/payment-return-url.patch.yaml`
+- `infra/k8s/overlays/production/external-secrets.yaml`
+- `Implement_Log.md`
+
+**Decisions**
+- Used External Secrets instead of committing encrypted Secret manifests, keeping runtime secret material outside the repo and aligned with per-environment secret backends.
+- Required a cluster-scoped `ClusterSecretStore` named `travel-tvb-cluster-secret-store` so staging and production overlays can share provider wiring while keeping provider keys environment-specific.
+- Kept only environment-specific hostnames and VNPay callback URLs in overlays; all shared service shape stays in the base.
+
+**Issues / unknowns**
+- `kubectl kustomize infra/k8s/overlays/staging` passed.
+- `kubectl kustomize infra/k8s/overlays/production` passed.
+- `git diff --check` passed with only Git's existing LF-to-CRLF working-copy warnings.
+- A real cluster must install External Secrets Operator CRDs and create the `ClusterSecretStore` before applying these overlays.
+
+**Next**
+- **T4**: add chaos scenario definitions for Payment crash, RabbitMQ outage, Catalog DB slowdown, and AI OOM.
 
 ---
 

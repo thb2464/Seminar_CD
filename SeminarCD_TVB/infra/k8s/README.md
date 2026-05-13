@@ -14,3 +14,17 @@ The base keeps service traffic behind Kong:
 - Service Deployments reference placeholder Secret names documented in `base/runtime-secrets.example.yaml`.
 
 Environment namespaces and real secret management are intentionally left for D5.
+
+## Environment Overlays
+
+`overlays/staging` and `overlays/production` apply the base into the target
+namespace, patch the public API hostname, and create ExternalSecret resources
+for each runtime Secret consumed by the Deployments.
+
+The overlays expect External Secrets Operator CRDs (`external-secrets.io/v1`)
+and a cluster-scoped store named `travel-tvb-cluster-secret-store`.
+
+```bash
+kubectl kustomize infra/k8s/overlays/staging
+kubectl kustomize infra/k8s/overlays/production
+```
