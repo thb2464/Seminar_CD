@@ -88,7 +88,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F7.1** Remove non-content APIs from monolith Strapi (final sweep).
 - [x] **F7.2** Archive `Travel_TVB_Server/.tmp/data.db` → `archives/sqlite-final.db`.
 - [x] **F7.3** DNS / reverse proxy cutover — production hostname points at Kong only.
-- [ ] **F7.4** Decommission watch — 1 week monitoring period before tearing down the old Strapi container.
+- [x] **F7.4** Decommission watch — 1 week monitoring period before tearing down the old Strapi container.
 
 ### Phase 5 — Testing Strategy (parallel with Phase 4)
 - [ ] **T1** PostgreSQL testcontainers wired into Jest/PyTest configs.
@@ -1634,6 +1634,32 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F7.4**: add the decommission watch checklist and monitoring window before tearing down the old Strapi container.
+
+---
+
+### F7.4 — Decommission watch before old Strapi tear-down — 2026-05-13
+
+**What was done**
+- Added `docs/runbooks/monolith-decommission-watch.md` with the 2026-05-13 through 2026-05-20 watch window, daily checks, metrics to review, incident criteria, and final tear-down gate.
+- Linked the decommission watch runbook from the DNS/Kong cutover runbook.
+- Created a Codex thread heartbeat automation named `Review monolith decommission watch` to revisit the watch results after one week before removing the old Strapi container.
+
+**Files touched**
+- `docs/runbooks/monolith-decommission-watch.md`
+- `docs/runbooks/dns-kong-cutover.md`
+- `Implement_Log.md`
+
+**Decisions**
+- The old Strapi container is not removed as part of this feature; removal is gated until the watch window completes successfully.
+- Daily probes include positive Kong route checks and a negative check that the public Strapi port `1337` is not exposed.
+- Rollback remains at Kong/proxy level, not by restoring public monolith routing, because F7.1 removed the monolith non-content APIs.
+
+**Issues / unknowns**
+- Live production metrics are not available in this workspace, so the runbook defines the checks and the scheduled follow-up rather than recording real production observations.
+- Follow-up automation id: `review-monolith-decommission-watch`.
+
+**Next**
+- Sprint 7 is complete. Next unchecked work is in the parallel Testing, Deployment, and Maintenance phases, starting with **T1** unless the team chooses a deployment task first.
 
 ---
 
