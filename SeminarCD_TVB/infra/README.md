@@ -13,6 +13,7 @@ docker compose -f infra/docker-compose.yml up
 The compose stack provides:
 
 - PostgreSQL on `localhost:5432` with separate local databases and owners for `identity_db`, `catalog_db`, `booking_db`, `payment_db`, and `content_db`.
+- Pact Broker on `localhost:9292`, backed by its own `pact_broker_db` database. Local read/write credentials are `pact_ci` / `pact_ci`; local read-only credentials are `pact_read` / `pact_read`.
 - RabbitMQ on `localhost:5672` with the management UI on `localhost:15672`.
 - ChromaDB on `localhost:8800` mapped to container port `8000`.
 - Redis on `localhost:6379`.
@@ -21,6 +22,8 @@ The compose stack provides:
 The shared Docker network is named `travel-tvb-local` so service-specific compose files can join the same network during migration.
 
 RabbitMQ loads its local exchange/queue topology from `rabbitmq/definitions.json`.
+
+Pact Broker usage and CI variable setup are documented in `docs/testing/pact-broker.md`.
 
 ## Kubernetes
 

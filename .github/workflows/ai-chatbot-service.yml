@@ -1,0 +1,25 @@
+name: AI Chatbot Service CI
+
+on:
+  pull_request:
+    paths:
+      - "SeminarCD_TVB/services/ai-chatbot-service/**"
+      - ".github/workflows/_service.yml"
+  push:
+    branches:
+      - main
+      - claude/happy-cerf-cc9584
+    paths:
+      - "SeminarCD_TVB/services/ai-chatbot-service/**"
+      - ".github/workflows/_service.yml"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_service.yml
+    with:
+      service_name: AI Chatbot Service
+      service_path: SeminarCD_TVB/services/ai-chatbot-service
+      language: python
+      docker_image_name: ghcr.io/${{ github.repository }}/ai-chatbot-service
+      push_image: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    secrets: inherit

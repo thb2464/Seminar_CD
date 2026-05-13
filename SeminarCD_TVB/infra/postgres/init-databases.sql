@@ -12,3 +12,6 @@ CREATE DATABASE payment_db OWNER payment;
 
 CREATE USER strapi WITH PASSWORD 'strapi';
 CREATE DATABASE content_db OWNER strapi;
+
+CREATE USER pact_broker WITH PASSWORD 'pact_broker';
+CREATE DATABASE pact_broker_db OWNER pact_broker;
