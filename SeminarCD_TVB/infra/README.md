@@ -27,7 +27,9 @@ Pact Broker usage and CI variable setup are documented in `docs/testing/pact-bro
 
 ## Kubernetes
 
-The `k8s/` folder is reserved for Kubernetes manifests, ingress, HPAs, and environment namespaces.
+The `k8s/` folder contains the base Kubernetes manifests for service Deployments,
+ClusterIP Services, and the public Kong gateway Ingress. HPAs and
+environment-specific namespaces/secrets are layered in later deployment tasks.
 
 ## Production Reverse Proxy
 

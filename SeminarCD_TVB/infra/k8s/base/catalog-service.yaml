@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-service
+  labels:
+    app.kubernetes.io/name: catalog-service
+    app.kubernetes.io/part-of: travel-tvb
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: catalog-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: catalog-service
+        app.kubernetes.io/part-of: travel-tvb
+    spec:
+      containers:
+        - name: catalog-service
+          image: ghcr.io/thb2464/seminar_cd/catalog-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3001
+          env:
+            - name: PORT
+              value: "3001"
+            - name: DATABASE_HOST
+              value: catalog-postgres
+          envFrom:
+            - configMapRef:
+                name: travel-tvb-runtime-config
+            - secretRef:
+                name: catalog-service-secret
+            - secretRef:
+                name: rabbitmq-connection-secret
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 150m
+              memory: 256Mi
+            limits:
+              cpu: 750m
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-service
+  labels:
+    app.kubernetes.io/name: catalog-service
+    app.kubernetes.io/part-of: travel-tvb
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: catalog-service
+  ports:
+    - name: http
+      port: 3001
+      targetPort: http

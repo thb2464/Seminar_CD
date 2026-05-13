@@ -99,7 +99,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 ### Phase 6 — Deployment & CI/CD (parallel with Phase 4)
 - [x] **D1** Per-service `Dockerfile` + `.dockerignore`.
 - [x] **D2** GitHub Actions workflow per service (uses the reusable workflow from F0.6).
-- [ ] **D3** Kubernetes manifests — Deployment, Service, Ingress per service.
+- [x] **D3** Kubernetes manifests — Deployment, Service, Ingress per service.
 - [ ] **D4** HPA configs for Catalog (2–5) and AI Chatbot (2–4).
 - [ ] **D5** `staging` and `production` namespaces with secrets management (Sealed Secrets or External Secrets).
 
@@ -1864,6 +1864,49 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 **Next**
 - **D3**: add Kubernetes Deployment, Service, and Ingress manifests per service.
 - **T4**: add chaos scenario definitions for Payment crash, RabbitMQ outage, Catalog DB slowdown, and AI OOM.
+
+---
+
+### D3 — Kubernetes base manifests — 2026-05-14
+
+**What was done**
+- Added a Kustomize base under `infra/k8s/base/` for the six microservices plus the Kong API Gateway.
+- Added Deployments and ClusterIP Services for Identity, Catalog, Booking, Payment, Content, AI Chatbot, and API Gateway.
+- Added a public Ingress that routes only to the Kong API Gateway, preserving the gateway trust boundary for JWT validation and downstream `X-User-*` headers.
+- Added shared runtime ConfigMap values and a `runtime-secrets.example.yaml` reference file for the Secret names expected by the base Deployments.
+- Updated Kubernetes README docs and the infrastructure README with the base-manifest layout.
+
+**Files touched**
+- `infra/README.md`
+- `infra/k8s/README.md`
+- `infra/k8s/base/kustomization.yaml`
+- `infra/k8s/base/runtime-config.yaml`
+- `infra/k8s/base/runtime-secrets.example.yaml`
+- `infra/k8s/base/ai-chatbot-service.yaml`
+- `infra/k8s/base/api-gateway.yaml`
+- `infra/k8s/base/identity-service.yaml`
+- `infra/k8s/base/catalog-service.yaml`
+- `infra/k8s/base/booking-service.yaml`
+- `infra/k8s/base/payment-service.yaml`
+- `infra/k8s/base/content-service.yaml`
+- `infra/k8s/base/ingress.yaml`
+- Removed `infra/k8s/.gitkeep`
+- `Implement_Log.md`
+
+**Decisions**
+- Downstream service Services are `ClusterIP` only. The only public Ingress points to Kong because exposing each service directly would bypass the established gateway auth contract.
+- D3 includes Secret references and an example Secret file, but not staging/production namespace or sealed/external secret management; those remain D5.
+- Booking and Payment use TCP probes for now because those NestJS services do not expose a dedicated `/health` route yet.
+
+**Issues / unknowns**
+- `kubectl kustomize infra/k8s/base` passed.
+- `kubectl apply --dry-run=client --validate=false -k infra/k8s/base` could not run without a reachable local Kubernetes API server; `kubectl` tried `localhost:8080` and connection was refused.
+- Image references use the GHCR path produced by the D2 workflows: `ghcr.io/thb2464/seminar_cd/<service>:latest`.
+
+**Next**
+- **D4**: add HPA configs for Catalog (2-5) and AI Chatbot (2-4).
+- **D5**: add staging/production namespaces and real secret-management overlays.
+- **T4**: add chaos scenario definitions.
 
 ---
 
