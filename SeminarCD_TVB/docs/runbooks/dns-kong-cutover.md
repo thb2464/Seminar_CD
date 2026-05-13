@@ -93,3 +93,6 @@ response here means the monolith is still publicly exposed and F7.3 is not done.
 Rollback should point traffic to the previous Kong deployment or previous
 reverse proxy revision, not to the monolith Strapi API. The monolith no longer
 contains booking, tour, chatbot, or auth API implementations after F7.1.
+
+After cutover, follow `docs/runbooks/monolith-decommission-watch.md` for the
+one-week watch period before removing the old Strapi container.
