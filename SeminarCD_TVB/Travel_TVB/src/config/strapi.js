@@ -1,10 +1,24 @@
 // config/strapi.js
+//
+// Central API configuration. All frontend API calls go through the Kong
+// gateway. VITE_API_GATEWAY_URL is the primary env var; VITE_STRAPI_URL
+// is accepted as a backwards-compatible fallback during the Sprint 6
+// migration window.
 const config = {
-  // Base URL for Strapi API
-  STRAPI_URL: import.meta.env.VITE_STRAPI_URL || 'https://dashboard.lamweb.fun',
+  API_URL:
+    import.meta.env.VITE_API_GATEWAY_URL ||
+    import.meta.env.VITE_STRAPI_URL ||
+    'http://localhost:8000',
 
-  // API endpoints
+  // Backward-compatible alias — existing code that references
+  // config.STRAPI_URL keeps working until Sprint 6 is fully closed out.
+  get STRAPI_URL() {
+    return this.API_URL;
+  },
+
+  // API endpoints — grouped by owning microservice
   API_ENDPOINTS: {
+    // --- Content Service (Strapi) ---
     HERO_SLIDER: '/api/home-hero-slider',
     STATISTIC: '/api/home-statistic',
     COMMITMENT: '/api/home-commitment',
@@ -32,22 +46,32 @@ const config = {
     LAYOUT_NEWSLETTER: '/api/layout-newsletter',
     NEWSLETTER_SUBMISSION: '/api/newsletter-email-submissons/:id',
 
-    // Auth endpoints
+    // --- Identity Service ---
     AUTH_LOCAL: '/api/auth/local',
     AUTH_REGISTER: '/api/auth/local/register',
     USERS_ME: '/api/users/me',
 
-    // Tour endpoints
+    // --- Catalog Service ---
     TOURS: '/api/tours',
     TOUR_CATEGORIES: '/api/tour-categories',
 
-    // Booking endpoints
+    // --- Booking Service ---
     BOOKINGS: '/api/bookings',
-    BOOKING_CREATE_PAYMENT: '/api/bookings/create-payment-url',
     BOOKING_MY_BOOKINGS: '/api/bookings/my-bookings',
     BOOKING_AVAILABILITY: '/api/bookings/availability',
 
-    // Chatbot endpoint
+    // --- Payment Service ---
+    PAYMENT_CREATE_URL: '/api/payments/create-url',
+    PAYMENT_VNPAY_RETURN: '/api/payments/vnpay-return',
+
+    // Backward-compatible alias for the old monolith endpoint name.
+    // Profile.jsx used BOOKING_CREATE_PAYMENT; it now routes to the
+    // Payment Service through Kong.
+    get BOOKING_CREATE_PAYMENT() {
+      return '/api/payments/create-url';
+    },
+
+    // --- AI Chatbot Service ---
     CHATBOT_QUERY: '/api/chatbot/query',
   }
 };
