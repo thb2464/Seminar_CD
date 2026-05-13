@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import * as crypto from 'crypto';
 import * as qs from 'qs';
 import axios from 'axios';
+import * as CircuitBreaker from 'opossum';
 import { Payment } from './entities/payment.entity';
 import { sortObject, formatVnpDate } from '../vnpay-transaction/vnpay-helpers';
 import { PaymentEventsPublisher } from '../events/payment-events.publisher';
@@ -13,12 +14,29 @@ import { PAYMENT_COMPLETED, PAYMENT_FAILED } from '../events/payment-event.types
 @Injectable()
 export class PaymentService {
   private readonly logger = new Logger(PaymentService.name);
+  private vnpayRefundBreaker: CircuitBreaker;
 
   constructor(
     private config: ConfigService,
     @InjectRepository(Payment) private paymentRepo: Repository<Payment>,
     private publisher: PaymentEventsPublisher,
-  ) {}
+  ) {
+    this.vnpayRefundBreaker = new CircuitBreaker(
+      async (url: string, params: any) => {
+        return await axios.post(url, params, { timeout: 15000 });
+      },
+      {
+        timeout: 15000,
+        errorThresholdPercentage: 50,
+        resetTimeout: 30000,
+        name: 'vnpay-refund-breaker'
+      }
+    );
+    this.vnpayRefundBreaker.fallback(() => ({ data: { vnp_ResponseCode: 'CB', vnp_Message: 'Circuit breaker open, refund queued' } }));
+    this.vnpayRefundBreaker.on('open', () => this.logger.warn('VNPay Refund Circuit Breaker OPEN'));
+    this.vnpayRefundBreaker.on('halfOpen', () => this.logger.log('VNPay Refund Circuit Breaker HALF_OPEN'));
+    this.vnpayRefundBreaker.on('close', () => this.logger.log('VNPay Refund Circuit Breaker CLOSED'));
+  }
 
   async createPaymentUrl(bookingId: number, ipAddr: string = '127.0.0.1'): Promise<string> {
     const payment = await this.paymentRepo.findOne({ where: { bookingId } });
@@ -176,12 +194,15 @@ export class PaymentService {
     const refundUrl = this.config.get<string>('VNPAY_API_URL', 'https://sandbox.vnpayment.vn/merchant_webapi/api/transaction');
     
     try {
-      const response = await axios.post(refundUrl, params, { timeout: 25000 });
+      const response: any = await this.vnpayRefundBreaker.fire(refundUrl, params);
       const result = response.data;
+      
       if (result.vnp_ResponseCode === '00') {
         payment.status = 'Refunded';
         await this.paymentRepo.save(payment);
         return { success: true, responseCode: result.vnp_ResponseCode, message: result.vnp_Message };
+      } else if (result.vnp_ResponseCode === 'CB') {
+        return { success: false, responseCode: 'CIRCUIT_BREAKER', message: 'VNPay API unavailable, please retry later.' };
       }
       return { success: false, responseCode: result.vnp_ResponseCode, message: result.vnp_Message };
     } catch (err: any) {
