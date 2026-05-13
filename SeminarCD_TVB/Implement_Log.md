@@ -21,7 +21,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F0.1** Reorganise repo into `services/`, `libs/shared/`, `infra/` layout (monolith stays intact during transition).
 - [x] **F0.2** `infra/docker-compose.yml` — PostgreSQL (per-service schemas), RabbitMQ, ChromaDB, Redis, Kong gateway.
 - [x] **F0.3** Kong gateway `kong.yml` — declarative routes with stubs for all 6 future services.
-- [ ] **F0.4** `libs/shared/` — JWT validator middleware (TS + Py), RabbitMQ publisher/consumer abstractions, JSON logger.
+- [x] **F0.4** `libs/shared/` — JWT validator middleware (TS + Py), RabbitMQ publisher/consumer abstractions, JSON logger.
 - [ ] **F0.5** RabbitMQ topology — exchanges `booking.events`, `catalog.events`, `payment.events`; queue conventions documented.
 - [ ] **F0.6** CI/CD template — `.github/workflows/_service.yml` reusable workflow (lint → test → build → push image).
 - [ ] **F0.7** Sprint 0 retrospective — capture decisions and unknowns in this log.
@@ -221,6 +221,43 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F0.4**: implement `libs/shared/` JWT header validation, RabbitMQ helpers, and JSON logger helpers for TypeScript and Python services.
+
+---
+
+### F0.4 — Shared TypeScript and Python helpers — 2026-05-13
+
+**What was done**
+- Implemented `libs/shared/ts` as a small TypeScript package with gateway identity header validation/middleware, RabbitMQ JSON event helper abstractions, and JSON logger helpers.
+- Implemented `libs/shared/py` as a small Python package with matching gateway identity ASGI middleware, RabbitMQ JSON event helpers, and stdlib JSON logging helpers.
+- Added unit tests for both shared packages.
+- Updated `libs/shared/README.md` with package responsibilities and verification commands.
+
+**Files touched**
+- `libs/shared/README.md`
+- `libs/shared/ts/package.json`, `tsconfig.json`, `.gitignore`
+- `libs/shared/ts/src/auth.ts`, `logger.ts`, `rabbitmq.ts`, `index.ts`
+- `libs/shared/ts/src/auth.spec.ts`, `logger.spec.ts`, `rabbitmq.spec.ts`
+- `libs/shared/py/pyproject.toml`, `.gitignore`
+- `libs/shared/py/travel_tvb_shared/__init__.py`, `auth.py`, `logger.py`, `rabbitmq.py`
+- `libs/shared/py/tests/test_auth.py`, `test_logger.py`, `test_rabbitmq.py`
+- Removed placeholder `.gitkeep` files from `libs/shared/ts` and `libs/shared/py`
+- `Implement_Log.md`
+
+**Decisions**
+- The "JWT validator" validates Kong-injected identity headers (`X-User-Id`, `X-User-Role`, `X-Trace-Id`) rather than re-validating raw JWTs inside downstream services, preserving the gateway trust boundary.
+- RabbitMQ helpers use small protocol/structural interfaces instead of importing concrete `amqplib`, `amqp-connection-manager`, or `aio-pika` types. This keeps shared code dependency-light and lets each service choose its connection manager.
+- JSON logger helpers always emit `service_name` and `trace_id`, defaulting `trace_id` to `unknown` when the caller does not have one yet.
+
+**Issues / unknowns**
+- TypeScript verification used the already-installed compiler from `services/payment-service/node_modules/.bin/tsc.cmd` because `tsc` is not on PATH and `npm.ps1` is blocked by PowerShell execution policy. Commands run:
+  - `services/payment-service/node_modules/.bin/tsc.cmd -p libs/shared/ts/tsconfig.json`
+  - `node --test "libs/shared/ts/dist/**/*.spec.js"` (3 test files passed)
+- Python verification required elevated execution of the Windows Python launcher due sandbox access restrictions. Command run:
+  - `py -m unittest discover libs/shared/py/tests` (9 tests passed)
+- `ruff` and `mypy` are not installed in the local Python environment, so those checks could not be run yet.
+
+**Next**
+- **F0.5**: document and/or seed RabbitMQ topology for `booking.events`, `catalog.events`, and `payment.events`.
 
 ---
 
