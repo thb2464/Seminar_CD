@@ -20,7 +20,4 @@ module.exports = [
   // Sprint 2 (F2.5): /api/auth/* and /api/users/* now live on the Identity
   // Service. Anything still hitting the monolith for those paths gets 410.
   'global::block-legacy-auth',
-  // Sprint 3 (F3.8): /api/tours/* and /api/tour-categories/* now live on the
-  // Catalog Service.
-  'global::block-legacy-catalog',
 ];
