@@ -71,7 +71,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F5.5** Payment NestJS scaffold (`services/payment-service/`) — Payment, VNPayTransaction, RefundRequest modules.
 - [x] **F5.6** Port VNPay logic — `createPaymentUrl`, `vnpayReturn` (HMAC verification), `processVnpayRefund` from `vnpay-helpers.js`.
 - [x] **F5.7** Publish `PaymentCompleted` / `PaymentFailed` after callback verification.
-- [ ] **F5.8** Circuit breaker around outbound VNPay calls.
+- [x] **F5.8** Circuit breaker around outbound VNPay calls.
 - [ ] **F5.9** Kong routes `/api/bookings/*`, `/api/payments/*`.
 - [ ] **F5.10** Saga end-to-end test — happy path, payment failure, timeout/compensation.
 - [ ] **F5.11** Jest suites ≥85% coverage; Pact consumer/provider tests for the Booking↔Payment contract.
@@ -1262,6 +1262,27 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F5.8** Circuit breaker around outbound VNPay calls.
+
+---
+
+### F5.8 — Circuit breaker around outbound VNPay calls — 2026-05-13
+
+**What was done**
+- Installed `opossum` for circuit breaking logic in `payment-service`.
+- Wrapped the VNPay Refund external `axios` call in an Opossum `CircuitBreaker`.
+- Configured the breaker with a 15s timeout, 50% error threshold, and 30s reset timeout.
+- Provided a fallback response returning a `CB` (Circuit Breaker) status code to inform the system that the refund was queued or failed due to external API unavailability, without crashing the service.
+
+**Files touched**
+- `services/payment-service/package.json`
+- `services/payment-service/src/payment/payment.service.ts`
+- `SeminarCD_TVB/Implement_Log.md`
+
+**Decisions**
+- Implemented the breaker on the `processRefund` call specifically, as generating payment URLs (`createPaymentUrl`) and processing redirects (`processVnpayReturn`) do not make synchronous external outbound requests (they only perform local HMAC signatures/verifications).
+
+**Next**
+- **F5.9** Kong routes `/api/bookings/*`, `/api/payments/*`.
 
 ---
 
