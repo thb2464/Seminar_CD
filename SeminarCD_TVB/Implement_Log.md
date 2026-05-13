@@ -19,7 +19,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 ### Sprint 0 — Infrastructure Setup (Weeks 1–2)
 - [x] **F0.1** Reorganise repo into `services/`, `libs/shared/`, `infra/` layout (monolith stays intact during transition).
-- [ ] **F0.2** `infra/docker-compose.yml` — PostgreSQL (per-service schemas), RabbitMQ, ChromaDB, Redis, Kong gateway.
+- [x] **F0.2** `infra/docker-compose.yml` — PostgreSQL (per-service schemas), RabbitMQ, ChromaDB, Redis, Kong gateway.
 - [ ] **F0.3** Kong gateway `kong.yml` — declarative routes with stubs for all 6 future services.
 - [ ] **F0.4** `libs/shared/` — JWT validator middleware (TS + Py), RabbitMQ publisher/consumer abstractions, JSON logger.
 - [ ] **F0.5** RabbitMQ topology — exchanges `booking.events`, `catalog.events`, `payment.events`; queue conventions documented.
@@ -167,6 +167,35 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F0.2**: create `infra/docker-compose.yml` for PostgreSQL databases, RabbitMQ, ChromaDB, Redis, and Kong.
+
+---
+
+### F0.2 — Local infrastructure compose stack — 2026-05-13
+
+**What was done**
+- Added `infra/docker-compose.yml` for the shared local infrastructure stack: PostgreSQL 16, RabbitMQ with management UI, ChromaDB, Redis, and Kong in DB-less mode.
+- Added `infra/postgres/init-databases.sql` to initialize separate local databases and owners for Identity, Catalog, Booking, Payment, and Content services.
+- Updated `infra/README.md` with the local stack command, exposed ports, and the shared Docker network name.
+- Wired Kong to load the existing declarative gateway config from `services/api-gateway/kong.yml`.
+
+**Files touched**
+- `infra/docker-compose.yml`
+- `infra/postgres/init-databases.sql`
+- `infra/README.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Used one PostgreSQL container for local development but kept service isolation through separate databases and owners (`identity_db`, `catalog_db`, `booking_db`, `payment_db`, `content_db`).
+- Mapped ChromaDB to host port `8800` so Kong can own `localhost:8000`, matching the existing standalone gateway compose convention.
+- Kept application service containers out of F0.2; this feature owns shared infrastructure only. Service containers can join the `travel-tvb-local` network during later feature work.
+- Reused `services/api-gateway/kong.yml` rather than duplicating gateway config in `infra/`.
+
+**Issues / unknowns**
+- `docker compose -f infra/docker-compose.yml config --quiet` passed, but Docker warned it could not read `C:\Users\Bao\.docker\config.json` because of local permissions. The warning did not prevent compose validation.
+- The database initialization script runs only on a fresh `postgres-data` volume. Existing local volumes must be recreated to pick up new databases.
+
+**Next**
+- **F0.3**: verify and close the Kong declarative route stubs for all six services.
 
 ---
 
