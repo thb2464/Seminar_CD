@@ -100,7 +100,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **D1** Per-service `Dockerfile` + `.dockerignore`.
 - [x] **D2** GitHub Actions workflow per service (uses the reusable workflow from F0.6).
 - [x] **D3** Kubernetes manifests — Deployment, Service, Ingress per service.
-- [ ] **D4** HPA configs for Catalog (2–5) and AI Chatbot (2–4).
+- [x] **D4** HPA configs for Catalog (2–5) and AI Chatbot (2–4).
 - [ ] **D5** `staging` and `production` namespaces with secrets management (Sealed Secrets or External Secrets).
 
 ### Phase 7 — Maintenance & Operations
@@ -1905,6 +1905,34 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **D4**: add HPA configs for Catalog (2-5) and AI Chatbot (2-4).
+- **D5**: add staging/production namespaces and real secret-management overlays.
+- **T4**: add chaos scenario definitions.
+
+---
+
+### D4 — Catalog and AI Chatbot HPA configs — 2026-05-14
+
+**What was done**
+- Added autoscaling/v2 HPAs for `catalog-service` and `ai-chatbot-service` to the Kubernetes base.
+- Configured Catalog scaling from 2 to 5 replicas.
+- Configured AI Chatbot scaling from 2 to 4 replicas.
+- Added CPU and memory utilization targets plus conservative scale-down stabilization windows.
+
+**Files touched**
+- `infra/k8s/base/hpa.yaml`
+- `infra/k8s/base/kustomization.yaml`
+- `infra/k8s/README.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Kept HPAs in the base because Catalog and AI Chatbot are the two services explicitly called out for independent scaling in the plan.
+- Used CPU 70% and memory 75% targets as pragmatic defaults; production tuning should use real traffic metrics once Prometheus/Grafana lands in Phase 7.
+
+**Issues / unknowns**
+- `kubectl kustomize infra/k8s/base` passed and renders both HPAs.
+- HPA behavior requires metrics-server or equivalent cluster metrics APIs in the target cluster.
+
+**Next**
 - **D5**: add staging/production namespaces and real secret-management overlays.
 - **T4**: add chaos scenario definitions.
 
