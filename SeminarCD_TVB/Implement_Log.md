@@ -87,7 +87,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 ### Sprint 7 — Monolith Decommission (Week 19)
 - [x] **F7.1** Remove non-content APIs from monolith Strapi (final sweep).
 - [x] **F7.2** Archive `Travel_TVB_Server/.tmp/data.db` → `archives/sqlite-final.db`.
-- [ ] **F7.3** DNS / reverse proxy cutover — production hostname points at Kong only.
+- [x] **F7.3** DNS / reverse proxy cutover — production hostname points at Kong only.
 - [ ] **F7.4** Decommission watch — 1 week monitoring period before tearing down the old Strapi container.
 
 ### Phase 5 — Testing Strategy (parallel with Phase 4)
@@ -1601,6 +1601,39 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F7.3**: document and configure the production DNS / reverse proxy cutover so the public hostname targets Kong only.
+
+---
+
+### F7.3 — DNS and reverse proxy cutover to Kong — 2026-05-13
+
+**What was done**
+- Added `infra/reverse-proxy/kong-only.nginx.conf`, an Nginx server block that proxies the production API hostname to Kong and intentionally defines no Strapi upstream.
+- Added `infra/reverse-proxy/README.md` documenting the expected production API routing state after cutover.
+- Added `docs/runbooks/dns-kong-cutover.md` with pre-cutover checks, DNS changes, reverse proxy installation steps, post-cutover smoke tests, negative Strapi exposure checks, and rollback boundaries.
+- Added `Travel_TVB/.env.production.example` with `VITE_API_GATEWAY_URL` pointing at the production API hostname placeholder.
+- Updated `infra/README.md` to link the reverse proxy config and runbook.
+
+**Files touched**
+- `infra/reverse-proxy/kong-only.nginx.conf`
+- `infra/reverse-proxy/README.md`
+- `docs/runbooks/dns-kong-cutover.md`
+- `Travel_TVB/.env.production.example`
+- `infra/README.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Treated the repository-controlled reverse proxy config and runbook as the cutover artifact because DNS provider and production host credentials are not available in this workspace.
+- Rollback points to a previous Kong/proxy revision, not to the monolith Strapi API, because F7.1 removed the non-content monolith APIs.
+- Kept the Strapi admin panel out of the public API hostname; any temporary admin access during the watch period must use a private operator-only address.
+
+**Issues / unknowns**
+- Live DNS was not changed from this workspace.
+- `docker compose -f infra/docker-compose.yml config --quiet` passed, with the recurring local Docker config warning: `C:\Users\Bao\.docker\config.json` access denied.
+- Reverse proxy static check passed: no `proxy_pass` / `server` directive points at port `1337`.
+- Frontend production build was not run because `Travel_TVB/node_modules` is not installed locally.
+
+**Next**
+- **F7.4**: add the decommission watch checklist and monitoring window before tearing down the old Strapi container.
 
 ---
 
