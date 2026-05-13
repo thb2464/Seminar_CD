@@ -1,0 +1,127 @@
+{
+  "exchanges": [
+    {
+      "name": "booking.events",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "catalog.events",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "payment.events",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ],
+  "queues": [
+    {
+      "name": "payment_service_booking_events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "booking_service_payment_events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "chatbot.catalog.tour-changed",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "chatbot.catalog.tour-deleted",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "booking.events",
+      "vhost": "/",
+      "destination": "payment_service_booking_events",
+      "destination_type": "queue",
+      "routing_key": "BookingCreated",
+      "arguments": {}
+    },
+    {
+      "source": "booking.events",
+      "vhost": "/",
+      "destination": "payment_service_booking_events",
+      "destination_type": "queue",
+      "routing_key": "BookingCancelled",
+      "arguments": {}
+    },
+    {
+      "source": "payment.events",
+      "vhost": "/",
+      "destination": "booking_service_payment_events",
+      "destination_type": "queue",
+      "routing_key": "PaymentCompleted",
+      "arguments": {}
+    },
+    {
+      "source": "payment.events",
+      "vhost": "/",
+      "destination": "booking_service_payment_events",
+      "destination_type": "queue",
+      "routing_key": "PaymentFailed",
+      "arguments": {}
+    },
+    {
+      "source": "payment.events",
+      "vhost": "/",
+      "destination": "booking_service_payment_events",
+      "destination_type": "queue",
+      "routing_key": "RefundProcessed",
+      "arguments": {}
+    },
+    {
+      "source": "catalog.events",
+      "vhost": "/",
+      "destination": "chatbot.catalog.tour-changed",
+      "destination_type": "queue",
+      "routing_key": "TourCreated",
+      "arguments": {}
+    },
+    {
+      "source": "catalog.events",
+      "vhost": "/",
+      "destination": "chatbot.catalog.tour-changed",
+      "destination_type": "queue",
+      "routing_key": "TourUpdated",
+      "arguments": {}
+    },
+    {
+      "source": "catalog.events",
+      "vhost": "/",
+      "destination": "chatbot.catalog.tour-deleted",
+      "destination_type": "queue",
+      "routing_key": "TourDeleted",
+      "arguments": {}
+    }
+  ]
+}

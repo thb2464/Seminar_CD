@@ -22,7 +22,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F0.2** `infra/docker-compose.yml` — PostgreSQL (per-service schemas), RabbitMQ, ChromaDB, Redis, Kong gateway.
 - [x] **F0.3** Kong gateway `kong.yml` — declarative routes with stubs for all 6 future services.
 - [x] **F0.4** `libs/shared/` — JWT validator middleware (TS + Py), RabbitMQ publisher/consumer abstractions, JSON logger.
-- [ ] **F0.5** RabbitMQ topology — exchanges `booking.events`, `catalog.events`, `payment.events`; queue conventions documented.
+- [x] **F0.5** RabbitMQ topology — exchanges `booking.events`, `catalog.events`, `payment.events`; queue conventions documented.
 - [ ] **F0.6** CI/CD template — `.github/workflows/_service.yml` reusable workflow (lint → test → build → push image).
 - [ ] **F0.7** Sprint 0 retrospective — capture decisions and unknowns in this log.
 
@@ -258,6 +258,42 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F0.5**: document and/or seed RabbitMQ topology for `booking.events`, `catalog.events`, and `payment.events`.
+
+---
+
+### F0.5 — RabbitMQ topology definitions — 2026-05-13
+
+**What was done**
+- Added RabbitMQ management definitions for durable topic exchanges: `booking.events`, `catalog.events`, and `payment.events`.
+- Added durable local queues and bindings that match the existing service consumers:
+  - `payment_service_booking_events` for `BookingCreated` / `BookingCancelled`
+  - `booking_service_payment_events` for `PaymentCompleted` / `PaymentFailed` / `RefundProcessed`
+  - `chatbot.catalog.tour-changed` for `TourCreated` / `TourUpdated`
+  - `chatbot.catalog.tour-deleted` for `TourDeleted`
+- Added `infra/rabbitmq/rabbitmq.conf` so the local RabbitMQ container loads the definitions file at startup.
+- Updated `infra/docker-compose.yml` to mount the RabbitMQ config and definitions files.
+- Documented exchange, queue, and routing-key conventions in `infra/rabbitmq/README.md`.
+
+**Files touched**
+- `infra/rabbitmq/definitions.json`
+- `infra/rabbitmq/rabbitmq.conf`
+- `infra/rabbitmq/README.md`
+- `infra/docker-compose.yml`
+- `infra/README.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Used exact event type names as topic routing keys to match the current service publisher/subscriber implementations.
+- Matched existing consumer queue names rather than forcing a new naming convention into services that already compile and test.
+- Kept dead-letter queues out of this feature; malformed-message behavior is currently service-local and can be hardened in a later ops task.
+
+**Issues / unknowns**
+- `node -e "JSON.parse(...)"` validated `infra/rabbitmq/definitions.json`.
+- `docker compose -f infra/docker-compose.yml config --quiet` passed, with the same local Docker config permission warning noted in F0.2.
+- The RabbitMQ container was not started, so topology loading was statically validated but not boot-tested.
+
+**Next**
+- **F0.6**: add the reusable GitHub Actions service workflow.
 
 ---
 
