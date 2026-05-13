@@ -18,13 +18,13 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F0.0** Create `CLAUDE.md` + `Implement_Log.md`; lock in workflow, commit/push policy, and task breakdown.
 
 ### Sprint 0 — Infrastructure Setup (Weeks 1–2)
-- [ ] **F0.1** Reorganise repo into `services/`, `libs/shared/`, `infra/` layout (monolith stays intact during transition).
-- [ ] **F0.2** `infra/docker-compose.yml` — PostgreSQL (per-service schemas), RabbitMQ, ChromaDB, Redis, Kong gateway.
-- [ ] **F0.3** Kong gateway `kong.yml` — declarative routes with stubs for all 6 future services.
-- [ ] **F0.4** `libs/shared/` — JWT validator middleware (TS + Py), RabbitMQ publisher/consumer abstractions, JSON logger.
-- [ ] **F0.5** RabbitMQ topology — exchanges `booking.events`, `catalog.events`, `payment.events`; queue conventions documented.
-- [ ] **F0.6** CI/CD template — `.github/workflows/_service.yml` reusable workflow (lint → test → build → push image).
-- [ ] **F0.7** Sprint 0 retrospective — capture decisions and unknowns in this log.
+- [x] **F0.1** Reorganise repo into `services/`, `libs/shared/`, `infra/` layout (monolith stays intact during transition).
+- [x] **F0.2** `infra/docker-compose.yml` — PostgreSQL (per-service schemas), RabbitMQ, ChromaDB, Redis, Kong gateway.
+- [x] **F0.3** Kong gateway `kong.yml` — declarative routes with stubs for all 6 future services.
+- [x] **F0.4** `libs/shared/` — JWT validator middleware (TS + Py), RabbitMQ publisher/consumer abstractions, JSON logger.
+- [x] **F0.5** RabbitMQ topology — exchanges `booking.events`, `catalog.events`, `payment.events`; queue conventions documented.
+- [x] **F0.6** CI/CD template — `.github/workflows/_service.yml` reusable workflow (lint → test → build → push image).
+- [x] **F0.7** Sprint 0 retrospective — capture decisions and unknowns in this log.
 
 ### Sprint 1 — AI Chatbot Service (Weeks 3–5)
 *Lowest coupling — extracted first.*
@@ -136,6 +136,219 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F0.1**: repo reorganisation. Create `services/`, `libs/shared/`, `infra/` directories; keep `Travel_TVB/` and `Travel_TVB_Server/` in place during the transition.
+
+---
+
+### F0.1 — Repo reorganisation — 2026-05-13
+
+**What was done**
+- Confirmed the monolith folders `Travel_TVB/` and `Travel_TVB_Server/` remain at the repo root.
+- Confirmed `services/` already contains the extracted services and added a top-level `services/README.md` registry.
+- Created the missing `libs/shared/` workspace with `ts/` and `py/` placeholders for the upcoming shared helper feature.
+- Created the missing `infra/` workspace with a `k8s/` placeholder for later infrastructure and deployment features.
+
+**Files touched**
+- `services/README.md`
+- `libs/shared/README.md`
+- `libs/shared/ts/.gitkeep`
+- `libs/shared/py/.gitkeep`
+- `infra/README.md`
+- `infra/k8s/.gitkeep`
+- `Implement_Log.md`
+
+**Decisions**
+- Used small README anchors instead of empty directories so the intended ownership and future contents are visible in Git.
+- Did not move any monolith or service files; this keeps the Strangler Fig transition stable and avoids changing runtime behavior.
+- Left shared helper implementations for F0.4 and local stack wiring for F0.2.
+
+**Issues / unknowns**
+- The task log shows later sprint work already completed before this Sprint 0 checkbox was closed. F0.1 was therefore treated as a layout reconciliation feature rather than a large file move.
+- No runtime tests were needed because this change only adds documentation and tracked placeholder directories.
+
+**Next**
+- **F0.2**: create `infra/docker-compose.yml` for PostgreSQL databases, RabbitMQ, ChromaDB, Redis, and Kong.
+
+---
+
+### F0.2 — Local infrastructure compose stack — 2026-05-13
+
+**What was done**
+- Added `infra/docker-compose.yml` for the shared local infrastructure stack: PostgreSQL 16, RabbitMQ with management UI, ChromaDB, Redis, and Kong in DB-less mode.
+- Added `infra/postgres/init-databases.sql` to initialize separate local databases and owners for Identity, Catalog, Booking, Payment, and Content services.
+- Updated `infra/README.md` with the local stack command, exposed ports, and the shared Docker network name.
+- Wired Kong to load the existing declarative gateway config from `services/api-gateway/kong.yml`.
+
+**Files touched**
+- `infra/docker-compose.yml`
+- `infra/postgres/init-databases.sql`
+- `infra/README.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Used one PostgreSQL container for local development but kept service isolation through separate databases and owners (`identity_db`, `catalog_db`, `booking_db`, `payment_db`, `content_db`).
+- Mapped ChromaDB to host port `8800` so Kong can own `localhost:8000`, matching the existing standalone gateway compose convention.
+- Kept application service containers out of F0.2; this feature owns shared infrastructure only. Service containers can join the `travel-tvb-local` network during later feature work.
+- Reused `services/api-gateway/kong.yml` rather than duplicating gateway config in `infra/`.
+
+**Issues / unknowns**
+- `docker compose -f infra/docker-compose.yml config --quiet` passed, but Docker warned it could not read `C:\Users\Bao\.docker\config.json` because of local permissions. The warning did not prevent compose validation.
+- The database initialization script runs only on a fresh `postgres-data` volume. Existing local volumes must be recreated to pick up new databases.
+
+**Next**
+- **F0.3**: verify and close the Kong declarative route stubs for all six services.
+
+---
+
+### F0.3 — Kong declarative route stubs — 2026-05-13
+
+**What was done**
+- Verified `services/api-gateway/kong.yml` already declares upstreams for all six target services: AI Chatbot, Identity, Catalog, Content, Booking, and Payment.
+- Verified the gateway routes cover the expected public and protected API prefixes for chatbot, auth/users, tours/categories, content, bookings, and payments.
+- Updated `services/api-gateway/README.md` so the local stack command references both the full infra compose and the chatbot-only compose.
+- Updated the gateway route inventory with Booking and Payment routes and corrected the content FAQ path to match `kong.yml`.
+
+**Files touched**
+- `services/api-gateway/README.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Reused the existing `services/api-gateway/kong.yml` as the canonical Kong config because later sprint work had already filled in concrete routes beyond the original Sprint 0 stubs.
+- Did not duplicate `kong.yml` under `infra/`; F0.2 mounts the canonical file into Kong.
+
+**Issues / unknowns**
+- Kong config parsing with a live Kong container was not run. Static verification confirmed service upstreams and routes in `kong.yml`; full runtime validation remains part of gateway/service integration runs.
+- Docker compose inspection still warns about `C:\Users\Bao\.docker\config.json` permissions, but it does not block config inspection.
+
+**Next**
+- **F0.4**: implement `libs/shared/` JWT header validation, RabbitMQ helpers, and JSON logger helpers for TypeScript and Python services.
+
+---
+
+### F0.4 — Shared TypeScript and Python helpers — 2026-05-13
+
+**What was done**
+- Implemented `libs/shared/ts` as a small TypeScript package with gateway identity header validation/middleware, RabbitMQ JSON event helper abstractions, and JSON logger helpers.
+- Implemented `libs/shared/py` as a small Python package with matching gateway identity ASGI middleware, RabbitMQ JSON event helpers, and stdlib JSON logging helpers.
+- Added unit tests for both shared packages.
+- Updated `libs/shared/README.md` with package responsibilities and verification commands.
+
+**Files touched**
+- `libs/shared/README.md`
+- `libs/shared/ts/package.json`, `tsconfig.json`, `.gitignore`
+- `libs/shared/ts/src/auth.ts`, `logger.ts`, `rabbitmq.ts`, `index.ts`
+- `libs/shared/ts/src/auth.spec.ts`, `logger.spec.ts`, `rabbitmq.spec.ts`
+- `libs/shared/py/pyproject.toml`, `.gitignore`
+- `libs/shared/py/travel_tvb_shared/__init__.py`, `auth.py`, `logger.py`, `rabbitmq.py`
+- `libs/shared/py/tests/test_auth.py`, `test_logger.py`, `test_rabbitmq.py`
+- Removed placeholder `.gitkeep` files from `libs/shared/ts` and `libs/shared/py`
+- `Implement_Log.md`
+
+**Decisions**
+- The "JWT validator" validates Kong-injected identity headers (`X-User-Id`, `X-User-Role`, `X-Trace-Id`) rather than re-validating raw JWTs inside downstream services, preserving the gateway trust boundary.
+- RabbitMQ helpers use small protocol/structural interfaces instead of importing concrete `amqplib`, `amqp-connection-manager`, or `aio-pika` types. This keeps shared code dependency-light and lets each service choose its connection manager.
+- JSON logger helpers always emit `service_name` and `trace_id`, defaulting `trace_id` to `unknown` when the caller does not have one yet.
+
+**Issues / unknowns**
+- TypeScript verification used the already-installed compiler from `services/payment-service/node_modules/.bin/tsc.cmd` because `tsc` is not on PATH and `npm.ps1` is blocked by PowerShell execution policy. Commands run:
+  - `services/payment-service/node_modules/.bin/tsc.cmd -p libs/shared/ts/tsconfig.json`
+  - `node --test "libs/shared/ts/dist/**/*.spec.js"` (3 test files passed)
+- Python verification required elevated execution of the Windows Python launcher due sandbox access restrictions. Command run:
+  - `py -m unittest discover libs/shared/py/tests` (9 tests passed)
+- `ruff` and `mypy` are not installed in the local Python environment, so those checks could not be run yet.
+
+**Next**
+- **F0.5**: document and/or seed RabbitMQ topology for `booking.events`, `catalog.events`, and `payment.events`.
+
+---
+
+### F0.5 — RabbitMQ topology definitions — 2026-05-13
+
+**What was done**
+- Added RabbitMQ management definitions for durable topic exchanges: `booking.events`, `catalog.events`, and `payment.events`.
+- Added durable local queues and bindings that match the existing service consumers:
+  - `payment_service_booking_events` for `BookingCreated` / `BookingCancelled`
+  - `booking_service_payment_events` for `PaymentCompleted` / `PaymentFailed` / `RefundProcessed`
+  - `chatbot.catalog.tour-changed` for `TourCreated` / `TourUpdated`
+  - `chatbot.catalog.tour-deleted` for `TourDeleted`
+- Added `infra/rabbitmq/rabbitmq.conf` so the local RabbitMQ container loads the definitions file at startup.
+- Updated `infra/docker-compose.yml` to mount the RabbitMQ config and definitions files.
+- Documented exchange, queue, and routing-key conventions in `infra/rabbitmq/README.md`.
+
+**Files touched**
+- `infra/rabbitmq/definitions.json`
+- `infra/rabbitmq/rabbitmq.conf`
+- `infra/rabbitmq/README.md`
+- `infra/docker-compose.yml`
+- `infra/README.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Used exact event type names as topic routing keys to match the current service publisher/subscriber implementations.
+- Matched existing consumer queue names rather than forcing a new naming convention into services that already compile and test.
+- Kept dead-letter queues out of this feature; malformed-message behavior is currently service-local and can be hardened in a later ops task.
+
+**Issues / unknowns**
+- `node -e "JSON.parse(...)"` validated `infra/rabbitmq/definitions.json`.
+- `docker compose -f infra/docker-compose.yml config --quiet` passed, with the same local Docker config permission warning noted in F0.2.
+- The RabbitMQ container was not started, so topology loading was statically validated but not boot-tested.
+
+**Next**
+- **F0.6**: add the reusable GitHub Actions service workflow.
+
+---
+
+### F0.6 — Reusable service CI workflow — 2026-05-13
+
+**What was done**
+- Added the repository-level `.github/workflows/_service.yml` reusable workflow.
+- Workflow inputs support service name/path, Node or Python runtime selection, runtime versions, optional Docker image repository, and optional image push.
+- Node path runs `npm ci`, `npm run lint --if-present`, `npm run test --if-present`, and `npm run build --if-present`.
+- Python path installs `.[dev]`, runs `ruff`, `mypy`, and `pytest`.
+- Docker path builds image tags for commit SHA and `latest`, then optionally logs in to GHCR and pushes both tags.
+
+**Files touched**
+- `.github/workflows/_service.yml`
+- `Implement_Log.md`
+
+**Decisions**
+- Placed the workflow at the actual Git root (`D:/Seminar chuyên đề/Seminar_CD/.github/workflows/_service.yml`), not under `SeminarCD_TVB/.github`, so GitHub Actions can discover it.
+- Made image publishing opt-in via `push_image` and required a full lowercase image repository through `docker_image_name` to avoid invalid GHCR paths from mixed-case repository names.
+- Kept the workflow reusable only; per-service caller workflows are deferred to D2.
+
+**Issues / unknowns**
+- Basic whitespace and indentation checks passed (`git diff --check`; no tab indentation found).
+- `actionlint` / YAML-aware GitHub workflow validation tooling is not installed locally, so this was not fully actionlint-validated.
+
+**Next**
+- **F0.7**: Sprint 0 retrospective in this log.
+
+---
+
+### F0.7 — Sprint 0 retrospective — 2026-05-13
+
+**What was done**
+- Closed the previously unchecked Sprint 0 items by reconciling the actual repository state with the task list.
+- Captured the Sprint 0 infrastructure decisions for workspace layout, local compose, gateway config ownership, shared helpers, RabbitMQ topology, and reusable CI.
+- Recorded local verification gaps so future sessions do not mistake static validation for full runtime validation.
+
+**Files touched**
+- `Implement_Log.md`
+
+**Decisions**
+- **Canonical gateway config** remains `services/api-gateway/kong.yml`; `infra/docker-compose.yml` mounts it rather than copying it.
+- **Local PostgreSQL** uses one container with separate service databases and owners. This keeps local dev lightweight while preserving the database-per-service boundary in service config.
+- **RabbitMQ definitions** are loaded by the local container and mirror existing consumer queue names instead of imposing new names.
+- **Shared helpers** stay dependency-light and framework-adjacent. They provide common identity/event/logging primitives without forcing services to adopt a new abstraction layer immediately.
+- **CI reusable workflow** lives at the actual Git root `.github/workflows/_service.yml`; per-service caller workflows are deferred to D2.
+
+**Issues / unknowns**
+- `docker compose config` works but emits a local permission warning for `C:\Users\Bao\.docker\config.json`.
+- Python `ruff` and `mypy` are not installed locally; F0.4 only ran Python unit tests.
+- The RabbitMQ definitions and Kong declarative config were statically validated but not boot-tested in running containers.
+- The task log still contains later sprint items that were previously marked done out of chronological order. Sprint 0 is now consistent, but future work should continue from the next unchecked task with caution.
+
+**Next**
+- Next unchecked feature in the log is **F7.1** (final monolith decommission sweep). That is a high-risk cleanup milestone and should only remove code already proven replaced behind Kong.
 
 ---
 
