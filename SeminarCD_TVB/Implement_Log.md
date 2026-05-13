@@ -23,7 +23,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F0.3** Kong gateway `kong.yml` — declarative routes with stubs for all 6 future services.
 - [x] **F0.4** `libs/shared/` — JWT validator middleware (TS + Py), RabbitMQ publisher/consumer abstractions, JSON logger.
 - [x] **F0.5** RabbitMQ topology — exchanges `booking.events`, `catalog.events`, `payment.events`; queue conventions documented.
-- [ ] **F0.6** CI/CD template — `.github/workflows/_service.yml` reusable workflow (lint → test → build → push image).
+- [x] **F0.6** CI/CD template — `.github/workflows/_service.yml` reusable workflow (lint → test → build → push image).
 - [ ] **F0.7** Sprint 0 retrospective — capture decisions and unknowns in this log.
 
 ### Sprint 1 — AI Chatbot Service (Weeks 3–5)
@@ -294,6 +294,33 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **F0.6**: add the reusable GitHub Actions service workflow.
+
+---
+
+### F0.6 — Reusable service CI workflow — 2026-05-13
+
+**What was done**
+- Added the repository-level `.github/workflows/_service.yml` reusable workflow.
+- Workflow inputs support service name/path, Node or Python runtime selection, runtime versions, optional Docker image repository, and optional image push.
+- Node path runs `npm ci`, `npm run lint --if-present`, `npm run test --if-present`, and `npm run build --if-present`.
+- Python path installs `.[dev]`, runs `ruff`, `mypy`, and `pytest`.
+- Docker path builds image tags for commit SHA and `latest`, then optionally logs in to GHCR and pushes both tags.
+
+**Files touched**
+- `.github/workflows/_service.yml`
+- `Implement_Log.md`
+
+**Decisions**
+- Placed the workflow at the actual Git root (`D:/Seminar chuyên đề/Seminar_CD/.github/workflows/_service.yml`), not under `SeminarCD_TVB/.github`, so GitHub Actions can discover it.
+- Made image publishing opt-in via `push_image` and required a full lowercase image repository through `docker_image_name` to avoid invalid GHCR paths from mixed-case repository names.
+- Kept the workflow reusable only; per-service caller workflows are deferred to D2.
+
+**Issues / unknowns**
+- Basic whitespace and indentation checks passed (`git diff --check`; no tab indentation found).
+- `actionlint` / YAML-aware GitHub workflow validation tooling is not installed locally, so this was not fully actionlint-validated.
+
+**Next**
+- **F0.7**: Sprint 0 retrospective in this log.
 
 ---
 
