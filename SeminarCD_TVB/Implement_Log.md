@@ -93,7 +93,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 ### Phase 5 — Testing Strategy (parallel with Phase 4)
 - [x] **T1** PostgreSQL testcontainers wired into Jest/PyTest configs.
 - [x] **T2** Pact broker (self-hosted) + CI integration.
-- [ ] **T3** Playwright workspace under `tests/e2e/` covering the six E2E scenarios.
+- [x] **T3** Playwright workspace under `tests/e2e/` covering the six E2E scenarios.
 - [ ] **T4** Chaos scenarios — Payment crash, RabbitMQ outage, Catalog DB slowdown, AI OOM (Toxiproxy/Litmus).
 
 ### Phase 6 — Deployment & CI/CD (parallel with Phase 4)
@@ -1784,6 +1784,86 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 **Next**
 - **T3**: create the Playwright workspace under `tests/e2e/` for BW-01 through BW-08.
 - **D3**: add Kubernetes Deployment, Service, and Ingress manifests per service.
+
+---
+
+### T3 — Playwright E2E workspace scaffold — 2026-05-13 — Blocked
+
+**What was done**
+- Added a standalone `tests/e2e/` Playwright workspace with package scripts, config, README, ignored generated artifacts, and gateway-level mocks.
+- Added six browser workflow specs matching plan §5.3:
+  - `E2E-01 / BW-01`: browse tours, filter by category/region, open tour detail.
+  - `E2E-02 / BW-02`: register and verify session persistence.
+  - `E2E-03 / BW-03`: login, book a tour, create payment URL, land on payment success.
+  - `E2E-04 / BW-04`: profile booking history, cancel paid booking, verify refund state.
+  - `E2E-05 / BW-05`: chatbot question and grounded tour source response.
+  - `E2E-06 / BW-07`: language switch reloads localized content.
+- Added a Playwright preview launcher that builds the frontend into a fresh ignored `tests/e2e/.frontend-dist/run-*` directory, then starts Vite preview on `127.0.0.1:5173`.
+- Moved Vite's frontend cache to an ignored repo-level `.vite-cache/Travel_TVB` path so dev/test runs do not need to write under `node_modules`.
+
+**Files touched**
+- `.gitignore`
+- `Travel_TVB/vite.config.js`
+- `tests/e2e/.gitignore`
+- `tests/e2e/package.json`
+- `tests/e2e/package-lock.json`
+- `tests/e2e/playwright.config.ts`
+- `tests/e2e/README.md`
+- `tests/e2e/fixtures/gateway.ts`
+- `tests/e2e/scripts/start-preview.mjs`
+- `tests/e2e/specs/bw-flows.spec.ts`
+- `Implement_Log.md`
+
+**Decisions**
+- Browser tests mock the Kong gateway at the Playwright route layer, giving deterministic workflow coverage without requiring all six services, RabbitMQ, ChromaDB, or the VNPay sandbox to be running.
+- The E2E preview uses production build output instead of the Vite dev server, avoiding optimizer cache writes and matching deploy behavior more closely.
+- Added `PLAYWRIGHT_USE_SYSTEM_CHROME=1` for local validation when Chrome is already installed and the bundled Playwright browser cannot be downloaded.
+
+**Issues / unknowns**
+- `npm.cmd exec playwright -- test --list` passed and lists all six scenarios.
+- `npm.cmd run build -- --configLoader runner --outDir ../tests/e2e/.frontend-dist --emptyOutDir` can build on a fresh output directory, but repeated local attempts hit sandbox file ownership on prior generated output.
+- Full `npm.cmd test` is blocked in this session: downloading Playwright Chromium was rejected by the approval reviewer due the session usage limit, and running with system Chrome reaches the app but fails cleanup with `browserContext.close: spawn EPERM` unless elevated cleanup is allowed.
+- T3 is therefore **not marked complete** and was not committed.
+
+**Next**
+- Re-run after approval quota resets: `cd tests/e2e && npm install && npx playwright install chromium && npm test`.
+- If using system Chrome locally, run `PLAYWRIGHT_USE_SYSTEM_CHROME=1 npm test`.
+- Once the six scenarios pass, mark T3 `[x]`, commit, and push.
+
+---
+
+### T3 — Playwright E2E workspace completion — 2026-05-14
+
+**What was done**
+- Fixed the Playwright web server launcher so `tests/e2e/scripts/start-preview.mjs` runs from the E2E workspace instead of the frontend directory.
+- Updated the preview launcher to spawn Windows `npm.cmd` through the shell, avoiding `spawn EINVAL` on `.cmd` files.
+- Verified all six Phase 5 browser workflows pass against mocked Kong gateway responses.
+
+**Files touched**
+- `.gitignore`
+- `Travel_TVB/vite.config.js`
+- `tests/e2e/.gitignore`
+- `tests/e2e/package.json`
+- `tests/e2e/package-lock.json`
+- `tests/e2e/playwright.config.ts`
+- `tests/e2e/README.md`
+- `tests/e2e/fixtures/gateway.ts`
+- `tests/e2e/scripts/start-preview.mjs`
+- `tests/e2e/specs/bw-flows.spec.ts`
+- `Implement_Log.md`
+
+**Decisions**
+- Kept the deterministic gateway mocks for E2E flow coverage; full live-service E2E remains a later environment-level validation once staging orchestration is available.
+- Used `PLAYWRIGHT_USE_SYSTEM_CHROME=1` for local sandbox verification because Google Chrome is already installed and avoids a bundled browser download.
+
+**Issues / unknowns**
+- `PLAYWRIGHT_USE_SYSTEM_CHROME=1 npm.cmd test` passed: 6 tests, 6 passed.
+- The frontend build emits Vite's existing chunk-size warning for the main bundle; no runtime failure.
+- `MICROSERVICES_PLAN.md` has pre-existing unstaged changes that were not made or staged as part of T3.
+
+**Next**
+- **D3**: add Kubernetes Deployment, Service, and Ingress manifests per service.
+- **T4**: add chaos scenario definitions for Payment crash, RabbitMQ outage, Catalog DB slowdown, and AI OOM.
 
 ---
 

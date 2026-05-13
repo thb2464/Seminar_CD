@@ -1,0 +1,5 @@
+node_modules/
+.ms-playwright/
+.frontend-dist/
+playwright-report/
+test-results/

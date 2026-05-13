@@ -8,6 +8,8 @@ migrate-strapi-locales.mjs
 **/node_modules/
 **/dist/
 **/coverage/
+.npm-cache/
+.vite-cache/
 
 # Server-specific CD files
 deploy.sh
