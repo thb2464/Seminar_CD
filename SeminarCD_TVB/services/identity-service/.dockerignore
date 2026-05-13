@@ -2,6 +2,7 @@ node_modules
 dist
 coverage
 .env
+.env.*
 .git
 .gitignore
 .eslintcache
@@ -10,3 +11,4 @@ README.md
 Dockerfile
 .dockerignore
 test
+tsconfig.tsbuildinfo

@@ -93,11 +93,11 @@ describe('migrateCatalogFromSqlite', () => {
       insert: jest.fn().mockResolvedValue(undefined),
     };
 
-    jest.spyOn(AppDataSource, 'isInitialized', 'get').mockReturnValue(true);
+    jest.replaceProperty(AppDataSource, 'isInitialized', true);
     jest
       .spyOn(AppDataSource, 'getRepository')
       .mockImplementation((entity) =>
-        (entity === TourCategory ? catRepo : tourRepo) as ReturnType<
+        (entity === TourCategory ? catRepo : tourRepo) as unknown as ReturnType<
           typeof AppDataSource.getRepository
         >,
       );
@@ -144,11 +144,11 @@ describe('migrateCatalogFromSqlite', () => {
       insert: jest.fn(),
     };
 
-    jest.spyOn(AppDataSource, 'isInitialized', 'get').mockReturnValue(true);
+    jest.replaceProperty(AppDataSource, 'isInitialized', true);
     jest
       .spyOn(AppDataSource, 'getRepository')
       .mockImplementation((entity) =>
-        (entity === TourCategory ? catRepo : tourRepo) as ReturnType<
+        (entity === TourCategory ? catRepo : tourRepo) as unknown as ReturnType<
           typeof AppDataSource.getRepository
         >,
       );

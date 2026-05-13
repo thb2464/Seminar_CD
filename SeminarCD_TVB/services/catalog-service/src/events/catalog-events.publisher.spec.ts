@@ -116,7 +116,6 @@ describe('CatalogEventsPublisher', () => {
       { connect },
     );
     publisher.onModuleInit();
-    // @ts-expect-error dynamic call by name
     await publisher[methodName](makeTour());
     expect(channel.publish.mock.calls[0]?.[1]).toBe(expectedType);
   });

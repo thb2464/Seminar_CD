@@ -4,8 +4,12 @@ node_modules/
 .strapi/
 dist/
 build/
+coverage/
+tests/
 *.log
 .env
-.env.local
-package-lock.json
+.env.*
 data.db
+README.md
+Dockerfile
+.dockerignore

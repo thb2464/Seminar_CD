@@ -92,9 +92,8 @@ def test_rate_limited_response_matches_frontend_handler(client_with_stub: Any) -
     but the status code MUST be 429."""
 
     client, _ = client_with_stub
-    app.dependency_overrides[get_rate_limiter] = lambda: InMemoryRateLimiter(
-        max_requests=1, window_seconds=60
-    )
+    limiter = InMemoryRateLimiter(max_requests=1, window_seconds=60)
+    app.dependency_overrides[get_rate_limiter] = lambda: limiter
     first = client.post("/api/chat/query", json=FRONTEND_REQUEST_SNAPSHOT)
     second = client.post("/api/chat/query", json=FRONTEND_REQUEST_SNAPSHOT)
     assert first.status_code == 200

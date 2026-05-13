@@ -1,0 +1,4 @@
+*
+!kong.yml
+!Dockerfile
+!.dockerignore

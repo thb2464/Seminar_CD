@@ -91,13 +91,13 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **F7.4** Decommission watch — 1 week monitoring period before tearing down the old Strapi container.
 
 ### Phase 5 — Testing Strategy (parallel with Phase 4)
-- [ ] **T1** PostgreSQL testcontainers wired into Jest/PyTest configs.
+- [x] **T1** PostgreSQL testcontainers wired into Jest/PyTest configs.
 - [ ] **T2** Pact broker (self-hosted) + CI integration.
 - [ ] **T3** Playwright workspace under `tests/e2e/` covering the six E2E scenarios.
 - [ ] **T4** Chaos scenarios — Payment crash, RabbitMQ outage, Catalog DB slowdown, AI OOM (Toxiproxy/Litmus).
 
 ### Phase 6 — Deployment & CI/CD (parallel with Phase 4)
-- [ ] **D1** Per-service `Dockerfile` + `.dockerignore`.
+- [x] **D1** Per-service `Dockerfile` + `.dockerignore`.
 - [ ] **D2** GitHub Actions workflow per service (uses the reusable workflow from F0.6).
 - [ ] **D3** Kubernetes manifests — Deployment, Service, Ingress per service.
 - [ ] **D4** HPA configs for Catalog (2–5) and AI Chatbot (2–4).
@@ -1660,6 +1660,90 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - Sprint 7 is complete. Next unchecked work is in the parallel Testing, Deployment, and Maintenance phases, starting with **T1** unless the team chooses a deployment task first.
+
+---
+
+### T1 & D1 — PostgreSQL Testcontainers and service Dockerfiles — 2026-05-13
+
+**What was done**
+- Added PostgreSQL Testcontainers dependencies and e2e helpers for Identity, Catalog, Booking, Payment, and Content Service integration tests.
+- Wired longer, single-worker Jest e2e configs so Postgres-backed tests can run deterministically against `postgres:16-alpine`.
+- Added Postgres integration smoke specs for Identity, Catalog, Payment, and Content, and updated Booking/Payment app e2e specs to boot from a testcontainer-backed database.
+- Completed Docker packaging for every service directory: added missing Booking, Payment, and API Gateway Dockerfiles plus `.dockerignore` files, and tightened existing service Docker contexts.
+- Fixed build/test drift surfaced by the packaging work: `better-sqlite3` TypeScript declarations, Catalog migration JSONB casts, e2e `supertest` imports, Booking service test provider wiring, AI chatbot fallback/logging/rate-limit test behavior, and Content Service's Strapi admin transitive version skew.
+
+**Files touched**
+- `.gitignore`
+- `services/api-gateway/Dockerfile`
+- `services/api-gateway/.dockerignore`
+- `services/ai-chatbot-service/Dockerfile`
+- `services/ai-chatbot-service/.dockerignore`
+- `services/ai-chatbot-service/app/logging.py`
+- `services/ai-chatbot-service/app/services/chatbot.py`
+- `services/ai-chatbot-service/tests/test_frontend_contract.py`
+- `services/booking-service/Dockerfile`
+- `services/booking-service/.dockerignore`
+- `services/booking-service/package.json`
+- `services/booking-service/package-lock.json`
+- `services/booking-service/src/booking/booking.service.spec.ts`
+- `services/booking-service/test/app.e2e-spec.ts`
+- `services/booking-service/test/jest-e2e.json`
+- `services/booking-service/test/postgres-testcontainer.ts`
+- `services/catalog-service/.dockerignore`
+- `services/catalog-service/package.json`
+- `services/catalog-service/package-lock.json`
+- `services/catalog-service/src/catalog/tours-query.service.spec.ts`
+- `services/catalog-service/src/catalog/tours.service.spec.ts`
+- `services/catalog-service/src/database/migrate-from-sqlite.ts`
+- `services/catalog-service/src/database/migrate-from-sqlite.spec.ts`
+- `services/catalog-service/src/events/catalog-events.publisher.spec.ts`
+- `services/catalog-service/test/frontend-contract.e2e-spec.ts`
+- `services/catalog-service/test/jest-e2e.json`
+- `services/catalog-service/test/postgres-testcontainer.ts`
+- `services/catalog-service/test/postgres.e2e-spec.ts`
+- `services/content-service/Dockerfile`
+- `services/content-service/.dockerignore`
+- `services/content-service/jest.config.js`
+- `services/content-service/jest.postgres.config.js`
+- `services/content-service/package.json`
+- `services/content-service/package-lock.json`
+- `services/content-service/tests/helpers/postgres-testcontainer.js`
+- `services/content-service/tests/integration/postgres.test.js`
+- `services/identity-service/.dockerignore`
+- `services/identity-service/package.json`
+- `services/identity-service/package-lock.json`
+- `services/identity-service/src/database/migrate-from-sqlite.spec.ts`
+- `services/identity-service/src/users/users.service.spec.ts`
+- `services/identity-service/test/frontend-contract.e2e-spec.ts`
+- `services/identity-service/test/jest-e2e.json`
+- `services/identity-service/test/postgres-testcontainer.ts`
+- `services/identity-service/test/postgres.e2e-spec.ts`
+- `services/payment-service/Dockerfile`
+- `services/payment-service/.dockerignore`
+- `services/payment-service/package.json`
+- `services/payment-service/package-lock.json`
+- `services/payment-service/test/app.e2e-spec.ts`
+- `services/payment-service/test/jest-e2e.json`
+- `services/payment-service/test/postgres-testcontainer.ts`
+- `services/payment-service/test/postgres.e2e-spec.ts`
+- `Implement_Log.md`
+
+**Decisions**
+- Kept Testcontainers in e2e/integration paths rather than unit paths so normal unit coverage remains fast and deterministic.
+- Used per-service helper files instead of a shared package import because the services are still independently packaged and do not yet consume `libs/shared` as a workspace dependency.
+- Added an `@strapi/admin` override in Content Service so all Strapi packages resolve to 5.36.0 during image builds.
+- API Gateway now has a Dockerfile that bakes `kong.yml` into a DB-less Kong image, while local compose can still mount the config for development.
+
+**Issues / unknowns**
+- Docker daemon was not running in this workspace (`docker_engine` pipe missing), so the new Testcontainers specs and image builds could not be executed end to end here.
+- `docker compose -f infra/docker-compose.yml config --quiet` passed, with the recurring Docker config warning for `C:\Users\Bao\.docker\config.json`.
+- Unit tests passed for Identity, Catalog, Booking, Payment, Content, and AI Chatbot; AI Chatbot coverage was 80.71%, above the 75% target.
+- Content coverage passed at 100% for remaining controllers. Identity line coverage passed but its configured branch gate remains below 70%; Catalog, Booking, and Payment still need dedicated coverage-hardening work to satisfy the plan's global coverage targets.
+- npm audit still reports dependency advisories in the Node services; broad `npm audit fix` was not run because it may introduce breaking upgrades.
+
+**Next**
+- **T2** Pact broker (self-hosted) + CI integration.
+- **D2** GitHub Actions workflow per service using the reusable workflow from F0.6.
 
 ---
 

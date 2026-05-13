@@ -23,6 +23,7 @@ import * as path from 'path';
 
 import Database from 'better-sqlite3';
 import type { Database as DatabaseType } from 'better-sqlite3';
+import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 import { AppDataSource } from './data-source';
 import { Tour, TourHighlight, GalleryImage } from '../catalog/entities/tour.entity';
@@ -145,7 +146,7 @@ async function migrateTours(sqlite: DatabaseType, result: MigrationResult): Prom
         slug: String(row.slug ?? `legacy-${id}`),
         tourName: String(row.Tour_Name ?? row.tour_name ?? `Tour ${id}`),
         shortDescription: stringOrNull(row.Short_Description ?? row.short_description ?? null),
-        description: parseJson(row.Description ?? row.description),
+        description: parseJson(row.Description ?? row.description) as QueryDeepPartialEntity<Tour>['description'],
         region: (stringOrNull(row.Region ?? row.region) as Tour['region']) ?? null,
         location: stringOrNull(row.Location ?? row.location),
         departureLocation: stringOrNull(row.Departure_Location ?? row.departure_location),
@@ -161,7 +162,7 @@ async function migrateTours(sqlite: DatabaseType, result: MigrationResult): Prom
           (stringOrNull(row.Transport_Type ?? row.transport_type) as Tour['transportType']) ?? null,
         isFeatured: Boolean(row.Is_Featured ?? row.is_featured ?? false),
         highlights: highlightsByTour.get(id) ?? [],
-        itinerary: parseJson(row.Itinerary ?? row.itinerary),
+        itinerary: parseJson(row.Itinerary ?? row.itinerary) as QueryDeepPartialEntity<Tour>['itinerary'],
         gallery: [] satisfies GalleryImage[], // Gallery URLs come from Strapi's `files` join; out of scope for the seminar.
         featuredImageUrl: stringOrNull(row.featured_image_url),
         tourCategoryId: numberOrNull(row.tour_category_id),
