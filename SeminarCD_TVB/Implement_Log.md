@@ -105,7 +105,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 ### Phase 7 — Maintenance & Operations
 - [x] **M1** ELK stack — Fluentbit DaemonSet → Elasticsearch → Kibana.
-- [ ] **M2** OpenTelemetry SDK in each service; Jaeger collector; `trace_id` propagated via gateway.
+- [x] **M2** OpenTelemetry SDK in each service; Jaeger collector; `trace_id` propagated via gateway.
 - [ ] **M3** Prometheus scrape configs + Grafana dashboards (Service Health, Booking Pipeline, AI Chatbot, Infra).
 - [ ] **M4** Grafana alerting rules — error rate, P99 latency, service down.
 - [ ] **M5** Runbooks in `docs/runbooks/` for the four scenarios in plan §7.3.
@@ -2045,6 +2045,63 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **M2**: add OpenTelemetry SDK wiring in services, Jaeger collector manifests, and trace-id propagation validation.
+
+---
+
+### M2 — OpenTelemetry and Jaeger tracing — 2026-05-14
+
+**What was done**
+- Added OpenTelemetry Node SDK bootstraps to Identity, Catalog, Booking, Payment, and Content services.
+- Added OpenTelemetry FastAPI/HTTPX instrumentation to the AI Chatbot service.
+- Added a Jaeger all-in-one Kustomize workspace under `infra/k8s/observability/tracing`.
+- Added shared OTLP trace exporter settings to the Kubernetes runtime ConfigMap and per-service `OTEL_SERVICE_NAME` values to the Deployments.
+- Updated Kong CORS to allow and expose tracing headers (`X-Trace-Id`, `traceparent`, `baggage`) while preserving the existing correlation-id plugin.
+- Added AI Chatbot tests for tracing configuration and kept unit tests from exporting spans to a missing local collector.
+
+**Files touched**
+- `infra/README.md`
+- `infra/k8s/README.md`
+- `infra/k8s/base/runtime-config.yaml`
+- `infra/k8s/base/identity-service.yaml`
+- `infra/k8s/base/catalog-service.yaml`
+- `infra/k8s/base/booking-service.yaml`
+- `infra/k8s/base/payment-service.yaml`
+- `infra/k8s/base/content-service.yaml`
+- `infra/k8s/base/ai-chatbot-service.yaml`
+- `infra/k8s/observability/tracing/README.md`
+- `infra/k8s/observability/tracing/kustomization.yaml`
+- `infra/k8s/observability/tracing/namespace.yaml`
+- `infra/k8s/observability/tracing/jaeger.yaml`
+- `services/api-gateway/kong.yml`
+- `services/identity-service/package.json`, `package-lock.json`, `src/tracing.ts`, `src/main.ts`, `src/app.module.ts`
+- `services/catalog-service/package.json`, `package-lock.json`, `src/tracing.ts`, `src/main.ts`, `src/app.module.ts`
+- `services/booking-service/package.json`, `package-lock.json`, `src/tracing.ts`, `src/main.ts`, `src/app.module.ts`
+- `services/payment-service/package.json`, `package-lock.json`, `src/tracing.ts`, `src/main.ts`, `src/app.module.ts`
+- `services/content-service/package.json`, `package-lock.json`, `Dockerfile`, `src/tracing.js`
+- `services/ai-chatbot-service/pyproject.toml`, `app/tracing.py`, `app/main.py`, `app/controllers/chat.py`, `tests/conftest.py`, `tests/test_tracing.py`
+- `Implement_Log.md`
+
+**Decisions**
+- Used OTLP/HTTP (`:4318/v1/traces`) directly to Jaeger all-in-one because Jaeger accepts OTLP natively and keeps the seminar tracing path small.
+- Kept Jaeger in-memory and ClusterIP-only; production needs durable storage, sampling policy, and UI access controls.
+- Preserved `X-Trace-Id` as the gateway correlation header for logs, while allowing W3C `traceparent`/`baggage` to flow through Kong for OpenTelemetry propagation.
+- Used service-local tracing bootstraps rather than a new shared runtime package so each service can start tracing before its framework imports execute.
+
+**Issues / unknowns**
+- `npm install` reported existing dependency vulnerabilities in Identity, Catalog, and Content Service lockfiles. They were not fixed in M2 to avoid unrelated breaking dependency churn.
+- Content Service `npm run build` passed after refreshing `node_modules` with `npm ci`; Strapi still emits the existing local config `EPERM` warning for `C:\Users\Bao\AppData\Roaming\xdg.config\com.strapi`.
+- `kubectl apply --dry-run=client --validate=false -k infra/k8s/observability/tracing` could not run without a reachable local Kubernetes API server; `kubectl` tried `localhost:8080` and connection was refused.
+
+**Validation**
+- `npm.cmd run build` passed for Identity, Catalog, Booking, Payment, and Content.
+- `npm.cmd test -- --runInBand` passed for Identity (28 tests), Catalog (32), Booking (7), Payment (13), and Content (22).
+- `C:\Users\Bao\AppData\Local\Microsoft\WindowsApps\python.exe -m pytest` passed for AI Chatbot: 80 tests, 81.43% coverage.
+- `kubectl kustomize` passed for `infra/k8s/base`, `infra/k8s/overlays/staging`, `infra/k8s/overlays/production`, and `infra/k8s/observability/tracing`.
+- Static render checks confirmed six `OTEL_SERVICE_NAME` values, the shared Jaeger OTLP endpoint, and Jaeger collector/query ports.
+- `git diff --check` passed with Git's existing LF-to-CRLF working-copy warnings.
+
+**Next**
+- **M3**: add Prometheus scrape configs and Grafana dashboards for service health, booking pipeline, AI chatbot, and infrastructure.
 
 ---
 

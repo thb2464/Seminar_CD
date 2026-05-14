@@ -30,6 +30,8 @@ spec:
               value: payment-postgres
             - name: VNPAY_RETURN_URL
               value: https://api.travel-tvb.example.com/api/payments/vnpay-return
+            - name: OTEL_SERVICE_NAME
+              value: payment-service
           envFrom:
             - configMapRef:
                 name: travel-tvb-runtime-config

@@ -45,6 +45,7 @@ async def query(
     service: Annotated[ChatbotService, Depends(get_chatbot_service)],
 ) -> JSONResponse:
     ip = _client_ip(request)
+    trace_id = request.headers.get("x-trace-id", "unknown")
 
     if limiter.is_rate_limited(ip):
         return _error(
@@ -71,13 +72,14 @@ async def query(
             "message_preview": payload.message[:50],
             "history_len": len(payload.history),
             "session_id": payload.session_id,
+            "trace_id": trace_id,
         },
     )
 
     try:
         reply = await service.chat(payload.message, payload.language, payload.history)
     except Exception:
-        logger.exception("chatbot query failed")
+        logger.exception("chatbot query failed", extra={"trace_id": trace_id})
         return _error(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             "An unexpected error occurred. Please try again later.",

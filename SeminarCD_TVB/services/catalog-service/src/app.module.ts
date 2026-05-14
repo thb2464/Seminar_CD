@@ -31,6 +31,12 @@ import { HealthModule } from './health/health.module';
             if (res.statusCode >= 400) return 'warn';
             return 'info';
           },
+          customProps: (req) => ({
+            trace_id:
+              typeof req.headers['x-trace-id'] === 'string'
+                ? req.headers['x-trace-id']
+                : 'unknown',
+          }),
           autoLogging: { ignore: (req) => req.url === '/health' },
           transport:
             config.get<string>('NODE_ENV') === 'development'

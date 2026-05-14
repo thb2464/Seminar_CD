@@ -350,8 +350,8 @@ plugins:
         - http://localhost:5173
         - https://dashboard.lamweb.fun
       methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
-      headers: [Authorization, Content-Type, X-Requested-With, X-Forwarded-For]
-      exposed_headers: [X-Trace-Id]
+      headers: [Authorization, Content-Type, X-Requested-With, X-Forwarded-For, X-Trace-Id, traceparent, baggage]
+      exposed_headers: [X-Trace-Id, traceparent]
       credentials: true
       max_age: 3600
 

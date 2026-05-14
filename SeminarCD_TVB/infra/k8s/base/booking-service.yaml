@@ -28,6 +28,8 @@ spec:
               value: "3002"
             - name: DATABASE_HOST
               value: booking-postgres
+            - name: OTEL_SERVICE_NAME
+              value: booking-service
           envFrom:
             - configMapRef:
                 name: travel-tvb-runtime-config

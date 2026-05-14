@@ -33,6 +33,12 @@ import { UsersModule } from './users/users.module';
               url: req.url,
             }),
           },
+          customProps: (req) => ({
+            trace_id:
+              typeof req.headers['x-trace-id'] === 'string'
+                ? req.headers['x-trace-id']
+                : 'unknown',
+          }),
           customLogLevel: (_req, res, err) => {
             if (err || res.statusCode >= 500) return 'error';
             if (res.statusCode >= 400) return 'warn';

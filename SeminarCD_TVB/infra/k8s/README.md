@@ -30,11 +30,13 @@ kubectl kustomize infra/k8s/overlays/production
 
 ## Observability
 
-Phase 7 logging manifests live in `observability/logging`. The workspace creates
-the `logging` namespace, a baseline Elasticsearch StatefulSet, Kibana, and a
-Fluent Bit DaemonSet that ships Kubernetes container stdout logs to
-Elasticsearch.
+Phase 7 observability manifests live in `observability/`. The logging workspace
+creates the `logging` namespace, a baseline Elasticsearch StatefulSet, Kibana,
+and a Fluent Bit DaemonSet that ships Kubernetes container stdout logs to
+Elasticsearch. The tracing workspace creates a Jaeger all-in-one backend that
+accepts OTLP traces from the service SDKs.
 
 ```bash
 kubectl kustomize infra/k8s/observability/logging
+kubectl kustomize infra/k8s/observability/tracing
 ```

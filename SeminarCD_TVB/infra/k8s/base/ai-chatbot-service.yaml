@@ -28,6 +28,8 @@ spec:
               value: "8080"
             - name: APP_HOST
               value: "0.0.0.0"
+            - name: OTEL_SERVICE_NAME
+              value: ai-chatbot-service
           envFrom:
             - configMapRef:
                 name: travel-tvb-runtime-config

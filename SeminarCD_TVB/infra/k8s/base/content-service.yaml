@@ -30,6 +30,8 @@ spec:
               value: content-postgres
             - name: DATABASE_SSL
               value: "false"
+            - name: OTEL_SERVICE_NAME
+              value: content-service
           envFrom:
             - configMapRef:
                 name: travel-tvb-runtime-config

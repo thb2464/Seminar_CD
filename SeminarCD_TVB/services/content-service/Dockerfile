@@ -17,7 +17,8 @@ RUN apk add --no-cache vips-dev curl
 
 WORKDIR /app
 
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    NODE_OPTIONS="--require ./src/tracing.js"
 
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts && npm rebuild
