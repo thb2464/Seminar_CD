@@ -107,7 +107,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **M1** ELK stack — Fluentbit DaemonSet → Elasticsearch → Kibana.
 - [x] **M2** OpenTelemetry SDK in each service; Jaeger collector; `trace_id` propagated via gateway.
 - [x] **M3** Prometheus scrape configs + Grafana dashboards (Service Health, Booking Pipeline, AI Chatbot, Infra).
-- [ ] **M4** Grafana alerting rules — error rate, P99 latency, service down.
+- [x] **M4** Grafana alerting rules — error rate, P99 latency, service down.
 - [ ] **M5** Runbooks in `docs/runbooks/` for the four scenarios in plan §7.3.
 
 ---
@@ -2158,6 +2158,46 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **M4**: add Grafana alerting rules for error rate, P99 latency, and service-down conditions.
+
+---
+
+### M4 — Grafana alerting rules — 2026-05-14
+
+**What was done**
+- Added Grafana unified alerting provisioning under the metrics workspace.
+- Provisioned a Prometheus datasource UID (`prometheus`) so alert rules can reference the datasource deterministically.
+- Added three Grafana-managed alert rules:
+  - service target down for 2 minutes
+  - HTTP 5xx ratio above 5% for 5 minutes
+  - P99 HTTP latency above 2 seconds for 5 minutes
+- Added an email contact point and notification policy so alert routing is visible in the seminar environment.
+- Mounted the alerting provisioning files into the Grafana Deployment.
+
+**Files touched**
+- `infra/k8s/README.md`
+- `infra/k8s/observability/metrics/README.md`
+- `infra/k8s/observability/metrics/kustomization.yaml`
+- `infra/k8s/observability/metrics/grafana-provisioning.yaml`
+- `infra/k8s/observability/metrics/grafana-alerting.yaml`
+- `infra/k8s/observability/metrics/grafana.yaml`
+- `Implement_Log.md`
+
+**Decisions**
+- Used Grafana file provisioning instead of Prometheus-native alert rules because M4 explicitly calls for Grafana alerting.
+- Kept rules multi-dimensional by `service`, using the M3 `http_requests_total`, `http_request_duration_seconds`, and `up` metrics.
+- Used a placeholder email contact point for the seminar baseline; production needs SMTP or a real incident-management receiver.
+
+**Issues / unknowns**
+- Alert rules were not live-smoke-tested through the Grafana API because no local Kubernetes/Grafana instance is running in this workspace.
+- Alert annotations point at runbook paths that will be created in M5.
+
+**Validation**
+- `kubectl kustomize infra/k8s/observability/metrics` passed.
+- Static inspection confirmed the three alert rule UIDs and PromQL expressions are present.
+- `git diff --check` passed with Git's existing LF-to-CRLF working-copy warnings.
+
+**Next**
+- **M5**: add runbooks in `docs/runbooks/` for the four scenarios in plan §7.3.
 
 ---
 

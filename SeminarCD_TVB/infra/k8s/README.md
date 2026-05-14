@@ -35,8 +35,8 @@ creates the `logging` namespace, a baseline Elasticsearch StatefulSet, Kibana,
 and a Fluent Bit DaemonSet that ships Kubernetes container stdout logs to
 Elasticsearch. The tracing workspace creates a Jaeger all-in-one backend that
 accepts OTLP traces from the service SDKs. The metrics workspace creates
-Prometheus, Grafana provisioning, and dashboards for service health, booking
-pipeline, AI chatbot, and infrastructure views.
+Prometheus, Grafana provisioning, dashboards, and Grafana-managed alert rules
+for service health, booking pipeline, AI chatbot, and infrastructure views.
 
 ```bash
 kubectl kustomize infra/k8s/observability/logging

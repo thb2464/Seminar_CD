@@ -38,6 +38,15 @@ spec:
             - name: provisioning
               mountPath: /etc/grafana/provisioning/dashboards/dashboards.yaml
               subPath: dashboards.yaml
+            - name: alerting
+              mountPath: /etc/grafana/provisioning/alerting/alert-rules.yaml
+              subPath: alert-rules.yaml
+            - name: alerting
+              mountPath: /etc/grafana/provisioning/alerting/contact-points.yaml
+              subPath: contact-points.yaml
+            - name: alerting
+              mountPath: /etc/grafana/provisioning/alerting/notification-policies.yaml
+              subPath: notification-policies.yaml
             - name: dashboards
               mountPath: /var/lib/grafana/dashboards
             - name: data
@@ -68,6 +77,9 @@ spec:
         - name: dashboards
           configMap:
             name: grafana-dashboards
+        - name: alerting
+          configMap:
+            name: grafana-alerting
         - name: data
           emptyDir: {}
 ---

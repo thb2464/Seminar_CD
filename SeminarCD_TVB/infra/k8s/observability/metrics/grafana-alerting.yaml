@@ -1,0 +1,299 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alerting
+  namespace: metrics
+  labels:
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/part-of: travel-tvb
+data:
+  contact-points.yaml: |
+    apiVersion: 1
+    contactPoints:
+      - orgId: 1
+        name: travel-tvb-email
+        receivers:
+          - uid: travel_tvb_email_receiver
+            type: email
+            settings:
+              addresses: travel-tvb-ops@example.com
+              singleEmail: false
+            disableResolveMessage: false
+  notification-policies.yaml: |
+    apiVersion: 1
+    policies:
+      - orgId: 1
+        receiver: travel-tvb-email
+        group_by:
+          - grafana_folder
+          - alertname
+          - service
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 4h
+  alert-rules.yaml: |
+    apiVersion: 1
+    groups:
+      - orgId: 1
+        name: travel-tvb-service-slo
+        folder: Travel TVB
+        interval: 1m
+        rules:
+          - uid: travel_tvb_service_down
+            title: Travel TVB service target down
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  datasource:
+                    type: prometheus
+                    uid: prometheus
+                  editorMode: code
+                  expr: min by (service) (up{job="travel-tvb-services"})
+                  instant: true
+                  intervalMs: 1000
+                  legendFormat: "{{service}}"
+                  maxDataPoints: 43200
+                  refId: A
+              - refId: B
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                  datasource:
+                    type: __expr__
+                    uid: __expr__
+                  expression: A
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  reducer: last
+                  refId: B
+                  type: reduce
+              - refId: C
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 1
+                        type: lt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                  datasource:
+                    type: __expr__
+                    uid: __expr__
+                  expression: B
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: C
+                  type: threshold
+            noDataState: Alerting
+            execErrState: Error
+            for: 2m
+            annotations:
+              summary: One or more Travel TVB service targets are down.
+              runbook_url: docs/runbooks/service-down.md
+            labels:
+              severity: critical
+              team: platform
+            isPaused: false
+          - uid: travel_tvb_high_error_rate
+            title: Travel TVB high HTTP 5xx rate
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  datasource:
+                    type: prometheus
+                    uid: prometheus
+                  editorMode: code
+                  expr: sum by (service) (rate(http_requests_total{job="travel-tvb-services",status_code=~"5.."}[5m])) / clamp_min(sum by (service) (rate(http_requests_total{job="travel-tvb-services"}[5m])), 0.001)
+                  instant: true
+                  intervalMs: 1000
+                  legendFormat: "{{service}}"
+                  maxDataPoints: 43200
+                  refId: A
+              - refId: B
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                  datasource:
+                    type: __expr__
+                    uid: __expr__
+                  expression: A
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  reducer: last
+                  refId: B
+                  type: reduce
+              - refId: C
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 0.05
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                  datasource:
+                    type: __expr__
+                    uid: __expr__
+                  expression: B
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: C
+                  type: threshold
+            noDataState: OK
+            execErrState: Error
+            for: 5m
+            annotations:
+              summary: A Travel TVB service has more than five percent HTTP 5xx responses.
+              runbook_url: docs/runbooks/high-error-rate.md
+            labels:
+              severity: warning
+              team: platform
+            isPaused: false
+          - uid: travel_tvb_high_p99_latency
+            title: Travel TVB high P99 HTTP latency
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  datasource:
+                    type: prometheus
+                    uid: prometheus
+                  editorMode: code
+                  expr: histogram_quantile(0.99, sum by (le, service) (rate(http_request_duration_seconds_bucket{job="travel-tvb-services"}[5m])))
+                  instant: true
+                  intervalMs: 1000
+                  legendFormat: "{{service}}"
+                  maxDataPoints: 43200
+                  refId: A
+              - refId: B
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                  datasource:
+                    type: __expr__
+                    uid: __expr__
+                  expression: A
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  reducer: last
+                  refId: B
+                  type: reduce
+              - refId: C
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 2
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                  datasource:
+                    type: __expr__
+                    uid: __expr__
+                  expression: B
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: C
+                  type: threshold
+            noDataState: OK
+            execErrState: Error
+            for: 5m
+            annotations:
+              summary: A Travel TVB service has P99 HTTP latency above two seconds.
+              runbook_url: docs/runbooks/high-latency.md
+            labels:
+              severity: warning
+              team: platform
+            isPaused: false

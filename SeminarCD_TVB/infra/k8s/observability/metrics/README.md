@@ -15,6 +15,10 @@ Phase 7 M3 adds Prometheus scraping and Grafana dashboards for the microservice 
     - Travel TVB - Booking Pipeline
     - Travel TVB - AI Chatbot
     - Travel TVB - Infrastructure
+  - Provisions Grafana-managed alert rules from `grafana-alerting.yaml`:
+    - service target down for 2 minutes
+    - HTTP 5xx ratio above 5% for 5 minutes
+    - P99 HTTP latency above 2 seconds for 5 minutes
 
 ## Apply
 
@@ -30,6 +34,8 @@ kubectl -n metrics port-forward svc/grafana 3000:3000
 ```
 
 Grafana anonymous viewer access is enabled because the Service is `ClusterIP` only. Put it behind SSO or an authenticated ingress before exposing it outside the cluster.
+
+The default contact point is an email receiver (`travel-tvb-ops@example.com`) so alert routing is visible in the seminar environment. Configure SMTP and replace the address before relying on notifications.
 
 ## Expected Metrics
 
