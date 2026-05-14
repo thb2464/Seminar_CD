@@ -108,7 +108,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **M2** OpenTelemetry SDK in each service; Jaeger collector; `trace_id` propagated via gateway.
 - [x] **M3** Prometheus scrape configs + Grafana dashboards (Service Health, Booking Pipeline, AI Chatbot, Infra).
 - [x] **M4** Grafana alerting rules — error rate, P99 latency, service down.
-- [ ] **M5** Runbooks in `docs/runbooks/` for the four scenarios in plan §7.3.
+- [x] **M5** Runbooks in `docs/runbooks/` for the four scenarios in plan §7.3.
 
 ---
 
@@ -2198,6 +2198,46 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **M5**: add runbooks in `docs/runbooks/` for the four scenarios in plan §7.3.
+
+---
+
+### M5 — Operational runbooks — 2026-05-14
+
+**What was done**
+- Added the four plan §7.3 operational runbooks:
+  - Service won't start / service target down
+  - RabbitMQ queue backlog
+  - Database migration failure
+  - VNPay callback failures
+- Added a runbook index under `docs/runbooks/README.md`.
+- Added alert-triage pages for M4 Grafana alerts (`high-error-rate.md`, `high-latency.md`) so the provisioned alert `runbook_url` annotations resolve.
+
+**Files touched**
+- `docs/runbooks/README.md`
+- `docs/runbooks/service-down.md`
+- `docs/runbooks/rabbitmq-queue-backlog.md`
+- `docs/runbooks/database-migration-failure.md`
+- `docs/runbooks/vnpay-callback-failures.md`
+- `docs/runbooks/high-error-rate.md`
+- `docs/runbooks/high-latency.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Used Kubernetes-first commands because Phase 7 operations are defined around the deployed microservices stack.
+- Kept the four plan scenarios as the primary runbooks and made the alert-specific pages short routers into those scenario docs.
+- Left existing Sprint 7 cutover/decommission runbooks untouched.
+
+**Issues / unknowns**
+- Commands use `<namespace>`, `<service-name>`, and provider credentials placeholders because environment-specific namespaces and secret backends vary between staging and production.
+- The VNPay runbook references provider status checks but does not embed provider credentials or private URLs.
+
+**Validation**
+- `rg` confirmed the M4 alert `runbook_url` targets and local runbook links exist.
+- `rg` found no non-ASCII arrows/dashes added to the new runbook files.
+- `git diff --check` passed with Git's existing LF-to-CRLF working-copy warning for `Implement_Log.md`.
+
+**Next**
+- **M6**: define backup/restore jobs for PostgreSQL and ChromaDB snapshots.
 
 ---
 
