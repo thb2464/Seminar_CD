@@ -362,3 +362,7 @@ plugins:
       header_name: X-Trace-Id
       generator: uuid
       echo_downstream: true
+
+  # Gateway metrics for Phase 7 M3 dashboards. Prometheus scrapes /metrics on
+  # Kong's admin listener inside the cluster.
+  - name: prometheus

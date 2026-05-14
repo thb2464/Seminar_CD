@@ -14,6 +14,7 @@ module.exports = [
       keepHeaderOnError: true,
     },
   },
+  'global::prometheus-metrics',
   'strapi::poweredBy',
   'strapi::query',
   'strapi::body',

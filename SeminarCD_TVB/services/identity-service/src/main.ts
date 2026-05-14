@@ -1,18 +1,18 @@
-import './tracing';
+import "./tracing";
 
-import { ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { NestFactory } from '@nestjs/core';
-import { Logger } from 'nestjs-pino';
+import { ValidationPipe } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { NestFactory } from "@nestjs/core";
+import { Logger } from "nestjs-pino";
 
-import { AppModule } from './app.module';
-import { StrapiErrorFilter } from './common/strapi-error.filter';
+import { AppModule } from "./app.module";
+import { StrapiErrorFilter } from "./common/strapi-error.filter";
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
   app.useLogger(app.get(Logger));
-  app.setGlobalPrefix('api', { exclude: ['health'] });
+  app.setGlobalPrefix("api", { exclude: ["health", "metrics"] });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -25,7 +25,7 @@ async function bootstrap(): Promise<void> {
   app.enableShutdownHooks();
 
   const config = app.get(ConfigService);
-  const port = config.get<number>('PORT', 3000);
+  const port = config.get<number>("PORT", 3000);
   await app.listen(port);
 }
 

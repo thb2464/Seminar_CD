@@ -106,7 +106,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 ### Phase 7 — Maintenance & Operations
 - [x] **M1** ELK stack — Fluentbit DaemonSet → Elasticsearch → Kibana.
 - [x] **M2** OpenTelemetry SDK in each service; Jaeger collector; `trace_id` propagated via gateway.
-- [ ] **M3** Prometheus scrape configs + Grafana dashboards (Service Health, Booking Pipeline, AI Chatbot, Infra).
+- [x] **M3** Prometheus scrape configs + Grafana dashboards (Service Health, Booking Pipeline, AI Chatbot, Infra).
 - [ ] **M4** Grafana alerting rules — error rate, P99 latency, service down.
 - [ ] **M5** Runbooks in `docs/runbooks/` for the four scenarios in plan §7.3.
 
@@ -2102,6 +2102,62 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **M3**: add Prometheus scrape configs and Grafana dashboards for service health, booking pipeline, AI chatbot, and infrastructure.
+
+---
+
+### M3 — Prometheus and Grafana metrics — 2026-05-14
+
+**What was done**
+- Added Prometheus `/metrics` endpoints to Identity, Catalog, Booking, Payment, Content, and AI Chatbot services.
+- Added HTTP request counters/duration histograms for all service runtimes.
+- Added domain-event publish counters/duration histograms for Catalog, Booking, and Payment event publishers.
+- Added AI Chatbot catalog-consumer counters and event-lag histograms for projection freshness.
+- Enabled Kong's global `prometheus` plugin so gateway metrics can be scraped from the admin listener.
+- Added `infra/k8s/observability/metrics` with Prometheus service discovery, Grafana datasource provisioning, and four dashboards: Service Health, Booking Pipeline, AI Chatbot, and Infrastructure.
+
+**Files touched**
+- `infra/README.md`
+- `infra/k8s/README.md`
+- `infra/k8s/observability/metrics/README.md`
+- `infra/k8s/observability/metrics/kustomization.yaml`
+- `infra/k8s/observability/metrics/namespace.yaml`
+- `infra/k8s/observability/metrics/prometheus-rbac.yaml`
+- `infra/k8s/observability/metrics/prometheus-config.yaml`
+- `infra/k8s/observability/metrics/prometheus.yaml`
+- `infra/k8s/observability/metrics/grafana-provisioning.yaml`
+- `infra/k8s/observability/metrics/grafana-dashboards.yaml`
+- `infra/k8s/observability/metrics/grafana.yaml`
+- `services/api-gateway/kong.yml`
+- `services/identity-service/package.json`, `package-lock.json`, `src/app.module.ts`, `src/main.ts`, `src/metrics/metrics.module.ts`, `src/metrics/metrics.module.spec.ts`
+- `services/catalog-service/package.json`, `package-lock.json`, `src/app.module.ts`, `src/main.ts`, `src/events/catalog-events.publisher.ts`, `src/metrics/metrics.module.ts`, `src/metrics/metrics.module.spec.ts`
+- `services/booking-service/package.json`, `package-lock.json`, `src/app.module.ts`, `src/events/booking-events.publisher.ts`, `src/metrics/metrics.module.ts`, `src/metrics/metrics.module.spec.ts`
+- `services/payment-service/package.json`, `package-lock.json`, `src/app.module.ts`, `src/events/payment-events.publisher.ts`, `src/metrics/metrics.module.ts`, `src/metrics/metrics.module.spec.ts`
+- `services/content-service/package.json`, `package-lock.json`, `config/middlewares.js`, `src/middlewares/prometheus-metrics.js`, `tests/prometheus-metrics.test.js`
+- `services/ai-chatbot-service/pyproject.toml`, `app/main.py`, `app/metrics.py`, `app/services/event_consumer.py`, `tests/test_metrics.py`
+- `Implement_Log.md`
+
+**Decisions**
+- Used `prom-client` and `prometheus-client` directly instead of introducing another shared runtime package; the metrics surface is small and service-local bootstrapping keeps each runtime independent.
+- Standardised core HTTP metric names across Node, Strapi, and FastAPI: `http_requests_total` and `http_request_duration_seconds`.
+- Prometheus discovers Travel TVB services by Kubernetes Service labels and `http` port names, so staging/production namespaces can reuse the same scrape config.
+- Grafana stays ClusterIP-only with anonymous viewer access for the seminar baseline; production should put it behind authenticated ingress or SSO.
+
+**Issues / unknowns**
+- `npm install prom-client` reported existing dependency vulnerabilities in Identity (27), Catalog (24), and Content (48). They were not fixed in M3 to avoid unrelated dependency churn.
+- Content Service `npm run build` passed but still emits the existing local Strapi config `EPERM` warning for `C:\Users\Bao\AppData\Roaming\xdg.config\com.strapi`.
+- Broad `ruff check app tests` and `mypy app` still fail on pre-existing lint/type issues outside the M3 scope; targeted `ruff` for touched files and `mypy app/metrics.py` passed.
+
+**Validation**
+- `npm.cmd run build` passed for Identity, Catalog, Booking, Payment, and Content.
+- `npm.cmd test -- --runInBand` passed for Identity (29 tests), Catalog (33), Booking (8), Payment (14), and Content (24).
+- `C:\Users\Bao\AppData\Local\Microsoft\WindowsApps\python.exe -m pytest` passed for AI Chatbot: 82 tests, 82.04% coverage.
+- Targeted `ruff check app/main.py app/metrics.py app/services/event_consumer.py tests/test_metrics.py` passed.
+- `mypy app/metrics.py` passed.
+- `kubectl kustomize` passed for `infra/k8s/base`, `infra/k8s/overlays/staging`, `infra/k8s/overlays/production`, and `infra/k8s/observability/metrics`.
+- `git diff --check` passed with Git's existing LF-to-CRLF working-copy warnings.
+
+**Next**
+- **M4**: add Grafana alerting rules for error rate, P99 latency, and service-down conditions.
 
 ---
 

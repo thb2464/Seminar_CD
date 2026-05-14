@@ -1,6 +1,6 @@
 import logging
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 from fastapi import FastAPI
 
@@ -9,6 +9,7 @@ from app.controllers.chat import router as chat_router
 from app.controllers.health import router as health_router
 from app.deps import build_catalog_event_consumer
 from app.logging import configure_logging
+from app.metrics import configure_metrics
 from app.tracing import configure_tracing
 
 logger = logging.getLogger(__name__)
@@ -39,4 +40,5 @@ app = FastAPI(
 
 app.include_router(health_router)
 app.include_router(chat_router)
+configure_metrics(app)
 configure_tracing(app)

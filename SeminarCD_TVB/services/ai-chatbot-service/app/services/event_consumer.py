@@ -17,6 +17,8 @@ from typing import Any, Protocol
 
 import aio_pika
 
+from app.metrics import observe_catalog_event_lag, record_catalog_event
+
 logger = logging.getLogger(__name__)
 
 _TOUR_CREATED = "TourCreated"
@@ -115,14 +117,21 @@ class CatalogEventConsumer:
         async with message.process(requeue=False):
             envelope = self._parse(message.body)
             if envelope is None:
+                record_catalog_event("unknown", "invalid")
                 logger.warning("dropping unparseable catalog event")
                 return
             payload = envelope.get("payload", {}) if isinstance(envelope, dict) else {}
             event_type = envelope.get("type") if isinstance(envelope, dict) else None
+            event_name = str(event_type or "unknown")
+            occurred_at = (
+                envelope.get("occurredAt") if isinstance(envelope.get("occurredAt"), str) else None
+            )
+            observe_catalog_event_lag(event_name, occurred_at)
             document_id = str(payload.get("documentId", "")) if isinstance(payload, dict) else ""
             locale = str(payload.get("locale", "")) if isinstance(payload, dict) else ""
             slug = str(payload.get("slug", "")) if isinstance(payload, dict) else ""
             if not slug or not locale:
+                record_catalog_event(event_name, "dropped")
                 logger.warning(
                     "dropping event without slug/locale",
                     extra={"event_type": event_type, "documentId": document_id},
@@ -131,12 +140,14 @@ class CatalogEventConsumer:
             try:
                 if is_delete or event_type == _TOUR_DELETED:
                     affected = await self._reindexer.remove_tour(document_id, locale, slug)
+                    record_catalog_event(event_name, "success")
                     logger.info(
                         "tour removed from vector store",
                         extra={"slug": slug, "locale": locale, "removed_chunks": affected},
                     )
                 elif event_type in _REINDEX_TYPES:
                     affected = await self._reindexer.reindex_tour(document_id, locale, slug)
+                    record_catalog_event(event_name, "success")
                     logger.info(
                         "tour reindexed",
                         extra={
@@ -147,8 +158,10 @@ class CatalogEventConsumer:
                         },
                     )
                 else:
+                    record_catalog_event(event_name, "ignored")
                     logger.debug("ignoring event type %s", event_type)
             except Exception:
+                record_catalog_event(event_name, "failure")
                 logger.exception(
                     "catalog event handler failed",
                     extra={"event_type": event_type, "slug": slug, "locale": locale},

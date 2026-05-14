@@ -1,0 +1,372 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: metrics
+  labels:
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/part-of: travel-tvb
+data:
+  service-health.json: |
+    {
+      "uid": "travel-tvb-service-health",
+      "title": "Travel TVB - Service Health",
+      "tags": ["travel-tvb", "phase-7", "health"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "30s",
+      "time": { "from": "now-6h", "to": "now" },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Service Targets Up",
+          "type": "stat",
+          "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (service) (up{job=\"travel-tvb-services\"})",
+              "legendFormat": "{{service}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "green", "value": 1 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "auto" }
+        },
+        {
+          "id": 2,
+          "title": "HTTP Request Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (service) (rate(http_requests_total{job=\"travel-tvb-services\"}[5m]))",
+              "legendFormat": "{{service}}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] }
+        },
+        {
+          "id": 3,
+          "title": "P95 HTTP Latency",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "histogram_quantile(0.95, sum by (le, service) (rate(http_request_duration_seconds_bucket{job=\"travel-tvb-services\"}[5m])))",
+              "legendFormat": "{{service}}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] }
+        },
+        {
+          "id": 4,
+          "title": "Resident Memory",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (service) (nodejs_process_resident_memory_bytes{job=\"travel-tvb-services\"}) or sum by (service) (process_resident_memory_bytes{job=\"travel-tvb-services\"})",
+              "legendFormat": "{{service}}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] }
+        },
+        {
+          "id": 5,
+          "title": "5xx Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (service) (rate(http_requests_total{job=\"travel-tvb-services\",status_code=~\"5..\"}[5m]))",
+              "legendFormat": "{{service}}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] }
+        }
+      ]
+    }
+  booking-pipeline.json: |
+    {
+      "uid": "travel-tvb-booking-pipeline",
+      "title": "Travel TVB - Booking Pipeline",
+      "tags": ["travel-tvb", "phase-7", "booking"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "30s",
+      "time": { "from": "now-6h", "to": "now" },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Bookings Created In The Last Hour",
+          "type": "stat",
+          "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(increase(domain_events_published_total{service=\"booking-service\",event_type=\"BookingCreated\",outcome=\"success\"}[1h]))"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+        },
+        {
+          "id": 2,
+          "title": "Domain Event Publish Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 9, "x": 6, "y": 0 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (service, event_type, outcome) (rate(domain_events_published_total{service=~\"booking-service|payment-service\"}[5m]))",
+              "legendFormat": "{{service}} {{event_type}} {{outcome}}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "eps" }, "overrides": [] }
+        },
+        {
+          "id": 3,
+          "title": "P95 Publish Latency",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 9, "x": 15, "y": 0 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "histogram_quantile(0.95, sum by (le, service, event_type) (rate(domain_event_publish_duration_seconds_bucket{service=~\"booking-service|payment-service\"}[5m])))",
+              "legendFormat": "{{service}} {{event_type}}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] }
+        },
+        {
+          "id": 4,
+          "title": "Payment Outcomes In The Last Hour",
+          "type": "bargauge",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (event_type, outcome) (increase(domain_events_published_total{service=\"payment-service\"}[1h]))",
+              "legendFormat": "{{event_type}} {{outcome}}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+        },
+        {
+          "id": 5,
+          "title": "Booking HTTP 5xx Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (path) (rate(http_requests_total{service=\"booking-service\",status_code=~\"5..\"}[5m]))",
+              "legendFormat": "{{path}}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] }
+        }
+      ]
+    }
+  ai-chatbot.json: |
+    {
+      "uid": "travel-tvb-ai-chatbot",
+      "title": "Travel TVB - AI Chatbot",
+      "tags": ["travel-tvb", "phase-7", "ai-chatbot"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "30s",
+      "time": { "from": "now-6h", "to": "now" },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Chatbot Targets Up",
+          "type": "stat",
+          "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(up{service=\"ai-chatbot-service\"})"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+        },
+        {
+          "id": 2,
+          "title": "Chat Request Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 9, "x": 6, "y": 0 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(rate(http_requests_total{service=\"ai-chatbot-service\",path=\"/api/chat/query\"}[5m]))",
+              "legendFormat": "chat requests"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] }
+        },
+        {
+          "id": 3,
+          "title": "P95 Chat Latency",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 9, "x": 15, "y": 0 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{service=\"ai-chatbot-service\",path=\"/api/chat/query\"}[5m])))",
+              "legendFormat": "p95"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] }
+        },
+        {
+          "id": 4,
+          "title": "Catalog Events Handled",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (event_type, outcome) (increase(ai_chatbot_catalog_events_total[1h]))",
+              "legendFormat": "{{event_type}} {{outcome}}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+        },
+        {
+          "id": 5,
+          "title": "P95 Catalog Event Lag",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "histogram_quantile(0.95, sum by (le, event_type) (rate(ai_chatbot_catalog_event_lag_seconds_bucket[5m])))",
+              "legendFormat": "{{event_type}}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] }
+        }
+      ]
+    }
+  infra.json: |
+    {
+      "uid": "travel-tvb-infra",
+      "title": "Travel TVB - Infrastructure",
+      "tags": ["travel-tvb", "phase-7", "infra"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "30s",
+      "time": { "from": "now-6h", "to": "now" },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Prometheus Targets By Job",
+          "type": "stat",
+          "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (job) (up)",
+              "legendFormat": "{{job}}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+        },
+        {
+          "id": 2,
+          "title": "Gateway Request Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 9, "x": 6, "y": 0 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (service) (rate(kong_http_requests_total[5m]))",
+              "legendFormat": "{{service}}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] }
+        },
+        {
+          "id": 3,
+          "title": "Gateway Kong Latency P95",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 9, "x": 15, "y": 0 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "histogram_quantile(0.95, sum by (le) (rate(kong_kong_latency_ms_bucket[5m])))",
+              "legendFormat": "p95"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] }
+        },
+        {
+          "id": 4,
+          "title": "Service CPU Seconds",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (service) (rate(nodejs_process_cpu_user_seconds_total{job=\"travel-tvb-services\"}[5m])) or sum by (service) (rate(process_cpu_seconds_total{job=\"travel-tvb-services\"}[5m]))",
+              "legendFormat": "{{service}}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] }
+        },
+        {
+          "id": 5,
+          "title": "Prometheus Samples Appended",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "rate(prometheus_tsdb_head_samples_appended_total[5m])",
+              "legendFormat": "samples/s"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+        }
+      ]
+    }

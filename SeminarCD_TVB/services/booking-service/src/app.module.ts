@@ -10,6 +10,7 @@ import { BookingModule } from './booking/booking.module';
 import { envValidationSchema } from './config/env.validation';
 import { Booking } from './booking/entities/booking.entity';
 import { EventsModule } from './events/events.module';
+import { MetricsModule } from './metrics/metrics.module';
 
 @Module({
   imports: [
@@ -39,9 +40,13 @@ import { EventsModule } from './events/events.module';
                 ? req.headers['x-trace-id']
                 : 'unknown',
           }),
+          autoLogging: { ignore: (req) => req.url === '/metrics' },
           transport:
             config.get<string>('NODE_ENV') === 'development'
-              ? { target: 'pino-pretty', options: { translateTime: 'SYS:standard' } }
+              ? {
+                  target: 'pino-pretty',
+                  options: { translateTime: 'SYS:standard' },
+                }
               : undefined,
         },
       }),
@@ -56,7 +61,9 @@ import { EventsModule } from './events/events.module';
         password: config.get<string>('DATABASE_PASSWORD'),
         database: config.get<string>('DATABASE_NAME'),
         ssl:
-          config.get<boolean>('DATABASE_SSL') === true ? { rejectUnauthorized: false } : false,
+          config.get<boolean>('DATABASE_SSL') === true
+            ? { rejectUnauthorized: false }
+            : false,
         entities: [Booking],
         synchronize: config.get<boolean>('DATABASE_SYNCHRONIZE') === true,
         autoLoadEntities: true,
@@ -64,6 +71,7 @@ import { EventsModule } from './events/events.module';
     }),
     TravelDateModule,
     ContactInfoModule,
+    MetricsModule,
     BookingModule,
     EventsModule,
   ],

@@ -4,19 +4,24 @@ import {
   Logger,
   OnApplicationShutdown,
   OnModuleInit,
+  Optional,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { AmqpConnectionManager, ChannelWrapper } from 'amqp-connection-manager';
+import type {
+  AmqpConnectionManager,
+  ChannelWrapper,
+} from 'amqp-connection-manager';
 
 import {
   BookingEventEnvelope,
-  BookingEventType,
-  BOOKING_CREATED,
-  BOOKING_CANCELLED,
   BookingEventPayload,
+  BookingEventType,
+  BOOKING_CANCELLED,
+  BOOKING_CREATED,
   toBookingPayload,
 } from './booking-event.types';
 import type { Booking } from '../booking/entities/booking.entity';
+import { MetricsService } from '../metrics/metrics.module';
 
 export const AMQP_CONNECTION = Symbol('AMQP_CONNECTION');
 
@@ -25,7 +30,9 @@ export interface PublisherDependencies {
 }
 
 @Injectable()
-export class BookingEventsPublisher implements OnModuleInit, OnApplicationShutdown {
+export class BookingEventsPublisher
+  implements OnModuleInit, OnApplicationShutdown
+{
   private readonly logger = new Logger(BookingEventsPublisher.name);
   private connection: AmqpConnectionManager | null = null;
   private channel: ChannelWrapper | null = null;
@@ -34,12 +41,16 @@ export class BookingEventsPublisher implements OnModuleInit, OnApplicationShutdo
     private readonly config: ConfigService,
     @Inject(AMQP_CONNECTION)
     private readonly deps: PublisherDependencies,
+    @Optional()
+    private readonly metrics?: MetricsService,
   ) {}
 
   onModuleInit(): void {
     const url = this.config.get<string>('RABBITMQ_URL');
     if (!url) {
-      this.logger.warn('RABBITMQ_URL is not set — booking events will be dropped on the floor');
+      this.logger.warn(
+        'RABBITMQ_URL is not set - booking events will be dropped',
+      );
       return;
     }
     this.connection = this.deps.connect(url);
@@ -73,9 +84,22 @@ export class BookingEventsPublisher implements OnModuleInit, OnApplicationShutdo
     return this.publish(BOOKING_CANCELLED, toBookingPayload(booking));
   }
 
-  async publish(type: BookingEventType, payload: BookingEventPayload): Promise<void> {
+  async publish(
+    type: BookingEventType,
+    payload: BookingEventPayload,
+  ): Promise<void> {
+    const exchange = this.exchangeName();
+    const startedAt = process.hrtime.bigint();
     if (!this.channel) {
-      this.logger.warn(`channel not ready — dropping ${type} for booking ${payload.id}`);
+      this.logger.warn(
+        `channel not ready - dropping ${type} for booking ${payload.id}`,
+      );
+      this.metrics?.recordEventPublish(
+        exchange,
+        type,
+        'dropped',
+        this.secondsSince(startedAt),
+      );
       return;
     }
     const envelope: BookingEventEnvelope<BookingEventPayload> = {
@@ -84,22 +108,35 @@ export class BookingEventsPublisher implements OnModuleInit, OnApplicationShutdo
       service: 'booking-service',
       payload,
     };
+    let outcome = 'success';
     try {
-      await this.channel.publish(this.exchangeName(), type, envelope, {
+      await this.channel.publish(exchange, type, envelope, {
         contentType: 'application/json',
         persistent: true,
         messageId: `${type}:${payload.id}`,
       });
     } catch (err) {
+      outcome = 'failure';
       this.logger.error(
         `failed to publish ${type} for booking ${payload.id}: ${
           err instanceof Error ? err.message : String(err)
         }`,
+      );
+    } finally {
+      this.metrics?.recordEventPublish(
+        exchange,
+        type,
+        outcome,
+        this.secondsSince(startedAt),
       );
     }
   }
 
   private exchangeName(): string {
     return this.config.get<string>('BOOKING_EVENTS_EXCHANGE', 'booking.events');
+  }
+
+  private secondsSince(startedAt: bigint): number {
+    return Number(process.hrtime.bigint() - startedAt) / 1_000_000_000;
   }
 }
