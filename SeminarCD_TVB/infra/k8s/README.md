@@ -43,3 +43,13 @@ kubectl kustomize infra/k8s/observability/logging
 kubectl kustomize infra/k8s/observability/tracing
 kubectl kustomize infra/k8s/observability/metrics
 ```
+
+## Maintenance
+
+Maintenance jobs live in `maintenance/`. The backup workspace defines daily
+PostgreSQL dump jobs, weekly ChromaDB snapshot jobs, and suspended restore Jobs
+for operator-driven recovery.
+
+```bash
+kubectl kustomize infra/k8s/maintenance/backups
+```

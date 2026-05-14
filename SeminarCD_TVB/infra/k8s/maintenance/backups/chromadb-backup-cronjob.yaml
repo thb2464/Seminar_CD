@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: chromadb-backup
+  namespace: maintenance
+  labels:
+    app.kubernetes.io/name: chromadb-backup
+    app.kubernetes.io/part-of: travel-tvb
+spec:
+  schedule: "30 3 * * 0"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: chromadb-backup
+            app.kubernetes.io/part-of: travel-tvb
+        spec:
+          restartPolicy: Never
+          volumes:
+            - name: scripts
+              configMap:
+                name: backup-scripts
+          containers:
+            - name: export
+              image: python:3.11-slim
+              imagePullPolicy: IfNotPresent
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -eu
+                  python -m pip install --no-cache-dir chromadb boto3
+                  python /scripts/chromadb-backup.py
+              envFrom:
+                - configMapRef:
+                    name: backup-config
+                - secretRef:
+                    name: backup-target-secret
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts

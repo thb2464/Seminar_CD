@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: chromadb-restore
+  namespace: maintenance
+  labels:
+    app.kubernetes.io/name: chromadb-restore
+    app.kubernetes.io/part-of: travel-tvb
+spec:
+  suspend: true
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: chromadb-restore
+        app.kubernetes.io/part-of: travel-tvb
+    spec:
+      restartPolicy: Never
+      volumes:
+        - name: scripts
+          configMap:
+            name: backup-scripts
+      containers:
+        - name: import
+          image: python:3.11-slim
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -eu
+              : "${RESTORE_PREFIX:?RESTORE_PREFIX must point to an S3 ChromaDB backup prefix}"
+              python -m pip install --no-cache-dir chromadb boto3
+              python /scripts/chromadb-restore.py
+          env:
+            - name: RESTORE_PREFIX
+              value: travel-tvb/chromadb/replace-me
+            - name: CHROMA_RESTORE_CLEAR
+              value: "false"
+          envFrom:
+            - configMapRef:
+                name: backup-config
+            - secretRef:
+                name: backup-target-secret
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts

@@ -1,0 +1,209 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-scripts
+  namespace: maintenance
+  labels:
+    app.kubernetes.io/name: backups
+    app.kubernetes.io/part-of: travel-tvb
+data:
+  postgres-backup.sh: |
+    #!/bin/sh
+    set -eu
+
+    : "${POSTGRES_DATABASES:?POSTGRES_DATABASES is required}"
+    : "${PGHOST:?PGHOST is required}"
+    : "${PGUSER:?PGUSER is required}"
+    : "${PGPASSWORD:?PGPASSWORD is required}"
+
+    timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+    target_dir="/backup/postgres/${timestamp}"
+    mkdir -p "${target_dir}"
+
+    for database in $(echo "${POSTGRES_DATABASES}" | tr ',' ' '); do
+      echo "Backing up ${database}"
+      pg_dump \
+        --format=custom \
+        --no-owner \
+        --no-acl \
+        --dbname="${database}" \
+        --file="${target_dir}/${database}.dump"
+    done
+
+    sha256sum "${target_dir}"/*.dump > "${target_dir}/SHA256SUMS"
+    {
+      echo "created_at=${timestamp}"
+      echo "databases=${POSTGRES_DATABASES}"
+      echo "retention_days=${BACKUP_RETENTION_DAYS:-30}"
+    } > "${target_dir}/manifest.txt"
+  postgres-restore.sh: |
+    #!/bin/sh
+    set -eu
+
+    : "${PGHOST:?PGHOST is required}"
+    : "${PGUSER:?PGUSER is required}"
+    : "${PGPASSWORD:?PGPASSWORD is required}"
+
+    for dump_file in /restore/*.dump; do
+      database="$(basename "${dump_file}" .dump)"
+      echo "Restoring ${database} from ${dump_file}"
+      pg_restore \
+        --clean \
+        --if-exists \
+        --no-owner \
+        --no-acl \
+        --dbname="${database}" \
+        "${dump_file}"
+    done
+  chromadb-backup.py: |
+    import datetime as dt
+    import json
+    import os
+    import pathlib
+    import tempfile
+    from typing import Any
+
+    import boto3
+    import chromadb
+
+
+    def env_bool(name: str, default: bool = False) -> bool:
+        value = os.getenv(name)
+        if value is None:
+            return default
+        return value.lower() in {"1", "true", "yes", "on"}
+
+
+    def collection_name(collection: Any) -> str:
+        return str(getattr(collection, "name", collection))
+
+
+    def main() -> None:
+        host = os.getenv("CHROMA_HOST", "chromadb")
+        port = int(os.getenv("CHROMA_PORT", "8000"))
+        ssl = env_bool("CHROMA_SSL")
+        batch_size = int(os.getenv("CHROMA_COLLECTION_BATCH_SIZE", "500"))
+        bucket = os.environ["S3_BUCKET"]
+        prefix = os.getenv("BACKUP_PREFIX", "travel-tvb").strip("/")
+        timestamp = dt.datetime.now(dt.UTC).strftime("%Y%m%dT%H%M%SZ")
+
+        client = chromadb.HttpClient(host=host, port=port, ssl=ssl)
+        s3 = boto3.client("s3")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            collections_dir = root / "collections"
+            collections_dir.mkdir(parents=True, exist_ok=True)
+            manifest: dict[str, Any] = {
+                "created_at": timestamp,
+                "host": host,
+                "port": port,
+                "collections": [],
+            }
+
+            for item in client.list_collections():
+                name = collection_name(item)
+                collection = client.get_collection(name)
+                count = collection.count()
+                path = collections_dir / f"{name}.jsonl"
+                manifest["collections"].append({"name": name, "count": count})
+
+                with path.open("w", encoding="utf-8") as handle:
+                    for offset in range(0, count, batch_size):
+                        batch = collection.get(
+                            limit=batch_size,
+                            offset=offset,
+                            include=["embeddings", "documents", "metadatas"],
+                        )
+                        ids = batch.get("ids", [])
+                        embeddings = batch.get("embeddings") or []
+                        documents = batch.get("documents") or []
+                        metadatas = batch.get("metadatas") or []
+                        for index, item_id in enumerate(ids):
+                            record = {
+                                "id": item_id,
+                                "embedding": embeddings[index] if index < len(embeddings) else None,
+                                "document": documents[index] if index < len(documents) else None,
+                                "metadata": metadatas[index] if index < len(metadatas) else None,
+                            }
+                            handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+            manifest_path = root / "manifest.json"
+            manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+
+            for file_path in root.rglob("*"):
+                if file_path.is_file():
+                    key = f"{prefix}/chromadb/{timestamp}/{file_path.relative_to(root).as_posix()}"
+                    s3.upload_file(str(file_path), bucket, key)
+                    print(f"Uploaded s3://{bucket}/{key}")
+
+
+    if __name__ == "__main__":
+        main()
+  chromadb-restore.py: |
+    import json
+    import os
+    import pathlib
+    import tempfile
+    from typing import Any
+
+    import boto3
+    import chromadb
+
+
+    def env_bool(name: str, default: bool = False) -> bool:
+        value = os.getenv(name)
+        if value is None:
+            return default
+        return value.lower() in {"1", "true", "yes", "on"}
+
+
+    def chunks(records: list[dict[str, Any]], size: int) -> list[list[dict[str, Any]]]:
+        return [records[index : index + size] for index in range(0, len(records), size)]
+
+
+    def main() -> None:
+        bucket = os.environ["S3_BUCKET"]
+        restore_prefix = os.environ["RESTORE_PREFIX"].strip("/")
+        host = os.getenv("CHROMA_HOST", "chromadb")
+        port = int(os.getenv("CHROMA_PORT", "8000"))
+        ssl = env_bool("CHROMA_SSL")
+        batch_size = int(os.getenv("CHROMA_COLLECTION_BATCH_SIZE", "500"))
+        clear_existing = env_bool("CHROMA_RESTORE_CLEAR", default=False)
+
+        s3 = boto3.client("s3")
+        client = chromadb.HttpClient(host=host, port=port, ssl=ssl)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            paginator = s3.get_paginator("list_objects_v2")
+            for page in paginator.paginate(Bucket=bucket, Prefix=f"{restore_prefix}/"):
+                for item in page.get("Contents", []):
+                    key = item["Key"]
+                    relative = key.removeprefix(f"{restore_prefix}/")
+                    target = root / relative
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    s3.download_file(bucket, key, str(target))
+
+            collections_dir = root / "collections"
+            for path in collections_dir.glob("*.jsonl"):
+                name = path.stem
+                if clear_existing:
+                    try:
+                        client.delete_collection(name)
+                    except Exception:
+                        pass
+                collection = client.get_or_create_collection(name)
+                records = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+                for batch in chunks(records, batch_size):
+                    collection.upsert(
+                        ids=[record["id"] for record in batch],
+                        embeddings=[record["embedding"] for record in batch],
+                        documents=[record["document"] for record in batch],
+                        metadatas=[record["metadata"] for record in batch],
+                    )
+                print(f"Restored {len(records)} records into {name}")
+
+
+    if __name__ == "__main__":
+        main()

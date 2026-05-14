@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-config
+  namespace: maintenance
+  labels:
+    app.kubernetes.io/name: backups
+    app.kubernetes.io/part-of: travel-tvb
+data:
+  BACKUP_PREFIX: travel-tvb
+  BACKUP_RETENTION_DAYS: "30"
+  POSTGRES_DATABASES: identity_db,catalog_db,booking_db,payment_db,content_db
+  PGPORT: "5432"
+  CHROMA_HOST: chromadb
+  CHROMA_PORT: "8000"
+  CHROMA_SSL: "false"
+  CHROMA_COLLECTION_BATCH_SIZE: "500"

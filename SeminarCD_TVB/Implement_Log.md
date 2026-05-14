@@ -109,6 +109,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **M3** Prometheus scrape configs + Grafana dashboards (Service Health, Booking Pipeline, AI Chatbot, Infra).
 - [x] **M4** Grafana alerting rules — error rate, P99 latency, service down.
 - [x] **M5** Runbooks in `docs/runbooks/` for the four scenarios in plan §7.3.
+- [x] **M6** Backup/restore jobs for PostgreSQL `pg_dump` and ChromaDB snapshots.
 
 ---
 
@@ -2238,6 +2239,51 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - **M6**: define backup/restore jobs for PostgreSQL and ChromaDB snapshots.
+
+---
+
+### M6 — Backup and restore jobs — 2026-05-14
+
+**What was done**
+- Added a Kubernetes maintenance workspace for database backups and restores.
+- Added a daily PostgreSQL `pg_dump` CronJob that exports all service databases to S3-compatible storage with checksum and manifest files.
+- Added a weekly ChromaDB snapshot CronJob that exports collections as JSONL plus a manifest.
+- Added suspended PostgreSQL and ChromaDB restore Jobs that operators can patch with a concrete backup prefix before running.
+- Documented secret setup, apply commands, restore commands, and verification checks.
+
+**Files touched**
+- `infra/k8s/maintenance/backups/kustomization.yaml`
+- `infra/k8s/maintenance/backups/namespace.yaml`
+- `infra/k8s/maintenance/backups/backup-config.yaml`
+- `infra/k8s/maintenance/backups/backup-secrets.example.yaml`
+- `infra/k8s/maintenance/backups/scripts-config.yaml`
+- `infra/k8s/maintenance/backups/postgres-backup-cronjob.yaml`
+- `infra/k8s/maintenance/backups/postgres-restore-job.yaml`
+- `infra/k8s/maintenance/backups/chromadb-backup-cronjob.yaml`
+- `infra/k8s/maintenance/backups/chromadb-restore-job.yaml`
+- `infra/k8s/maintenance/backups/README.md`
+- `infra/k8s/README.md`
+- `infra/README.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Used S3-compatible object storage through `backup-target-secret` so staging and production can point at different buckets without manifest changes.
+- Kept restore Jobs suspended by default to avoid accidental destructive runs.
+- Exported ChromaDB through its HTTP API into JSONL files so snapshots remain inspectable and independent of Chroma's local storage layout.
+- Left retention enforcement to the bucket lifecycle policy while writing the desired retention window into the backup manifest.
+
+**Issues / unknowns**
+- Jobs were not live-smoke-tested against real PostgreSQL, ChromaDB, and S3 endpoints in this workspace.
+- ChromaDB jobs install Python dependencies at runtime; production can harden this with a pinned backup image.
+- Environments must create `backup-target-secret` with real object-store and PostgreSQL credentials before applying the jobs.
+
+**Validation**
+- `kubectl kustomize infra/k8s/maintenance/backups` passed.
+- `rg` found no non-ASCII arrows/dashes added to the M6 backup manifests and docs.
+- `git diff --check` passed with Git's existing LF-to-CRLF working-copy warnings for touched Markdown files.
+
+**Next**
+- Phase 7 maintenance and operations checklist is complete.
 
 ---
 
