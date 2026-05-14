@@ -104,7 +104,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 - [x] **D5** `staging` and `production` namespaces with secrets management (Sealed Secrets or External Secrets).
 
 ### Phase 7 — Maintenance & Operations
-- [ ] **M1** ELK stack — Fluentbit DaemonSet → Elasticsearch → Kibana.
+- [x] **M1** ELK stack — Fluentbit DaemonSet → Elasticsearch → Kibana.
 - [ ] **M2** OpenTelemetry SDK in each service; Jaeger collector; `trace_id` propagated via gateway.
 - [ ] **M3** Prometheus scrape configs + Grafana dashboards (Service Health, Booking Pipeline, AI Chatbot, Infra).
 - [ ] **M4** Grafana alerting rules — error rate, P99 latency, service down.
@@ -2008,6 +2008,43 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 **Next**
 - Phase 5 and Phase 6 are complete. The next pending work is **M1**: ELK stack with Fluentbit, Elasticsearch, and Kibana.
+
+---
+
+### M1 — ELK logging stack manifests — 2026-05-14
+
+**What was done**
+- Added a Kubernetes logging workspace under `infra/k8s/observability/logging`.
+- Added the `logging` namespace, single-node Elasticsearch StatefulSet, Kibana Deployment, and Fluent Bit DaemonSet.
+- Configured Fluent Bit to tail Kubernetes container stdout logs, enrich records with Kubernetes metadata, and write daily `travel-tvb-*` indices to Elasticsearch.
+- Documented render/apply commands and the Kibana port-forward workflow.
+
+**Files touched**
+- `infra/README.md`
+- `infra/k8s/README.md`
+- `infra/k8s/observability/logging/README.md`
+- `infra/k8s/observability/logging/kustomization.yaml`
+- `infra/k8s/observability/logging/namespace.yaml`
+- `infra/k8s/observability/logging/elasticsearch.yaml`
+- `infra/k8s/observability/logging/kibana.yaml`
+- `infra/k8s/observability/logging/fluent-bit-rbac.yaml`
+- `infra/k8s/observability/logging/fluent-bit-config.yaml`
+- `infra/k8s/observability/logging/fluent-bit-daemonset.yaml`
+- `Implement_Log.md`
+
+**Decisions**
+- Used Fluent Bit directly as the cluster log collector because the plan's logging path is service stdout → Fluentbit DaemonSet → Elasticsearch.
+- Kept Elasticsearch single-node and Kibana ClusterIP-only for the seminar/staging baseline; production should move to managed Elastic or ECK with TLS/auth and backups before public exposure.
+- Used `travel-tvb-*` daily indices so Kibana can start with a simple index pattern while dashboards mature in M3.
+
+**Issues / unknowns**
+- `kubectl kustomize infra/k8s/observability/logging` passed.
+- Static render check confirmed Fluent Bit DaemonSet, Elasticsearch StatefulSet, Kibana Deployment, and Elasticsearch output config.
+- `git diff --check` passed with Git's existing LF-to-CRLF working-copy warnings.
+- `kubectl apply --dry-run=client --validate=false -k infra/k8s/observability/logging` could not run without a reachable local Kubernetes API server; `kubectl` tried `localhost:8080` and connection was refused.
+
+**Next**
+- **M2**: add OpenTelemetry SDK wiring in services, Jaeger collector manifests, and trace-id propagation validation.
 
 ---
 
