@@ -1,601 +1,783 @@
-# DACN_TourGuideWeb — Travel TVB Tour Guide Website
+# Travel TVB Microservices Setup Guide
 
-A full-stack tour guide and booking web application for **Travel TVB**, a Vietnamese travel agency. Features a React frontend, a Strapi CMS backend, VNPay payment integration, and an AI-powered chatbot using RAG (Retrieval Augmented Generation) with Google Gemini and ChromaDB.
+Travel TVB is a tour-guide and booking platform that has been refactored from a
+React + Strapi monolith into a microservices stack behind Kong.
 
----
+This README is focused on getting the project running locally.
 
-## Table of Contents
+## Architecture
 
-1. [Architecture Overview](#architecture-overview)
-2. [Tech Stack](#tech-stack)
-3. [Prerequisites](#prerequisites)
-4. [Project Structure](#project-structure)
-5. [Getting Started](#getting-started)
-   - [1. Clone the Repository](#1-clone-the-repository)
-   - [2. Backend Setup (Strapi)](#2-backend-setup-strapi)
-   - [3. Frontend Setup (React + Vite)](#3-frontend-setup-react--vite)
-   - [4. ChromaDB Setup (Vector Database)](#4-chromadb-setup-vector-database)
-   - [5. Index Tour Data for Chatbot](#5-index-tour-data-for-chatbot)
-6. [Environment Variables Reference](#environment-variables-reference)
-7. [Available Scripts](#available-scripts)
-8. [API Endpoints](#api-endpoints)
-9. [Chatbot (RAG Pipeline)](#chatbot-rag-pipeline)
-10. [Payment Integration (VNPay)](#payment-integration-vnpay)
-11. [Internationalization (i18n)](#internationalization-i18n)
-12. [Testing](#testing)
-13. [CI/CD](#cicd)
-14. [Troubleshooting](#troubleshooting)
+```text
+Browser
+  |
+  v
+React frontend, Vite, localhost:5173
+  |
+  v
+Kong API Gateway, localhost:8000
+  |
+  +-- identity-service, NestJS, port 3000
+  +-- catalog-service, NestJS, port 3001
+  +-- booking-service, NestJS, port 3002
+  +-- payment-service, NestJS, port 3003
+  +-- content-service, Strapi 5, port 1337
+  +-- ai-chatbot-service, FastAPI, port 8080
 
----
-
-## Architecture Overview
-
+Shared dependencies:
+  PostgreSQL localhost:5432
+  RabbitMQ localhost:5672, management UI localhost:15672
+  ChromaDB localhost:8800, container port 8000
+  Redis localhost:6379
+  Pact Broker localhost:9292
 ```
-                         +------------------+
-                         |   React Frontend |  (port 5173)
-                         |   Vite + React 19|
-                         +--------+---------+
-                                  |
-                                  | REST API
-                                  v
-                         +------------------+
-                         |  Strapi Backend  |  (port 1337)
-                         |  Strapi 5.36.0   |
-                         +---+---------+----+
-                             |         |
-                    +--------+    +----+--------+
-                    v              v             v
-              +---------+   +-----------+  +----------+
-              | SQLite  |   | ChromaDB  |  |  VNPay   |
-              |   DB    |   | (port 8000)|  | Sandbox  |
-              +---------+   +-----------+  +----------+
-                                  ^
-                                  |
-                          Google Gemini API
-                        (Embeddings + LLM)
-```
-
----
-
-## Tech Stack
-
-| Layer          | Technology                      | Version    |
-| -------------- | ------------------------------- | ---------- |
-| **Frontend**   | React                           | 19.1.0     |
-|                | Vite                            | 7.0.4      |
-|                | React Router                    | 7.8.0      |
-|                | Framer Motion                   | 12.23.12   |
-|                | React Icons                     | 5.5.0      |
-|                | React Loading Skeleton          | 3.5.0      |
-| **Backend**    | Strapi (Headless CMS)           | 5.36.0     |
-|                | better-sqlite3                  | 12.4.1     |
-| **AI/Chatbot** | Google Gemini 2.5 Flash (LLM)   | -          |
-|                | Gemini Embedding 001            | -          |
-|                | ChromaDB (Vector DB)            | 3.4.0      |
-| **Payments**   | VNPay Sandbox                   | -          |
-| **Testing**    | Vitest (frontend)               | 4.1.2      |
-|                | Jest (backend)                  | 30.3.0     |
-|                | React Testing Library           | 16.3.2     |
-| **CI/CD**      | GitHub Actions                  | -          |
-
----
 
 ## Prerequisites
 
-Before you begin, make sure you have the following installed:
+Install these before starting:
 
-| Tool           | Required Version      | Download Link                                       |
-| -------------- | --------------------- | --------------------------------------------------- |
-| **Node.js**    | >= 20.0.0, <= 24.x.x | [nodejs.org](https://nodejs.org/)                   |
-| **npm**        | >= 6.0.0              | Bundled with Node.js                                |
-| **Python**     | >= 3.8 (for ChromaDB) | [python.org](https://www.python.org/)               |
-| **Git**        | Any recent version    | [git-scm.com](https://git-scm.com/)                |
+| Tool | Version |
+| --- | --- |
+| Node.js | 20.x through 24.x |
+| npm | bundled with Node.js |
+| Python | 3.11 or newer |
+| Docker Desktop | current stable |
+| Git | current stable |
 
-Verify your installations:
+Check the basics:
 
-```bash
-node --version    # Should print v20.x.x or higher
-npm --version     # Should print 6.x.x or higher
-python --version  # Should print 3.8+ (needed for ChromaDB server)
+```powershell
+node --version
+npm --version
+python --version
+docker --version
+docker compose version
 ```
 
----
+The commands below use PowerShell. On macOS, Linux, or Git Bash, replace the
+PowerShell line-continuation backtick with `\` and use `export NAME=value`
+instead of `$env:NAME = "value"`.
 
-## Project Structure
+## 1. Clone the repository
 
-```
-DACN_TourGuideWeb/
-├── Travel_TVB/                     # Frontend (React + Vite)
-│   ├── src/
-│   │   ├── components/             # Reusable UI components
-│   │   ├── pages/                  # Page-level components
-│   │   ├── assets/                 # Static assets (images, etc.)
-│   │   └── ...
-│   ├── public/                     # Public static files
-│   ├── .env                        # Frontend environment variables
-│   ├── vite.config.js              # Vite configuration
-│   └── package.json
-│
-├── Travel_TVB_Server/              # Backend (Strapi 5)
-│   ├── config/
-│   │   ├── admin.js                # Admin panel config
-│   │   ├── database.js             # Database config (SQLite/MySQL/PostgreSQL)
-│   │   ├── middlewares.js          # Strapi middlewares
-│   │   ├── plugins.js              # Plugin config (users-permissions, JWT)
-│   │   └── server.js               # Server config (host, port)
-│   ├── src/
-│   │   └── api/
-│   │       ├── tour/               # Tour content type
-│   │       ├── tour-category/      # Tour categories
-│   │       ├── booking/            # Booking + VNPay integration
-│   │       ├── chatbot/            # AI Chatbot (RAG)
-│   │       │   ├── controllers/chatbot.js
-│   │       │   ├── services/chatbot.js
-│   │       │   ├── services/vectorStore.js
-│   │       │   ├── routes/chatbot.js
-│   │       │   └── scripts/indexTours.js
-│   │       ├── single-post/        # Blog posts
-│   │       ├── single-community-post/
-│   │       ├── home-hero-slider/   # CMS-managed page sections
-│   │       ├── layout-navbar/
-│   │       ├── layout-footer/
-│   │       └── ...                 # Many more content types
-│   ├── .env                        # Backend environment variables
-│   ├── .env.example                # Template for .env
-│   └── package.json
-│
-├── migrate-strapi-locales.mjs      # Locale migration script (vi/en/zh)
-├── .github/workflows/ci.yml        # GitHub Actions CI pipeline
-└── README.md                       # This file
-```
-
----
-
-## Getting Started
-
-### 1. Clone the Repository
-
-```bash
+```powershell
 git clone <repository-url>
-cd DACN_TourGuideWeb
+cd SeminarCD_TVB
 ```
 
-### 2. Backend Setup (Strapi)
+## 2. Start shared infrastructure
 
-```bash
-# Navigate to the backend directory
-cd Travel_TVB_Server
+Start PostgreSQL, RabbitMQ, ChromaDB, Redis, Pact Broker, and Kong:
 
-# Install dependencies
-npm install
-
-# Create your .env file from the template
-cp .env.example .env
+```powershell
+docker compose -f infra/docker-compose.yml up -d postgres rabbitmq chromadb redis pact-broker kong
 ```
 
-**Edit `Travel_TVB_Server/.env`** and fill in the required values:
+Useful local URLs:
+
+| Component | URL |
+| --- | --- |
+| Kong gateway | http://localhost:8000 |
+| Kong admin API | http://localhost:8001 |
+| RabbitMQ management | http://localhost:15672 |
+| Pact Broker | http://localhost:9292 |
+| ChromaDB | http://localhost:8800 |
+
+Local credentials from `infra/docker-compose.yml`:
+
+| Service | Username | Password |
+| --- | --- | --- |
+| PostgreSQL admin | `travel_tvb_admin` | `travel_tvb_admin` |
+| RabbitMQ | `guest` | `guest` |
+| Pact Broker write | `pact_ci` | `pact_ci` |
+| Pact Broker read-only | `pact_read` | `pact_read` |
+
+The Postgres init script creates these service databases:
+
+| Database | Owner | Password |
+| --- | --- | --- |
+| `identity_db` | `identity` | `identity` |
+| `catalog_db` | `catalog` | `catalog` |
+| `booking_db` | `booking` | `booking` |
+| `payment_db` | `payment` | `payment` |
+| `content_db` | `strapi` | `strapi` |
+
+## 3. Install dependencies
+
+Install frontend and service dependencies:
+
+```powershell
+npm --prefix Travel_TVB install
+npm --prefix services/identity-service install
+npm --prefix services/catalog-service install
+npm --prefix services/booking-service install
+npm --prefix services/payment-service install
+npm --prefix services/content-service install
+npm --prefix libs/shared/ts install
+npm --prefix tests/e2e install
+```
+
+Install the Python chatbot service:
+
+```powershell
+cd services/ai-chatbot-service
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -e ".[dev]"
+deactivate
+cd ..\..
+```
+
+## 4. Create local environment files
+
+Do not commit real secrets. Use the values below only for local development.
+
+### Frontend
+
+Create `Travel_TVB/.env.local`:
 
 ```env
-# Server
-HOST=0.0.0.0
-PORT=1337
-
-# Security Keys — generate your own unique values!
-# You can generate keys with: openssl rand -base64 16
-APP_KEYS=<key1>,<key2>,<key3>,<key4>
-API_TOKEN_SALT=<random-string>
-ADMIN_JWT_SECRET=<random-string>
-TRANSFER_TOKEN_SALT=<random-string>
-ENCRYPTION_KEY=<random-string>
-JWT_SECRET=<random-string>
-
-# Database (SQLite is the default — no extra setup needed)
-DATABASE_CLIENT=sqlite
-DATABASE_FILENAME=.tmp/data.db
-
-# VNPay Sandbox (for payment testing)
-VNPAY_TMN_CODE=6UH2PIXS
-VNPAY_HASH_SECRET=<your-vnpay-hash-secret>
-VNPAY_URL=https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-VNPAY_RETURN_URL=http://localhost:1337/api/bookings/vnpay-return
-FRONTEND_URL=http://localhost:5173
-
-# Chatbot / AI (required for chatbot feature)
-GOOGLE_AI_API_KEY=<your-google-gemini-api-key>
-CHROMADB_URL=http://localhost:8000
-CHROMA_COLLECTION=tour_data
-```
-
-> **Generating security keys:** Run `node -e "console.log(require('crypto').randomBytes(16).toString('base64'))"` four times to generate the four `APP_KEYS`.
-
-**Start the Strapi server:**
-
-```bash
-# Development mode (with auto-reload)
-npm run develop
-
-# Production mode
-npm run build && npm run start
-```
-
-On first launch, Strapi will:
-- Create the SQLite database at `.tmp/data.db`
-- Open the admin panel at **http://localhost:1337/admin**
-- Prompt you to create the first admin user
-
-### 3. Frontend Setup (React + Vite)
-
-Open a **new terminal**:
-
-```bash
-# Navigate to the frontend directory
-cd Travel_TVB
-
-# Install dependencies
-npm install
-```
-
-**Create/edit `Travel_TVB/.env`:**
-
-```env
-VITE_STRAPI_URL=http://localhost:1337
-VITE_STRAPI_API_TOKEN=<your-strapi-api-token>
+VITE_API_GATEWAY_URL=http://localhost:8000
 VITE_CHATBOT_ENABLED=true
 ```
 
-> **Getting your API token:** In the Strapi admin panel, go to **Settings > API Tokens > Create new API Token**. Give it a name and select the appropriate permissions (Full access for development). Copy the token into `VITE_STRAPI_API_TOKEN`.
+`VITE_API_GATEWAY_URL` is the current primary API base. `VITE_STRAPI_URL` is
+only a migration fallback.
 
-**Start the development server:**
+### Identity service
 
-```bash
+```powershell
+cp services/identity-service/.env.example services/identity-service/.env
+```
+
+Edit `services/identity-service/.env`:
+
+```env
+NODE_ENV=development
+PORT=3000
+LOG_LEVEL=info
+
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=identity
+DATABASE_PASSWORD=identity
+DATABASE_NAME=identity_db
+DATABASE_SSL=false
+DATABASE_SYNCHRONIZE=false
+
+JWT_SECRET=change-me-in-prod
+JWT_EXPIRES_IN=30d
+
+SQLITE_MIGRATION_SOURCE=../../archives/sqlite-final.db
+```
+
+`JWT_SECRET` must match the local Kong JWT secret in
+`services/api-gateway/kong.yml`. The checked-in development value there is
+`change-me-in-prod`.
+
+### Catalog service
+
+```powershell
+cp services/catalog-service/.env.example services/catalog-service/.env
+```
+
+Edit `services/catalog-service/.env`:
+
+```env
+NODE_ENV=development
+PORT=3001
+LOG_LEVEL=info
+
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=catalog
+DATABASE_PASSWORD=catalog
+DATABASE_NAME=catalog_db
+DATABASE_SSL=false
+DATABASE_SYNCHRONIZE=false
+
+RABBITMQ_URL=amqp://guest:guest@localhost:5672/
+CATALOG_EVENTS_EXCHANGE=catalog.events
+
+SQLITE_MIGRATION_SOURCE=../../archives/sqlite-final.db
+```
+
+### Booking service
+
+Create `services/booking-service/.env`:
+
+```env
+NODE_ENV=development
+PORT=3002
+LOG_LEVEL=info
+
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=booking
+DATABASE_PASSWORD=booking
+DATABASE_NAME=booking_db
+DATABASE_SSL=false
+DATABASE_SYNCHRONIZE=true
+
+RABBITMQ_URL=amqp://guest:guest@localhost:5672/
+BOOKING_EVENTS_EXCHANGE=booking.events
+PAYMENT_EVENTS_EXCHANGE=payment.events
+CATALOG_SERVICE_URL=http://localhost:3001
+```
+
+`DATABASE_SYNCHRONIZE=true` is for local first boot only. Use migrations for
+shared environments.
+
+### Payment service
+
+Create `services/payment-service/.env`:
+
+```env
+NODE_ENV=development
+PORT=3003
+LOG_LEVEL=info
+
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=payment
+DATABASE_PASSWORD=payment
+DATABASE_NAME=payment_db
+DATABASE_SSL=false
+DATABASE_SYNCHRONIZE=true
+
+RABBITMQ_URL=amqp://guest:guest@localhost:5672/
+PAYMENT_EVENTS_EXCHANGE=payment.events
+BOOKING_EVENTS_EXCHANGE=booking.events
+
+VNPAY_TMN_CODE=
+VNPAY_HASH_SECRET=
+VNPAY_URL=https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+VNPAY_API_URL=https://sandbox.vnpayment.vn/merchant_webapi/api/transaction
+VNPAY_RETURN_URL=http://localhost:8000/api/payments/vnpay-return
+```
+
+VNPay sandbox credentials are optional for booting the service but required for
+real payment URL generation and refund testing.
+
+### Content service
+
+```powershell
+cp services/content-service/.env.example services/content-service/.env
+```
+
+Edit `services/content-service/.env`:
+
+```env
+HOST=0.0.0.0
+PORT=1337
+
+APP_KEYS=local-key-1,local-key-2,local-key-3,local-key-4
+API_TOKEN_SALT=local-api-token-salt
+ADMIN_JWT_SECRET=local-admin-jwt-secret
+TRANSFER_TOKEN_SALT=local-transfer-token-salt
+ENCRYPTION_KEY=local-encryption-key
+JWT_SECRET=local-content-jwt-secret
+
+DATABASE_CLIENT=postgres
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_NAME=content_db
+DATABASE_USERNAME=strapi
+DATABASE_PASSWORD=strapi
+DATABASE_SSL=false
+```
+
+For real environments, replace all Strapi secrets with strong random values.
+
+### AI chatbot service
+
+```powershell
+cp services/ai-chatbot-service/.env.example services/ai-chatbot-service/.env
+```
+
+Edit `services/ai-chatbot-service/.env` for host-based local development:
+
+```env
+APP_HOST=0.0.0.0
+APP_PORT=8080
+LOG_LEVEL=INFO
+ENVIRONMENT=development
+
+GOOGLE_AI_API_KEY=
+GEMINI_LLM_MODEL=gemini-2.5-flash
+GEMINI_EMBEDDING_MODEL=gemini-embedding-001
+
+CHROMADB_HOST=localhost
+CHROMADB_PORT=8800
+CHROMADB_SSL=false
+CHROMA_COLLECTION=tour_embeddings
+
+CATALOG_BASE_URL=http://localhost:3001
+CATALOG_API_TOKEN=
+
+RABBITMQ_URL=amqp://guest:guest@localhost:5672/
+CATALOG_EVENTS_EXCHANGE=catalog.events
+
+RATE_LIMIT_WINDOW_SECONDS=60
+RATE_LIMIT_MAX_REQUESTS=15
+```
+
+The compose stack exposes ChromaDB on host port `8800` because Kong already uses
+host port `8000`.
+
+## 5. Prepare database schemas
+
+Run TypeORM migrations for the services that already have migration files:
+
+```powershell
+cd services/identity-service
+npm run migration:run
+cd ..\..
+
+cd services/catalog-service
+npm run migration:run
+cd ..\..
+```
+
+Booking and Payment use `DATABASE_SYNCHRONIZE=true` in the local `.env` above so
+their tables are created when the services boot.
+
+Strapi creates the Content Service tables on first boot. Start it once and stop
+it after the admin server is ready:
+
+```powershell
+cd services/content-service
+npm run develop
+```
+
+Press `Ctrl+C` after Strapi starts successfully, then return to the repo root.
+
+## 6. Optional: import archived monolith data
+
+The final Strapi SQLite snapshot is stored at `archives/sqlite-final.db`.
+
+Import users:
+
+```powershell
+cd services/identity-service
+$env:SQLITE_MIGRATION_SOURCE = "../../archives/sqlite-final.db"
+npx ts-node src/database/migrate-from-sqlite.ts
+cd ..\..
+```
+
+Import tours and categories:
+
+```powershell
+cd services/catalog-service
+$env:SQLITE_MIGRATION_SOURCE = "../../archives/sqlite-final.db"
+npx ts-node src/database/migrate-from-sqlite.ts
+cd ..\..
+```
+
+Import content tables:
+
+```powershell
+cd services/content-service
+$env:SQLITE_SOURCE = "../../archives/sqlite-final.db"
+npm run migrate:sqlite
+cd ..\..
+```
+
+After catalog data exists and the chatbot has a valid `GOOGLE_AI_API_KEY`, index
+tours into ChromaDB:
+
+```powershell
+cd services/ai-chatbot-service
+.\.venv\Scripts\Activate.ps1
+python -m app.scripts.index_tours
+deactivate
+cd ..\..
+```
+
+## 7. Run the app services
+
+There are two local run modes.
+
+### Mode A: run services from source
+
+Use this mode when developing service code. Open one terminal per service:
+
+```powershell
+cd services/identity-service
+npm run start:dev
+```
+
+```powershell
+cd services/catalog-service
+npm run start:dev
+```
+
+```powershell
+cd services/booking-service
+npm run start:dev
+```
+
+```powershell
+cd services/payment-service
+npm run start:dev
+```
+
+```powershell
+cd services/content-service
+npm run develop
+```
+
+```powershell
+cd services/ai-chatbot-service
+.\.venv\Scripts\Activate.ps1
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
+```
+
+Direct service URLs in source mode:
+
+| Service | URL |
+| --- | --- |
+| Identity | http://localhost:3000 |
+| Catalog | http://localhost:3001 |
+| Booking | http://localhost:3002 |
+| Payment | http://localhost:3003 |
+| Content | http://localhost:1337 |
+| AI chatbot | http://localhost:8080 |
+
+Kong's checked-in config points at Docker service names such as
+`identity-service` and `catalog-service`. For full browser testing through Kong,
+use Mode B below.
+
+### Mode B: run service containers behind Kong
+
+Use this mode when you want the frontend to call the whole stack through
+`http://localhost:8000`.
+
+Build the six app images:
+
+```powershell
+docker build -t travel-tvb/identity-service services/identity-service
+docker build -t travel-tvb/catalog-service services/catalog-service
+docker build -t travel-tvb/booking-service services/booking-service
+docker build -t travel-tvb/payment-service services/payment-service
+docker build -t travel-tvb/content-service services/content-service
+docker build -t travel-tvb/ai-chatbot-service services/ai-chatbot-service
+```
+
+Start the service containers on the same Docker network as Kong:
+
+```powershell
+docker run -d --name identity-service --network travel-tvb-local -p 3000:3000 `
+  -e NODE_ENV=production `
+  -e PORT=3000 `
+  -e DATABASE_HOST=postgres `
+  -e DATABASE_PORT=5432 `
+  -e DATABASE_USER=identity `
+  -e DATABASE_PASSWORD=identity `
+  -e DATABASE_NAME=identity_db `
+  -e DATABASE_SSL=false `
+  -e DATABASE_SYNCHRONIZE=false `
+  -e JWT_SECRET=change-me-in-prod `
+  -e JWT_EXPIRES_IN=30d `
+  travel-tvb/identity-service
+```
+
+```powershell
+docker run -d --name catalog-service --network travel-tvb-local -p 3001:3001 `
+  -e NODE_ENV=production `
+  -e PORT=3001 `
+  -e DATABASE_HOST=postgres `
+  -e DATABASE_PORT=5432 `
+  -e DATABASE_USER=catalog `
+  -e DATABASE_PASSWORD=catalog `
+  -e DATABASE_NAME=catalog_db `
+  -e DATABASE_SSL=false `
+  -e DATABASE_SYNCHRONIZE=false `
+  -e RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/ `
+  -e CATALOG_EVENTS_EXCHANGE=catalog.events `
+  travel-tvb/catalog-service
+```
+
+```powershell
+docker run -d --name booking-service --network travel-tvb-local -p 3002:3002 `
+  -e NODE_ENV=production `
+  -e PORT=3002 `
+  -e DATABASE_HOST=postgres `
+  -e DATABASE_PORT=5432 `
+  -e DATABASE_USER=booking `
+  -e DATABASE_PASSWORD=booking `
+  -e DATABASE_NAME=booking_db `
+  -e DATABASE_SSL=false `
+  -e DATABASE_SYNCHRONIZE=true `
+  -e RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/ `
+  -e BOOKING_EVENTS_EXCHANGE=booking.events `
+  -e PAYMENT_EVENTS_EXCHANGE=payment.events `
+  -e CATALOG_SERVICE_URL=http://catalog-service:3001 `
+  travel-tvb/booking-service
+```
+
+```powershell
+docker run -d --name payment-service --network travel-tvb-local -p 3003:3003 `
+  -e NODE_ENV=production `
+  -e PORT=3003 `
+  -e DATABASE_HOST=postgres `
+  -e DATABASE_PORT=5432 `
+  -e DATABASE_USER=payment `
+  -e DATABASE_PASSWORD=payment `
+  -e DATABASE_NAME=payment_db `
+  -e DATABASE_SSL=false `
+  -e DATABASE_SYNCHRONIZE=true `
+  -e RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/ `
+  -e PAYMENT_EVENTS_EXCHANGE=payment.events `
+  -e BOOKING_EVENTS_EXCHANGE=booking.events `
+  -e VNPAY_RETURN_URL=http://localhost:8000/api/payments/vnpay-return `
+  travel-tvb/payment-service
+```
+
+```powershell
+docker run -d --name content-service --network travel-tvb-local -p 1337:1337 `
+  -e NODE_ENV=production `
+  -e HOST=0.0.0.0 `
+  -e PORT=1337 `
+  -e APP_KEYS=local-key-1,local-key-2,local-key-3,local-key-4 `
+  -e API_TOKEN_SALT=local-api-token-salt `
+  -e ADMIN_JWT_SECRET=local-admin-jwt-secret `
+  -e TRANSFER_TOKEN_SALT=local-transfer-token-salt `
+  -e ENCRYPTION_KEY=local-encryption-key `
+  -e JWT_SECRET=local-content-jwt-secret `
+  -e DATABASE_CLIENT=postgres `
+  -e DATABASE_HOST=postgres `
+  -e DATABASE_PORT=5432 `
+  -e DATABASE_NAME=content_db `
+  -e DATABASE_USERNAME=strapi `
+  -e DATABASE_PASSWORD=strapi `
+  -e DATABASE_SSL=false `
+  travel-tvb/content-service
+```
+
+```powershell
+docker run -d --name ai-chatbot-service --network travel-tvb-local -p 8080:8080 `
+  -e APP_HOST=0.0.0.0 `
+  -e APP_PORT=8080 `
+  -e LOG_LEVEL=INFO `
+  -e ENVIRONMENT=development `
+  -e GOOGLE_AI_API_KEY=$env:GOOGLE_AI_API_KEY `
+  -e CHROMADB_HOST=chromadb `
+  -e CHROMADB_PORT=8000 `
+  -e CHROMADB_SSL=false `
+  -e CHROMA_COLLECTION=tour_embeddings `
+  -e CATALOG_BASE_URL=http://catalog-service:3001 `
+  -e RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/ `
+  -e CATALOG_EVENTS_EXCHANGE=catalog.events `
+  travel-tvb/ai-chatbot-service
+```
+
+If a container name already exists, stop and remove just that container:
+
+```powershell
+docker rm -f identity-service
+```
+
+Then rerun the matching `docker run` command.
+
+## 8. Run the frontend
+
+Start Vite:
+
+```powershell
+cd Travel_TVB
 npm run dev
 ```
 
-The frontend will be available at **http://localhost:5173**.
+Open:
 
-### 4. ChromaDB Setup (Vector Database)
-
-ChromaDB is needed for the AI chatbot's RAG (Retrieval Augmented Generation) pipeline. It stores tour data embeddings for semantic search.
-
-**Option A: Install via pip (Recommended for development)**
-
-```bash
-pip install chromadb
-
-# Start the ChromaDB server
-chroma run --host 0.0.0.0 --port 8000
+```text
+http://localhost:5173
 ```
 
-**Option B: Run via Docker**
+The frontend calls Kong at `http://localhost:8000`, and Kong routes requests to
+the six services.
 
-```bash
-docker run -d --name chromadb \
-  -p 8000:8000 \
-  -v chroma_data:/chroma/chroma \
-  chromadb/chroma:latest
+## 9. Smoke checks
+
+Run these after the stack is up:
+
+```powershell
+Invoke-WebRequest http://localhost:8001/status
+Invoke-WebRequest http://localhost:8000/api/chatbot/health
+Invoke-WebRequest http://localhost:3000/health
+Invoke-WebRequest http://localhost:3001/health
+Invoke-WebRequest http://localhost:3002/
+Invoke-WebRequest http://localhost:3003/
+Invoke-WebRequest http://localhost:1337/_health
+Invoke-WebRequest http://localhost:8080/health
+Invoke-WebRequest http://localhost:8800/api/v1/heartbeat
 ```
 
-Verify ChromaDB is running:
+`/api/tours` and content endpoints return useful data only after the optional
+SQLite import has been run.
 
-```bash
-curl http://localhost:8000/api/v1/heartbeat
-# Should return: {"nanosecond heartbeat": ...}
+## 10. Tests
+
+Frontend:
+
+```powershell
+npm --prefix Travel_TVB test
 ```
 
-### 5. Index Tour Data for Chatbot
+NestJS services:
 
-Once Strapi is running and has tour data, and ChromaDB is running, populate the vector database:
-
-```bash
-cd Travel_TVB_Server
-
-# Index all tours (all locales: vi, en, zh) into ChromaDB
-node src/api/chatbot/scripts/indexTours.js
+```powershell
+npm --prefix services/identity-service test
+npm --prefix services/catalog-service test
+npm --prefix services/booking-service test
+npm --prefix services/payment-service test
 ```
 
-This script:
-- Fetches all tours from Strapi across all locales (vi, en, zh)
-- Chunks them into digestible pieces (overview, description, highlights, itinerary)
-- Generates embeddings using Google Gemini Embedding 001
-- Stores them in ChromaDB for semantic search
+Content service:
 
-> **Note:** Re-run this script whenever you add or update tour data in Strapi.
-
----
-
-## Environment Variables Reference
-
-### Backend (`Travel_TVB_Server/.env`)
-
-| Variable               | Required | Description                                    | Default                  |
-| ---------------------- | -------- | ---------------------------------------------- | ------------------------ |
-| `HOST`                 | No       | Server host                                    | `0.0.0.0`               |
-| `PORT`                 | No       | Server port                                    | `1337`                   |
-| `APP_KEYS`             | Yes      | Comma-separated encryption keys (4 keys)       | -                        |
-| `API_TOKEN_SALT`       | Yes      | Salt for API token hashing                     | -                        |
-| `ADMIN_JWT_SECRET`     | Yes      | Secret for admin JWT tokens                    | -                        |
-| `TRANSFER_TOKEN_SALT`  | Yes      | Salt for transfer tokens                       | -                        |
-| `ENCRYPTION_KEY`       | Yes      | Encryption key for secrets                     | -                        |
-| `JWT_SECRET`           | Yes      | Secret for user JWT tokens                     | -                        |
-| `DATABASE_CLIENT`      | No       | Database client (`sqlite`, `mysql`, `postgres`) | `sqlite`                |
-| `DATABASE_FILENAME`    | No       | SQLite database file path                      | `.tmp/data.db`           |
-| `DATABASE_HOST`        | No       | DB host (MySQL/PostgreSQL only)                | `localhost`              |
-| `DATABASE_PORT`        | No       | DB port                                        | `3306` / `5432`          |
-| `DATABASE_NAME`        | No       | DB name                                        | `strapi`                 |
-| `DATABASE_USERNAME`    | No       | DB username                                    | `strapi`                 |
-| `DATABASE_PASSWORD`    | No       | DB password                                    | `strapi`                 |
-| `DATABASE_SSL`         | No       | Enable SSL for DB                              | `false`                  |
-| `VNPAY_TMN_CODE`       | No       | VNPay terminal code                            | -                        |
-| `VNPAY_HASH_SECRET`    | No       | VNPay hash secret                              | -                        |
-| `VNPAY_URL`            | No       | VNPay gateway URL                              | -                        |
-| `VNPAY_RETURN_URL`     | No       | VNPay callback URL                             | -                        |
-| `FRONTEND_URL`         | No       | Frontend URL (for redirects)                   | `http://localhost:5173`  |
-| `GOOGLE_AI_API_KEY`    | No*      | Google Gemini API key (*required for chatbot)   | -                        |
-| `CHROMADB_URL`         | No*      | ChromaDB server URL (*required for chatbot)     | `http://localhost:8000`  |
-
-### Frontend (`Travel_TVB/.env`)
-
-| Variable                 | Required | Description                        | Default                 |
-| ------------------------ | -------- | ---------------------------------- | ----------------------- |
-| `VITE_STRAPI_URL`        | Yes      | URL of the Strapi backend          | `http://localhost:1337` |
-| `VITE_STRAPI_API_TOKEN`  | Yes      | API token for Strapi access        | -                       |
-| `VITE_CHATBOT_ENABLED`   | No       | Enable/disable chatbot widget      | `true`                  |
-
----
-
-## Available Scripts
-
-### Backend (`Travel_TVB_Server/`)
-
-| Command                 | Description                              |
-| ----------------------- | ---------------------------------------- |
-| `npm run develop`       | Start Strapi in development mode (auto-reload) |
-| `npm run build`         | Build the Strapi admin panel             |
-| `npm run start`         | Start Strapi in production mode          |
-| `npm run test`          | Run backend tests (Jest)                 |
-| `npm run test:watch`    | Run tests in watch mode                  |
-| `npm run test:coverage` | Run tests with coverage report           |
-| `npm run strapi`        | Run Strapi CLI commands                  |
-
-### Frontend (`Travel_TVB/`)
-
-| Command                 | Description                              |
-| ----------------------- | ---------------------------------------- |
-| `npm run dev`           | Start Vite dev server (port 5173)        |
-| `npm run build`         | Build for production                     |
-| `npm run preview`       | Preview production build locally         |
-| `npm run lint`          | Lint code with ESLint                    |
-| `npm run test`          | Run frontend tests (Vitest)              |
-| `npm run test:watch`    | Run tests in watch mode                  |
-| `npm run test:coverage` | Run tests with coverage report           |
-
-### Utility Scripts (Root)
-
-| Command | Description |
-| ------- | ----------- |
-| `node migrate-strapi-locales.mjs` | Migrate content to multi-locale (vi/en/zh) |
-| `node Travel_TVB_Server/src/api/chatbot/scripts/indexTours.js` | Index tours into ChromaDB |
-
----
-
-## API Endpoints
-
-### Strapi Default Endpoints
-
-Strapi auto-generates REST API endpoints for all content types:
-
-| Method | Endpoint                          | Description                |
-| ------ | --------------------------------- | -------------------------- |
-| GET    | `/api/tours`                      | List all tours             |
-| GET    | `/api/tours/:id`                  | Get a single tour          |
-| GET    | `/api/tour-categories`            | List tour categories       |
-| GET    | `/api/single-posts`               | List blog posts            |
-| GET    | `/api/single-community-posts`     | List community posts       |
-| GET    | `/api/home-hero-slider`           | Home page hero slider      |
-| GET    | `/api/layout-navbar`              | Navbar content             |
-| GET    | `/api/layout-footer`              | Footer content             |
-| GET    | `/api/faq`                        | FAQ content                |
-
-> Add `?locale=vi` (or `en`, `zh`) to any endpoint for localized content.
-
-### Custom Endpoints
-
-| Method | Endpoint                          | Auth     | Description              |
-| ------ | --------------------------------- | -------- | ------------------------ |
-| POST   | `/api/chatbot/query`              | Public   | Send message to chatbot  |
-| POST   | `/api/bookings/create-vnpay`      | Auth     | Create VNPay payment     |
-| GET    | `/api/bookings/vnpay-return`      | Public   | VNPay payment callback   |
-
-### Chatbot Request/Response
-
-**POST `/api/chatbot/query`**
-
-```json
-// Request
-{
-  "message": "What tours do you have in Da Nang?",
-  "language": "en",
-  "history": [
-    { "role": "user", "content": "Hello" },
-    { "role": "bot", "content": "Hi! How can I help?" }
-  ]
-}
-
-// Response
-{
-  "data": {
-    "reply": "We have several tours in Da Nang...",
-    "sources": [
-      {
-        "tourName": "Da Nang Discovery",
-        "tourSlug": "da-nang-discovery",
-        "price": "2,500,000 VND",
-        "location": "Da Nang"
-      }
-    ]
-  }
-}
+```powershell
+npm --prefix services/content-service test
 ```
 
-**Rate limit:** 15 requests/minute per IP.
+AI chatbot service:
 
----
-
-## Chatbot (RAG Pipeline)
-
-The chatbot uses a Retrieval Augmented Generation architecture:
-
-```
-User Query
-    │
-    ▼
-┌─────────────────┐
-│ Embed query with │
-│ Gemini Embedding │
-│ 001              │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│ Search ChromaDB  │  ← Top 5 most relevant tour chunks
-│ for similar docs │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│ Build prompt     │  ← System prompt + context + conversation history
-│ with context     │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│ Gemini 2.5 Flash │  ← Generate grounded response
-│ LLM response     │
-└────────┬────────┘
-         │
-         ▼
-    Bot Reply + Sources
+```powershell
+cd services/ai-chatbot-service
+.\.venv\Scripts\Activate.ps1
+pytest
+deactivate
+cd ..\..
 ```
 
-**Supported languages:** Vietnamese (vi), English (en), Chinese (zh)
+Shared libraries:
 
----
-
-## Payment Integration (VNPay)
-
-The booking system integrates with **VNPay** (a major Vietnamese payment gateway) for processing tour payments.
-
-- **Sandbox mode** is configured by default for development/testing
-- Payment flow: Create booking -> Redirect to VNPay -> Return callback -> Update booking status
-- VNPay sandbox test credentials are available at [sandbox.vnpayment.vn](https://sandbox.vnpayment.vn)
-
----
-
-## Internationalization (i18n)
-
-The application supports three languages managed through Strapi's built-in localization:
-
-| Code | Language           |
-| ---- | ------------------ |
-| `vi` | Vietnamese         |
-| `en` | English            |
-| `zh` | Chinese (Mandarin) |
-
-All content types support locale variants. Use the migration script to set up initial translations:
-
-```bash
-node migrate-strapi-locales.mjs
+```powershell
+npm --prefix libs/shared/ts test
+cd libs/shared/py
+python -m unittest discover tests
+cd ..\..\..
 ```
 
----
+End-to-end tests:
 
-## Testing
-
-### Run All Tests
-
-```bash
-# Frontend tests (Vitest + React Testing Library)
-cd Travel_TVB && npm test
-
-# Backend tests (Jest)
-cd Travel_TVB_Server && npm test
+```powershell
+npm --prefix tests/e2e test
 ```
 
-### Watch Mode
+The full e2e suite expects the frontend, Kong, and all service dependencies to
+be running.
 
-```bash
-# Frontend
-cd Travel_TVB && npm run test:watch
+## 11. Stop or reset local services
 
-# Backend
-cd Travel_TVB_Server && npm run test:watch
+Stop app service containers:
+
+```powershell
+docker rm -f identity-service catalog-service booking-service payment-service content-service ai-chatbot-service
 ```
 
-### Coverage Reports
+Stop shared infrastructure while keeping volumes:
 
-```bash
-# Frontend
-cd Travel_TVB && npm run test:coverage
-
-# Backend
-cd Travel_TVB_Server && npm run test:coverage
+```powershell
+docker compose -f infra/docker-compose.yml down
 ```
 
----
+Reset shared infrastructure data:
 
-## CI/CD
+```powershell
+docker compose -f infra/docker-compose.yml down -v
+```
 
-GitHub Actions is configured in `.github/workflows/ci.yml`. The pipeline runs on pushes and PRs to `main` and `develop` branches:
-
-| Job               | Description                              |
-| ----------------- | ---------------------------------------- |
-| `frontend-tests`  | Install deps + run Vitest (Node.js 20)   |
-| `backend-tests`   | Install deps + run Jest (Node.js 20)     |
-
----
+The reset command deletes local Postgres, RabbitMQ, ChromaDB, and Redis volumes.
 
 ## Troubleshooting
 
-### Strapi won't start
+### Kong returns 502 or cannot resolve a service
 
-- Ensure Node.js version is between 20 and 24: `node --version`
-- Delete `node_modules` and reinstall: `rm -rf node_modules && npm install`
-- Delete the `.cache` and `build` folders: `rm -rf .cache build`
-- Ensure all required `.env` variables are set (especially `APP_KEYS`)
+Kong routes to Docker DNS names from `services/api-gateway/kong.yml`, for
+example `identity-service:3000`. Make sure Mode B containers are running on the
+`travel-tvb-local` network:
 
-### ChromaDB connection refused
+```powershell
+docker ps
+docker network inspect travel-tvb-local
+```
 
-- Verify ChromaDB is running: `curl http://localhost:8000/api/v1/heartbeat`
-- Check the `CHROMADB_URL` in your `.env` matches the running ChromaDB instance
-- If using Docker, ensure the port mapping is correct: `-p 8000:8000`
+### ChromaDB works on port 8800, but the AI service cannot connect
 
-### Chatbot returns errors
+When the AI service runs on the host, use:
 
-- Ensure `GOOGLE_AI_API_KEY` is set and valid in `.env`
-- Check that ChromaDB is running and accessible
-- Make sure you've run the indexing script: `node src/api/chatbot/scripts/indexTours.js`
-- Check Strapi logs for detailed error messages
+```env
+CHROMADB_HOST=localhost
+CHROMADB_PORT=8800
+```
 
-### Frontend can't connect to backend
+When the AI service runs inside Docker on `travel-tvb-local`, use:
 
-- Verify Strapi is running on port 1337
-- Check `VITE_STRAPI_URL` in `Travel_TVB/.env`
-- Ensure `VITE_STRAPI_API_TOKEN` is a valid Strapi API token
-- Check CORS settings in `Travel_TVB_Server/config/middlewares.js`
+```env
+CHROMADB_HOST=chromadb
+CHROMADB_PORT=8000
+```
 
-### VNPay payment issues
+### Auth works directly but fails through Kong
 
-- Ensure you're using sandbox credentials for development
-- Check `VNPAY_RETURN_URL` matches your server URL
-- Verify `FRONTEND_URL` is set for post-payment redirects
+The local Identity Service `JWT_SECRET` must match the JWT credential configured
+in `services/api-gateway/kong.yml`. The default local value is:
 
-### Database issues
+```env
+JWT_SECRET=change-me-in-prod
+```
 
-- **SQLite (default):** Delete `.tmp/data.db` and restart Strapi for a fresh database
-- **MySQL/PostgreSQL:** Verify connection credentials in `.env`
+### PostgreSQL migrations cannot connect
 
----
+Check that the compose stack is running and the port is free:
 
-## License
+```powershell
+docker compose -f infra/docker-compose.yml ps postgres
+```
 
-This project was developed as part of a university capstone project (DACN - Do An Chuyen Nganh).
+For host-run migrations, `DATABASE_HOST` should be `localhost`. For containers,
+it should be `postgres`.
+
+### Strapi admin does not load
+
+Rebuild the Content Service admin bundle:
+
+```powershell
+cd services/content-service
+npm run build
+npm run develop
+```
+
+### VNPay payment URL generation fails
+
+Set sandbox credentials in `services/payment-service/.env` or the payment
+container environment:
+
+```env
+VNPAY_TMN_CODE=<sandbox terminal code>
+VNPAY_HASH_SECRET=<sandbox hash secret>
+```
+
+### Frontend still calls an old API host
+
+Vite prefers `.env.local` over `.env`. Confirm `Travel_TVB/.env.local` contains:
+
+```env
+VITE_API_GATEWAY_URL=http://localhost:8000
+```
+
+Then restart `npm run dev`.
+
+## Reference folders
+
+| Path | Purpose |
+| --- | --- |
+| `Travel_TVB/` | React frontend |
+| `services/` | Extracted microservices and Kong config |
+| `libs/shared/` | Shared TS and Python helpers |
+| `infra/` | Docker Compose, Kubernetes, observability, reverse proxy, backups |
+| `tests/e2e/` | Playwright end-to-end suite |
+| `tests/chaos/` | Chaos and resilience scenarios |
+| `archives/sqlite-final.db` | Final archived monolith SQLite snapshot |
+| `Travel_TVB_Server/` | Legacy Strapi monolith kept for reference during migration |
