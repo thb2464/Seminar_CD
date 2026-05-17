@@ -119,12 +119,12 @@ export class PaymentService {
           payment.vnpayTransactionNo = transactionNo;
           await this.paymentRepo.save(payment);
 
-          await this.publisher.publish(PAYMENT_COMPLETED, {
+          void this.publisher.publish(PAYMENT_COMPLETED, {
             bookingId,
             paymentRef: txnRef,
             transactionNo,
             amount: payment.amount,
-          });
+          }).catch(() => undefined);
         }
       }
       return { url: `${frontendUrl}/payment-return?status=success&bookingId=${bookingId || ''}`, status: 'success', bookingId: bookingIdStr };
@@ -142,11 +142,11 @@ export class PaymentService {
       payment.status = 'Failed';
       await this.paymentRepo.save(payment);
 
-      await this.publisher.publish(PAYMENT_FAILED, {
+      void this.publisher.publish(PAYMENT_FAILED, {
         bookingId,
         paymentRef: payment.paymentRef,
         amount: payment.amount,
-      });
+      }).catch(() => undefined);
     }
   }
 

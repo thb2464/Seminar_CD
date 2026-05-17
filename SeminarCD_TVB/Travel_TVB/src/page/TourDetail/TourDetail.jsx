@@ -171,56 +171,65 @@ const TourDetail = () => {
       setLoading(true);
       setError(null);
 
-      const populateQuery = 'populate=*';
-      const filterQuery = `filters[slug][$eq]=${slug}`;
+      // catalog-service exposes /api/tours/slug/<slug>?locale=... directly.
       const localeQuery = `locale=${currentLanguage.code}`;
-
-      const apiUrl = `${config.STRAPI_URL}${config.API_ENDPOINTS.TOURS}?${populateQuery}&${filterQuery}&${localeQuery}`;
+      const apiUrl = `${config.STRAPI_URL}${config.API_ENDPOINTS.TOURS}/slug/${encodeURIComponent(slug)}?${localeQuery}`;
 
       try {
         const response = await fetch(apiUrl);
         if (!response.ok) throw new Error(`API error! Status: ${response.status}`);
-        const json = await response.json();
-
-        const tourData = json.data?.[0];
-        if (!tourData) {
+        const tourData = await response.json();
+        if (!tourData || !tourData.id) {
           setError('Tour not found');
           return;
         }
 
-        // Process image URLs
-        const processedDescription = (tourData.Description || []).map(block => {
+        // Resolve relative /uploads/... URLs against the gateway origin.
+        const resolveUrl = (u) =>
+          !u ? '' : (u.startsWith('http') ? u : `${config.STRAPI_URL}${u}`);
+
+        const processedDescription = (tourData.description || []).map(block => {
           if (block.type === 'image' && block.image?.url) {
-            const url = block.image.url;
-            if (url.startsWith('http')) return block;
-            return { ...block, image: { ...block.image, url: `${config.STRAPI_URL}${url}` } };
+            return { ...block, image: { ...block.image, url: resolveUrl(block.image.url) } };
           }
           return block;
         });
 
-        const processedItinerary = (tourData.Itinerary || []).map(block => {
+        const processedItinerary = (tourData.itinerary || []).map(block => {
           if (block.type === 'image' && block.image?.url) {
-            const url = block.image.url;
-            if (url.startsWith('http')) return block;
-            return { ...block, image: { ...block.image, url: `${config.STRAPI_URL}${url}` } };
+            return { ...block, image: { ...block.image, url: resolveUrl(block.image.url) } };
           }
           return block;
         });
 
+        // Map catalog-service camelCase shape -> legacy fields the JSX renders.
         setTour({
           ...tourData,
+          Tour_Name: tourData.tourName,
+          Short_Description: tourData.shortDescription,
+          Price: tourData.price,
+          Original_Price: tourData.originalPrice,
+          Child_Price: tourData.childPrice,
+          Duration_Days: tourData.durationDays,
+          Duration_Nights: tourData.durationNights,
+          Max_Participants: tourData.maxParticipants,
+          Rating: tourData.rating,
+          Review_Count: tourData.reviewCount,
+          Region: tourData.region,
+          Location: tourData.location,
+          Departure_Location: tourData.departureLocation,
+          Transport_Type: tourData.transportType,
+          Highlights: tourData.highlights || [],
           Description: processedDescription,
           Itinerary: processedItinerary,
-          featuredImageUrl: tourData.Featured_Image?.url
-            ? (tourData.Featured_Image.url.startsWith('http')
-              ? tourData.Featured_Image.url
-              : `${config.STRAPI_URL}${tourData.Featured_Image.url}`)
+          featuredImageUrl: tourData.featuredImageUrl
+            ? resolveUrl(tourData.featuredImageUrl)
             : 'https://picsum.photos/seed/tour/1200/500',
-          galleryImages: (tourData.Gallery || []).map(img => ({
-            url: img.url.startsWith('http') ? img.url : `${config.STRAPI_URL}${img.url}`,
-            alt: img.alternativeText || tourData.Tour_Name,
+          galleryImages: (tourData.gallery || []).map(img => ({
+            url: resolveUrl(img.url),
+            alt: img.alternativeText || tourData.tourName,
           })),
-          categoryName: tourData.tour_category?.Category_Name || '',
+          categoryName: '',
         });
       } catch (err) {
         console.error('Failed to fetch tour:', err);

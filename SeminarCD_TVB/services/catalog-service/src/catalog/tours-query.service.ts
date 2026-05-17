@@ -67,10 +67,13 @@ export class ToursQueryService {
     };
   }
 
-  async findById(id: number, locale: SupportedLocale = 'vi'): Promise<Tour> {
-    const tour = await this.tours.findOne({ where: { id, locale } });
+  async findById(id: number, _locale: SupportedLocale = 'vi'): Promise<Tour> {
+    // id is the PK and unique on its own. The locale param is accepted for
+    // backwards compatibility with the controller signature but ignored so a
+    // tour can be fetched from any of its localised rows.
+    const tour = await this.tours.findOne({ where: { id } });
     if (!tour) {
-      throw new NotFoundException(`Tour ${id} not found in locale ${locale}`);
+      throw new NotFoundException(`Tour ${id} not found`);
     }
     return tour;
   }

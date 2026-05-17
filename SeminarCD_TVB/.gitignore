@@ -17,3 +17,18 @@ ecosystem.config.cjs
 # Context files (local-only prompts)
 Context.md
 PLAN.md
+
+# Secrets — every service ships an .env.example; the real .env stays local
+**/.env
+!**/.env.example
+
+# User-provided data dump (PII, uploads). Not source code.
+Data/
+
+# Legacy SQLite snapshots — large binaries, kept locally not in git
+archives/*.db
+**/.tmp/
+
+# Generated Playwright/Vitest output
+test-results/
+playwright-report/

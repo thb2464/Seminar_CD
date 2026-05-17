@@ -84,9 +84,10 @@ class VectorStore:
         async with self._lock:
             if self._collection is None:
                 self._collection = await asyncio.to_thread(
-                    self._client.get_or_create_collection,
-                    self._collection_name,
-                    {"description": "Tour data embeddings for RAG chatbot"},
+                    lambda: self._client.get_or_create_collection(
+                        name=self._collection_name,
+                        metadata={"description": "Tour data embeddings for RAG chatbot"},
+                    )
                 )
         return self._collection
 
@@ -100,10 +101,11 @@ class VectorStore:
         embedding = await self._gemini.embed(query)
 
         result = await asyncio.to_thread(
-            collection.query,
-            [embedding],
-            n_results,
-            {"language": language},
+            lambda: collection.query(
+                query_embeddings=[embedding],
+                n_results=n_results,
+                where={"language": language},
+            )
         )
         if _no_hits(result) and language != "en":
             logger.info(
@@ -111,10 +113,11 @@ class VectorStore:
                 extra={"requested_language": language},
             )
             result = await asyncio.to_thread(
-                collection.query,
-                [embedding],
-                n_results,
-                {"language": "en"},
+                lambda: collection.query(
+                    query_embeddings=[embedding],
+                    n_results=n_results,
+                    where={"language": "en"},
+                )
             )
         if _no_hits(result):
             logger.info("vector store falling back to unfiltered search")
@@ -136,11 +139,12 @@ class VectorStore:
             texts = [doc.content for doc in chunk]
             embeddings = await self._embed_batch(texts)
             await asyncio.to_thread(
-                collection.upsert,
-                [doc.id for doc in chunk],
-                texts,
-                embeddings,
-                [doc.metadata for doc in chunk],
+                lambda: collection.upsert(
+                    ids=[doc.id for doc in chunk],
+                    embeddings=embeddings,
+                    metadatas=[doc.metadata for doc in chunk],
+                    documents=texts,
+                )
             )
             total += len(chunk)
             logger.info(
@@ -167,9 +171,10 @@ class VectorStore:
     async def clear_collection(self) -> None:
         await asyncio.to_thread(self._client.delete_collection, self._collection_name)
         self._collection = await asyncio.to_thread(
-            self._client.get_or_create_collection,
-            self._collection_name,
-            {"description": "Tour data embeddings for RAG chatbot"},
+            lambda: self._client.get_or_create_collection(
+                name=self._collection_name,
+                metadata={"description": "Tour data embeddings for RAG chatbot"},
+            )
         )
         logger.info("vector store cleared", extra={"collection": self._collection_name})
 

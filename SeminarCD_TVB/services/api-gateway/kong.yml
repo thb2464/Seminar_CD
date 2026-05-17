@@ -31,7 +31,7 @@ consumers:
     jwt_secrets:
       - key: identity-service
         algorithm: HS256
-        secret: change-me-in-prod
+        secret: tfveeuvNF8jWyhE2wrqkHYG9yB05sRZYiND9phu2tqg=
 
 services:
   # --- AI Chatbot Service (Sprint 1) ---------------------------------------------
@@ -216,6 +216,15 @@ services:
     read_timeout: 10000
     retries: 1
     routes:
+      # Serve uploaded media (images/videos) through the gateway. Strapi puts these
+      # at /uploads/* — the frontend's <img src="/uploads/..."> URLs go through here.
+      - name: content-uploads
+        protocols: [http, https]
+        paths:
+          - /uploads
+        methods: [GET, OPTIONS]
+        strip_path: false
+
       - name: content-api
         protocols: [http, https]
         paths:
@@ -264,6 +273,37 @@ services:
           - /api/bookings/availability
         methods: [GET, OPTIONS]
         strip_path: false
+
+      - name: booking-admin
+        protocols: [http, https]
+        paths:
+          - /api/bookings/admin
+        methods: [GET, OPTIONS]
+        strip_path: false
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify: [exp]
+              key_claim_name: iss
+              run_on_preflight: false
+          - name: post-function
+            config:
+              access:
+                - |
+                    local jwt_decoder = require "kong.plugins.jwt.jwt_parser"
+                    local token = kong.ctx.shared.authenticated_jwt_token or ngx.ctx.authenticated_jwt_token
+                    if token then
+                      local parsed = jwt_decoder:new(token)
+                      if parsed then
+                        local claims = parsed.claims
+                        if claims and claims.sub then
+                          kong.service.request.set_header("X-User-Id", tostring(claims.sub))
+                        end
+                        if claims and claims.role then
+                          kong.service.request.set_header("X-User-Role", tostring(claims.role))
+                        end
+                      end
+                    end
 
       - name: booking-protected
         protocols: [http, https]

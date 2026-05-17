@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Param, Query, UseGuards, ParseIntPipe, Htt
 import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UserGuard } from '../common/user.guard';
+import { AdminGuard } from '../common/admin.guard';
 import { CurrentUser } from '../common/current-user.decorator';
 
 @Controller('api/bookings')
@@ -30,5 +31,21 @@ export class BookingController {
   @Post(':id/cancel')
   cancelBooking(@CurrentUser() user: any, @Param('id', ParseIntPipe) id: number) {
     return this.bookingService.cancelBooking(user, id);
+  }
+
+  // --- Admin ---------------------------------------------------------------
+  // Listed and ordered before any other admin work because `/admin/all` and
+  // `/admin/stats` must match before the wildcard `:id/cancel` route would.
+
+  @UseGuards(AdminGuard)
+  @Get('admin/all')
+  adminListAll(@Query('limit') limit?: string) {
+    return this.bookingService.adminListAll(limit ? parseInt(limit, 10) : 200);
+  }
+
+  @UseGuards(AdminGuard)
+  @Get('admin/stats')
+  adminStats() {
+    return this.bookingService.adminStats();
   }
 }

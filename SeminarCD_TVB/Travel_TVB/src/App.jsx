@@ -3,7 +3,7 @@
 import React from 'react';
 // 1. Import useLocation and AnimatePresence
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion'; 
+import { AnimatePresence } from 'framer-motion';
 
 import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
@@ -16,6 +16,7 @@ import ChatbotWidget from './components/ChatbotWidget/ChatbotWidget.jsx';
 
 import PageLayout from './components/PageLayout/PageLayout.jsx';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute.jsx';
+import AdminRoute from './components/AdminRoute/AdminRoute.jsx';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary.jsx';
 
 // Pages
@@ -36,6 +37,12 @@ import TourDetail from './page/TourDetail/TourDetail.jsx';
 import PaymentReturn from './page/PaymentReturn/PaymentReturn.jsx';
 import BookingTicket from './page/BookingTicket/BookingTicket.jsx';
 
+// Admin (rendered without the public Navbar/Footer/Newsletter chrome)
+import AdminLayout from './page/Admin/AdminLayout.jsx';
+import AdminDashboard from './page/Admin/AdminDashboard.jsx';
+import AdminTours from './page/Admin/AdminTours.jsx';
+import AdminBookings from './page/Admin/AdminBookings.jsx';
+
 import './App.css';
 
 /**
@@ -44,48 +51,63 @@ import './App.css';
  */
 function AppContent() {
   const location = useLocation();
+  // /admin/* renders a console-style layout without the public Navbar/Footer.
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
     <AuthProvider>
       <LanguageProvider>
         <ScrollToTop />
-        <div className="App minimal-scrollbar">
-          <Home_Navbar />
-          <main className="main-content">
+        {isAdminRoute ? (
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="tours" element={<AdminTours />} />
+                <Route path="bookings" element={<AdminBookings />} />
+              </Route>
+            </Routes>
+          </ErrorBoundary>
+        ) : (
+          <div className="App minimal-scrollbar">
+            <Home_Navbar />
+            <main className="main-content">
+              <ErrorBoundary>
+                <AnimatePresence mode="wait">
+                  <Routes location={location} key={location.pathname}>
+                    <Route path="/" element={<PageLayout><Home /></PageLayout>} />
+                    <Route path="/about" element={<PageLayout><AboutUs /></PageLayout>} />
+                    <Route path="/service" element={<PageLayout><Service /></PageLayout>} />
+                    <Route path="/contact" element={<PageLayout><Contact /></PageLayout>} />
+                    <Route path="/news" element={<PageLayout><News /></PageLayout>} />
+                    <Route path="/community" element={<PageLayout><Community /></PageLayout>} />
+                    <Route path="/service/:slug" element={<PageLayout><IndividualService /></PageLayout>} />
+                    <Route path="/news/:slug" element={<PageLayout><IndividualPost /></PageLayout>} />
+                    <Route path="/community/:slug" element={<PageLayout><IndividualCommunityPost /></PageLayout>} />
+                    <Route path="/tours" element={<PageLayout><Tours /></PageLayout>} />
+                    <Route path="/tours/:slug" element={<PageLayout><TourDetail /></PageLayout>} />
+                    <Route path="/login" element={<PageLayout><Login /></PageLayout>} />
+                    <Route path="/register" element={<PageLayout><Register /></PageLayout>} />
+                    <Route path="/profile" element={<PageLayout><ProtectedRoute><Profile /></ProtectedRoute></PageLayout>} />
+                    <Route path="/payment-return" element={<PageLayout><PaymentReturn /></PageLayout>} />
+                    <Route path="/booking/:id/ticket" element={<PageLayout><ProtectedRoute><BookingTicket /></ProtectedRoute></PageLayout>} />
+                  </Routes>
+                </AnimatePresence>
+              </ErrorBoundary>
+            </main>
             <ErrorBoundary>
-              <AnimatePresence mode="wait">
-                <Routes location={location} key={location.pathname}>
-                  <Route path="/" element={<PageLayout><Home /></PageLayout>} />
-                  <Route path="/about" element={<PageLayout><AboutUs /></PageLayout>} />
-                  <Route path="/service" element={<PageLayout><Service /></PageLayout>} />
-                  <Route path="/contact" element={<PageLayout><Contact /></PageLayout>} />
-                  <Route path="/news" element={<PageLayout><News /></PageLayout>} />
-                  <Route path="/community" element={<PageLayout><Community /></PageLayout>} />
-                  <Route path="/service/:slug" element={<PageLayout><IndividualService /></PageLayout>} />
-                  <Route path="/news/:slug" element={<PageLayout><IndividualPost /></PageLayout>} />
-                  <Route path="/community/:slug" element={<PageLayout><IndividualCommunityPost /></PageLayout>} />
-                  <Route path="/tours" element={<PageLayout><Tours /></PageLayout>} />
-                  <Route path="/tours/:slug" element={<PageLayout><TourDetail /></PageLayout>} />
-                  <Route path="/login" element={<PageLayout><Login /></PageLayout>} />
-                  <Route path="/register" element={<PageLayout><Register /></PageLayout>} />
-                  <Route path="/profile" element={<PageLayout><ProtectedRoute><Profile /></ProtectedRoute></PageLayout>} />
-                  <Route path="/payment-return" element={<PageLayout><PaymentReturn /></PageLayout>} />
-                  <Route path="/booking/:id/ticket" element={<PageLayout><ProtectedRoute><BookingTicket /></ProtectedRoute></PageLayout>} />
-                </Routes>
-              </AnimatePresence>
+              <Newsletter />
             </ErrorBoundary>
-          </main>
-          <ErrorBoundary>
-            <Newsletter />
-          </ErrorBoundary>
-          <ErrorBoundary>
-            <Footer />
-          </ErrorBoundary>
-          <ScrollToTopButton />
-          <ErrorBoundary>
-            <ChatbotWidget />
-          </ErrorBoundary>
-        </div>
+            <ErrorBoundary>
+              <Footer />
+            </ErrorBoundary>
+            <ScrollToTopButton />
+            <ErrorBoundary>
+              <ChatbotWidget />
+            </ErrorBoundary>
+          </div>
+        )}
       </LanguageProvider>
     </AuthProvider>
   );

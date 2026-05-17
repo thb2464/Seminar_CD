@@ -33,7 +33,7 @@ export class BookingService {
         throw new Error('Failed to fetch tour');
       }
       const json = await response.json();
-      tour = json.data;
+      tour = json?.data ?? json;
     } catch (err) {
       if (err instanceof NotFoundException) throw err;
       throw new InternalServerErrorException('Could not connect to catalog service.');
@@ -76,7 +76,7 @@ export class BookingService {
         throw new Error('Failed to fetch tour');
       }
       const json = await response.json();
-      tour = json.data;
+      tour = json?.data ?? json;
     } catch (err) {
       if (err instanceof NotFoundException) throw err;
       throw new InternalServerErrorException('Could not connect to catalog service.');
@@ -122,8 +122,11 @@ export class BookingService {
     });
 
     const savedBooking = await this.bookingRepo.save(booking);
-    
-    await this.eventsPublisher.publishBookingCreated(savedBooking).catch(() => undefined);
+
+    // Fire-and-forget — RabbitMQ publish must not block the user's response.
+    // Without confirm channels the publisher would otherwise stall on a bad
+    // connection and Kong would 504 even though the booking is already saved.
+    void this.eventsPublisher.publishBookingCreated(savedBooking).catch(() => undefined);
 
     return {
       data: {
@@ -151,8 +154,9 @@ export class BookingService {
         );
         const results = await Promise.all(tourPromises);
         results.forEach(res => {
-          if (res && res.data) {
-            tourMap[res.data.id] = { name: res.data.tourName || res.data.tour_name, slug: res.data.slug };
+          const t = res?.data ?? res;
+          if (t && t.id) {
+            tourMap[t.id] = { name: t.tourName || t.tour_name, slug: t.slug };
           }
         });
       } catch (e) {
@@ -181,6 +185,143 @@ export class BookingService {
     });
 
     return { data: enrichedBookings };
+  }
+
+  /** Admin: every booking joined with its tour name/slug. */
+  async adminListAll(limit = 200) {
+    const bookings = await this.bookingRepo.find({
+      order: { bookingDate: 'DESC' },
+      take: Math.min(Math.max(1, limit), 1000),
+    });
+    const tourIds = [...new Set(bookings.map((b) => b.tourId))];
+    const tourMap: Record<number, { name: string; slug: string }> = {};
+    if (tourIds.length > 0) {
+      const results = await Promise.all(
+        tourIds.map((id) =>
+          fetch(`${this.catalogUrl}/api/tours/${id}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .catch(() => null),
+        ),
+      );
+      for (const res of results) {
+        const t = res?.data ?? res;
+        if (t && t.id) {
+          tourMap[t.id] = {
+            name: t.tourName || t.tour_name || 'Unknown',
+            slug: t.slug || '',
+          };
+        }
+      }
+    }
+    return {
+      data: bookings.map((b) => ({
+        id: b.id,
+        user_id: b.userId,
+        tour_id: b.tourId,
+        tour_name: tourMap[b.tourId]?.name || 'Unknown Tour',
+        tour_slug: tourMap[b.tourId]?.slug || '',
+        adult_count: b.adultCount,
+        child_count: b.childCount,
+        travel_date: b.travelDate,
+        total_price: b.totalPrice,
+        status: b.status,
+        payment_ref: b.paymentRef,
+        booking_date: b.bookingDate,
+        contact_name: b.contactName,
+        contact_email: b.contactEmail,
+        contact_phone: b.contactPhone,
+        refund_amount: b.refundAmount,
+        refund_status: b.refundStatus,
+        cancelled_at: b.cancelledAt,
+      })),
+    };
+  }
+
+  /** Admin: pre-aggregated stats for the dashboard. */
+  async adminStats() {
+    const today = new Date().toISOString().split('T')[0];
+
+    const totalsByStatus = await this.bookingRepo
+      .createQueryBuilder('b')
+      .select('b.status', 'status')
+      .addSelect('COUNT(*)', 'count')
+      .addSelect('COALESCE(SUM(b.total_price), 0)', 'revenue')
+      .groupBy('b.status')
+      .getRawMany();
+
+    // Bookings grouped by the month they were placed (last 12 months).
+    const monthly = await this.bookingRepo
+      .createQueryBuilder('b')
+      .select("to_char(b.booking_date, 'YYYY-MM')", 'month')
+      .addSelect('COUNT(*)', 'count')
+      .addSelect('COALESCE(SUM(b.total_price), 0)', 'revenue')
+      .where("b.booking_date IS NOT NULL")
+      .andWhere("b.booking_date > NOW() - INTERVAL '12 months'")
+      .groupBy('month')
+      .orderBy('month', 'ASC')
+      .getRawMany();
+
+    // Upcoming tours: travel dates that haven't happened yet (status Pending/Paid).
+    const upcoming = await this.bookingRepo
+      .createQueryBuilder('b')
+      .select('b.tour_id', 'tour_id')
+      .addSelect('b.travel_date', 'travel_date')
+      .addSelect(
+        'SUM(b.adult_count + b.child_count)',
+        'pax',
+      )
+      .where('b.travel_date >= :today', { today })
+      .andWhere("b.status IN ('Pending', 'Paid')")
+      .groupBy('b.tour_id, b.travel_date')
+      .orderBy('b.travel_date', 'ASC')
+      .limit(20)
+      .getRawMany();
+
+    const tourIds = [...new Set(upcoming.map((u) => Number(u.tour_id)))];
+    const tourMap: Record<number, string> = {};
+    if (tourIds.length > 0) {
+      const results = await Promise.all(
+        tourIds.map((id) =>
+          fetch(`${this.catalogUrl}/api/tours/${id}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .catch(() => null),
+        ),
+      );
+      for (const res of results) {
+        const t = res?.data ?? res;
+        if (t && t.id) tourMap[t.id] = t.tourName || t.tour_name || 'Unknown';
+      }
+    }
+
+    return {
+      data: {
+        totals: {
+          totalBookings: totalsByStatus.reduce((s, r) => s + parseInt(r.count, 10), 0),
+          totalRevenue: totalsByStatus
+            .filter((r) => r.status === 'Paid')
+            .reduce((s, r) => s + parseInt(r.revenue || '0', 10), 0),
+          pending: parseInt(totalsByStatus.find((r) => r.status === 'Pending')?.count || '0', 10),
+          paid: parseInt(totalsByStatus.find((r) => r.status === 'Paid')?.count || '0', 10),
+          cancelled: parseInt(totalsByStatus.find((r) => r.status === 'Cancelled')?.count || '0', 10),
+        },
+        byStatus: totalsByStatus.map((r) => ({
+          status: r.status,
+          count: parseInt(r.count, 10),
+          revenue: parseInt(r.revenue || '0', 10),
+        })),
+        monthly: monthly.map((r) => ({
+          month: r.month,
+          count: parseInt(r.count, 10),
+          revenue: parseInt(r.revenue || '0', 10),
+        })),
+        upcoming: upcoming.map((u) => ({
+          tour_id: Number(u.tour_id),
+          tour_name: tourMap[Number(u.tour_id)] || 'Unknown',
+          travel_date: u.travel_date,
+          pax: parseInt(u.pax, 10),
+        })),
+      },
+    };
   }
 
   async cancelBooking(user: any, bookingId: number) {
@@ -230,7 +371,7 @@ export class BookingService {
 
     await this.bookingRepo.save(booking);
 
-    await this.eventsPublisher.publishBookingCancelled(booking).catch(() => undefined);
+    void this.eventsPublisher.publishBookingCancelled(booking).catch(() => undefined);
 
     return {
       data: {

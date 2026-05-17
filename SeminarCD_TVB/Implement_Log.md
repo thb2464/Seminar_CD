@@ -1787,6 +1787,82 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 ---
 
+### A1 — Post-cutover stabilisation: 5 silent bugs + first full E2E sweep — 2026-05-17
+
+**What was done**
+- Brought the entire microservices stack up under Docker Desktop end-to-end. Migrated 87 uploads + Strapi snapshot from the legacy `Data/` dump into content-service.
+- Identified and fixed 5 production-blocking bugs that survived the F7.x cutover.
+- Wrote a Playwright + MS Edge browser sweep covering Home, Tours, all tour detail pages, Register/Login, Profile, About/News/Community/Service/Contact, the chatbot widget, and the authenticated booking form. 44/44 checks green.
+
+**Bugs fixed**
+1. `GET /api/bookings/availability` returned 404 for any tour the user browsed in EN. Root cause: catalog `findById(id, locale)` filtered by `locale`, but tour `id` is a per-locale row PK — `id=1` only exists in EN, `id=3` is the same canonical tour in VI. Fixed by dropping the locale filter on direct id lookups (catalog `tours-query.service.ts`).
+2. Booking-service expected `{data: ...}` wrapper from catalog but catalog `/api/tours/:id` returns the flat object. Result was 500 on availability and on the `myBookings` enrichment. Fixed by accepting both shapes (`json?.data ?? json`).
+3. `POST /api/bookings` returned 504 (Kong write_timeout hit at 10s) because `await eventsPublisher.publishBookingCreated(...)` blocked forever. The booking row was being saved to Postgres but the response never reached the client. Fixed by changing all event publishes to fire-and-forget (`void publisher.publish().catch(...)`) in both booking-service and payment-service.
+4. Root cause for (3): every service's RabbitMQ connection was failing with `PLAIN login refused: user 'guest' - invalid credentials`. `definitions.json` shipped with a bad `password_hash` for the `guest` user, which overrides the `RABBITMQ_DEFAULT_PASS` env var. Replaced with plain `"password": "guest"`. All 4 subscribers now register consumers; cross-service event flow restored.
+5. Payment-service had the same `await this.publisher.publish(...)` pattern in `processVnpayReturn` and `markPaymentFailed`. Same fix applied.
+
+**Files touched**
+- `services/catalog-service/src/catalog/tours-query.service.ts`
+- `services/booking-service/src/booking/booking.service.ts`
+- `services/payment-service/src/payment/payment.service.ts`
+- `infra/rabbitmq/definitions.json`
+- `services/api-gateway/kong.yml` (Kong sandbox needed `KONG_UNTRUSTED_LUA_SANDBOX_REQUIRES=kong.plugins.jwt.jwt_parser` so the post-function plugin could decode JWTs for `X-User-Id` / `X-User-Role` headers; `KONG_UNTRUSTED_LUA=sandbox` set in compose env)
+- `infra/docker-compose.yml`, `infra/docker-compose.services.yml` (orchestration for all 6 services on the shared `travel-tvb-local` network)
+
+**Decisions**
+- RabbitMQ definitions live in version control; password regression in plain-password form is acceptable for a dev/seminar stack — production should switch to a hashed secret loaded via environment substitution.
+- Event publishes were already wrapped in `.catch()` — the missing piece was the `await`. Keeping the call as `void publisher.publish().catch(() => undefined)` documents that the publish is non-blocking by design.
+
+**Issues / unknowns**
+- Kong's 502 on `/api/tours` list endpoint during the very first sweep was a cold-start artefact; could not reproduce afterwards. Left as a footnote.
+- HEAD on `/uploads/*` returns 404 because the Kong route only enables `GET, OPTIONS`. Browsers always use GET for `<img>`, so users are unaffected. Not fixing.
+
+**Next**
+- See A2 (admin console) below.
+
+---
+
+### A2 — Admin console (Dashboard, Tours CRUD, Bookings) — 2026-05-17
+
+**What was done**
+- Added a self-contained `/admin/*` console to the React frontend. Admin routes bypass the public Navbar/Footer/Newsletter/Chatbot for a dedicated console look.
+- Added 2 admin endpoints to booking-service: `GET /api/bookings/admin/all` (list every booking enriched with tour name/slug) and `GET /api/bookings/admin/stats` (totals by status, monthly aggregate, upcoming departures). Both behind a new `AdminGuard` that requires `X-User-Role: admin`.
+- New Kong route `booking-admin` matches `/api/bookings/admin` (more specific path; Kong picks it before the `/api/bookings` JWT-protected wildcard).
+- Installed Recharts in the frontend. Dashboard renders 4 stat cards, a Bar chart (last 12 months of bookings + revenue in millions ₫), a Pie chart (status breakdown), a recent-bookings table, an upcoming-tours table, and two CSV-export buttons.
+- Tours tab pulls inventory from all 3 locales and exposes Create / Edit / Delete using catalog-service's existing `POST/PUT/DELETE /api/tours` admin endpoints (already JWT + `AdminOnlyGuard`-protected pre-A2).
+- Bookings tab is a searchable + status-filterable table over the same admin/all endpoint with CSV export for the filtered set.
+- Admin guard component: redirects to `/login` when anonymous, renders a 403 page when role ≠ admin.
+
+**Files added**
+- `services/booking-service/src/common/admin.guard.ts`
+- `Travel_TVB/src/components/AdminRoute/AdminRoute.jsx`
+- `Travel_TVB/src/page/Admin/{AdminLayout,AdminDashboard,AdminTours,AdminBookings}.jsx`
+- `Travel_TVB/src/page/Admin/Admin.css`
+
+**Files touched**
+- `services/booking-service/src/booking/booking.{controller,service}.ts` — admin endpoints
+- `services/api-gateway/kong.yml` — `booking-admin` route
+- `Travel_TVB/src/App.jsx` — split admin vs public layout via `location.pathname.startsWith('/admin')`
+- `Travel_TVB/src/config/strapi.js` — `ADMIN_BOOKINGS_ALL`, `ADMIN_BOOKINGS_STATS`
+- `Travel_TVB/package.json` — added `recharts`
+
+**Test coverage**
+- 24/24 Playwright tests pass on the admin console: unauthenticated → `/login`, non-admin → 403, admin login → dashboard, all four stat cards rendered, both chart SVGs rendered, CSV download triggered, sidebar nav, full Tour create→edit→delete lifecycle, Bookings search + status filter, zero console errors, zero `/api/*` 5xx across the whole admin session.
+
+**Admin credentials (dev/seminar only)**
+- `admin@traveltvb.com` / `AdminTVB!2026` — promoted via SQL after registering through `/api/auth/local/register`.
+
+**Decisions**
+- Tour CRUD lives in catalog-service (already there from F3). The new admin endpoints are only what *was missing*: a way to read all bookings + stats. No "thin proxy" tour content type was added back to Strapi.
+- Stats are computed in the booking-service (one round-trip; predictable cost) rather than aggregated client-side. The frontend still does the recent-bookings + filter UI in-memory because the dataset is small (<1k rows in this project).
+- Recharts chosen over Chart.js because it integrates better with React 19 component composition.
+
+**Next**
+- Could add a Settings tab (admin password reset, payment provider toggle).
+- Could expose admin endpoints for catalog `tour-categories` CRUD (currently the Tours form references region/transport enums; categories aren't editable from the UI).
+
+---
+
 ## How to update this log
 After each feature:
 1. Mark the checkbox `[x]` next to the feature ID above.

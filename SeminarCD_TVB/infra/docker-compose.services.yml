@@ -1,0 +1,110 @@
+name: travel-tvb-services
+
+# Top-level orchestration for the 6 Travel TVB microservices.
+# Joins the external `travel-tvb-local` network created by infra/docker-compose.yml,
+# so all infra components (postgres, rabbitmq, chromadb, redis, kong) are reachable
+# by their service-DNS names (e.g. `postgres`, `rabbitmq`, `chromadb`).
+#
+# Usage (run from repo root, AFTER infra/docker-compose.yml is up):
+#   docker compose -f infra/docker-compose.services.yml up -d --build
+
+services:
+  identity-service:
+    build:
+      context: ../services/identity-service
+      dockerfile: Dockerfile
+    container_name: travel-tvb-identity-service
+    env_file:
+      - ../services/identity-service/.env
+    environment:
+      DATABASE_HOST: postgres
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    ports:
+      - "3000:3000"
+    networks:
+      - travel-tvb-local
+
+  catalog-service:
+    build:
+      context: ../services/catalog-service
+      dockerfile: Dockerfile
+    container_name: travel-tvb-catalog-service
+    env_file:
+      - ../services/catalog-service/.env
+    environment:
+      DATABASE_HOST: postgres
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    ports:
+      - "3001:3001"
+    networks:
+      - travel-tvb-local
+
+  booking-service:
+    build:
+      context: ../services/booking-service
+      dockerfile: Dockerfile
+    container_name: travel-tvb-booking-service
+    env_file:
+      - ../services/booking-service/.env
+    environment:
+      DATABASE_HOST: postgres
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      CATALOG_SERVICE_URL: http://catalog-service:3001
+    ports:
+      - "3002:3002"
+    networks:
+      - travel-tvb-local
+
+  payment-service:
+    build:
+      context: ../services/payment-service
+      dockerfile: Dockerfile
+    container_name: travel-tvb-payment-service
+    env_file:
+      - ../services/payment-service/.env
+    environment:
+      DATABASE_HOST: postgres
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    ports:
+      - "3003:3003"
+    networks:
+      - travel-tvb-local
+
+  content-service:
+    build:
+      context: ../services/content-service
+      dockerfile: Dockerfile
+    container_name: travel-tvb-content-service
+    env_file:
+      - ../services/content-service/.env
+    volumes:
+      # Mount the legacy monolith's SQLite + uploads into the container so we
+      # don't have to re-seed content_db. Same Strapi 5.36 schema, same data.
+      - ../Travel_TVB_Server/.tmp:/app/.tmp
+      - ../Travel_TVB_Server/public/uploads:/app/public/uploads
+    ports:
+      - "1337:1337"
+    networks:
+      - travel-tvb-local
+
+  ai-chatbot-service:
+    build:
+      context: ../services/ai-chatbot-service
+      dockerfile: Dockerfile
+    container_name: travel-tvb-ai-chatbot-service
+    env_file:
+      - ../services/ai-chatbot-service/.env
+    environment:
+      CHROMADB_HOST: chromadb
+      CHROMADB_PORT: "8000"
+      CATALOG_BASE_URL: http://catalog-service:3001
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    ports:
+      - "8080:8080"
+    networks:
+      - travel-tvb-local
+
+networks:
+  travel-tvb-local:
+    name: travel-tvb-local
+    external: true

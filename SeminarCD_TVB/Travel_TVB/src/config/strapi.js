@@ -59,6 +59,8 @@ const config = {
     BOOKINGS: '/api/bookings',
     BOOKING_MY_BOOKINGS: '/api/bookings/my-bookings',
     BOOKING_AVAILABILITY: '/api/bookings/availability',
+    ADMIN_BOOKINGS_ALL: '/api/bookings/admin/all',
+    ADMIN_BOOKINGS_STATS: '/api/bookings/admin/stats',
 
     // --- Payment Service ---
     PAYMENT_CREATE_URL: '/api/payments/create-url',

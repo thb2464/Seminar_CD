@@ -107,13 +107,15 @@ const Tours = () => {
         const response = await fetch(apiUrl);
         if (!response.ok) throw new Error(`API error! Status: ${response.status}`);
         const json = await response.json();
+        // catalog-service uses `name`/`slug` (camelCase). Old Strapi used Category_Name/Category_Slug.
         const categoryList = (json.data || [])
-          .filter(cat => cat.Category_Name)
           .map(cat => ({
             id: cat.id,
-            name: cat.Category_Name,
-            slug: cat.Category_Slug || cat.Category_Name.toLowerCase().replace(/\s+/g, '-'),
-          }));
+            name: cat.name || cat.Category_Name,
+            slug: cat.slug || cat.Category_Slug ||
+              ((cat.name || cat.Category_Name || '').toLowerCase().replace(/\s+/g, '-')),
+          }))
+          .filter(cat => cat.name);
         setCategories(categoryList);
       } catch (err) {
         console.error('Failed to fetch tour categories:', err);
@@ -140,16 +142,16 @@ const Tours = () => {
 
       let filterQuery = '';
       if (activeCategory !== 'all') {
-        filterQuery += `&filters[tour_category][id][$eq]=${activeCategory}`;
+        filterQuery += `&filters[tourCategoryId][$eq]=${activeCategory}`;
       }
       if (searchTerm) {
-        filterQuery += `&filters[Tour_Name][$containsi]=${encodeURIComponent(searchTerm)}`;
+        filterQuery += `&filters[tourName][$containsi]=${encodeURIComponent(searchTerm)}`;
       }
       if (priceRange[0] > 0) {
-        filterQuery += `&filters[Price][$gte]=${priceRange[0]}`;
+        filterQuery += `&filters[price][$gte]=${priceRange[0]}`;
       }
       if (priceRange[1] < 50000000) {
-        filterQuery += `&filters[Price][$lte]=${priceRange[1]}`;
+        filterQuery += `&filters[price][$lte]=${priceRange[1]}`;
       }
 
       const apiUrl = `${config.STRAPI_URL}${config.API_ENDPOINTS.TOURS}?${populateQuery}&${paginationQuery}&${sortQuery}&${localeQuery}${filterQuery}`;
@@ -164,15 +166,15 @@ const Tours = () => {
         // Client-side filtering (fallback for when server ignores query params)
         if (activeCategory !== 'all') {
           const catId = parseInt(activeCategory);
-          tourList = tourList.filter(t => t.tour_category?.id === catId);
+          tourList = tourList.filter(t => t.tourCategoryId === catId);
         }
         if (searchTerm) {
           const term = searchTerm.toLowerCase();
-          tourList = tourList.filter(t => (t.Tour_Name || '').toLowerCase().includes(term));
+          tourList = tourList.filter(t => (t.tourName || '').toLowerCase().includes(term));
         }
         // Price range filter
         tourList = tourList.filter(t => {
-          const p = parseInt(t.Price) || 0;
+          const p = parseInt(t.price) || 0;
           return p >= priceRange[0] && p <= priceRange[1];
         });
 
@@ -181,20 +183,32 @@ const Tours = () => {
         tourList.sort((a, b) => {
           let valA = a[sortField];
           let valB = b[sortField];
-          if (sortField === 'Price') { valA = parseInt(valA) || 0; valB = parseInt(valB) || 0; }
+          if (sortField === 'price') { valA = parseInt(valA) || 0; valB = parseInt(valB) || 0; }
           if (typeof valA === 'string') { valA = valA.toLowerCase(); valB = (valB || '').toLowerCase(); }
           if (valA < valB) return sortDir === 'asc' ? -1 : 1;
           if (valA > valB) return sortDir === 'asc' ? 1 : -1;
           return 0;
         });
 
-        const transformedTours = tourList.map(tour => ({
-          ...tour,
-          featuredImageUrl: tour.Featured_Image?.url
-            ? (tour.Featured_Image.url.startsWith('http') ? tour.Featured_Image.url : `${config.STRAPI_URL}${tour.Featured_Image.url}`)
-            : 'https://picsum.photos/seed/tour/400/300',
-          categoryName: tour.tour_category?.Category_Name || '',
-        }));
+        // Map catalog-service (camelCase) shape -> legacy Strapi shape the TourCard reads.
+        const transformedTours = tourList.map(tour => {
+          const imgUrl = tour.featuredImageUrl;
+          const resolvedImg = imgUrl
+            ? (imgUrl.startsWith('http') ? imgUrl : `${config.STRAPI_URL}${imgUrl}`)
+            : 'https://picsum.photos/seed/tour/400/300';
+          return {
+            ...tour,
+            // Legacy field aliases used by TourCard / TourDetail / search
+            Tour_Name: tour.tourName,
+            Price: tour.price,
+            Rating: tour.rating,
+            Review_Count: tour.reviewCount,
+            Short_Description: tour.shortDescription,
+            Highlights: tour.highlights,
+            featuredImageUrl: resolvedImg,
+            categoryName: '', // Tour-category name comes from a separate endpoint now
+          };
+        });
 
         setTours(transformedTours);
         if (json.meta?.pagination) {
