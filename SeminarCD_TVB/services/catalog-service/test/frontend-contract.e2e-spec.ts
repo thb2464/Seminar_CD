@@ -123,6 +123,14 @@ describe('Frontend contract (Tours.jsx / TourDetail.jsx)', () => {
     expect(first.slug).toBe('hue-tour');
   });
 
+  it('GET /api/tours accepts legacy Strapi query params from the frontend', async () => {
+    await request(app.getHttpServer())
+      .get(
+        '/api/tours?populate[Featured_Image]=true&populate[tour_category]=true&pagination[page]=1&pagination[pageSize]=9&sort=Price:asc&filters[slug][$eq]=hue-tour&locale=vi',
+      )
+      .expect(200);
+  });
+
   it('GET /api/tours/slug/:slug returns a single tour', async () => {
     const response = await request(app.getHttpServer())
       .get('/api/tours/slug/hue-tour?locale=vi')

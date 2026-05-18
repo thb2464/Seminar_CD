@@ -17,18 +17,19 @@ RUN apk add --no-cache vips-dev curl
 
 WORKDIR /app
 
-ENV NODE_ENV=production \
-    NODE_OPTIONS="--require ./src/tracing.js"
+ENV NODE_ENV=production
 
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts && npm rebuild
 
-COPY --from=build /app/dist ./dist
+COPY --from=build /app/build ./build
 COPY --from=build /app/public ./public
 COPY --from=build /app/favicon.png ./favicon.png
 COPY ./config ./config
 COPY ./database ./database
 COPY ./src ./src
+
+ENV NODE_OPTIONS="--require ./src/tracing.js"
 
 EXPOSE 1337
 

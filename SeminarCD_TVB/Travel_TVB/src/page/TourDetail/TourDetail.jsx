@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '../../context/LanguageContext';
 import config from '../../config/strapi';
 import BookingForm from '../../components/BookingForm/BookingForm';
+import { normalizeTour } from '../../utils/normalizeTour';
 import './TourDetail.css';
 
 const transportLabels = {
@@ -188,8 +189,10 @@ const TourDetail = () => {
           return;
         }
 
+        const normalizedTour = normalizeTour(tourData);
+
         // Process image URLs
-        const processedDescription = (tourData.Description || []).map(block => {
+        const processedDescription = (normalizedTour.Description || []).map(block => {
           if (block.type === 'image' && block.image?.url) {
             const url = block.image.url;
             if (url.startsWith('http')) return block;
@@ -198,7 +201,7 @@ const TourDetail = () => {
           return block;
         });
 
-        const processedItinerary = (tourData.Itinerary || []).map(block => {
+        const processedItinerary = (normalizedTour.Itinerary || []).map(block => {
           if (block.type === 'image' && block.image?.url) {
             const url = block.image.url;
             if (url.startsWith('http')) return block;
@@ -208,19 +211,13 @@ const TourDetail = () => {
         });
 
         setTour({
-          ...tourData,
+          ...normalizedTour,
           Description: processedDescription,
           Itinerary: processedItinerary,
-          featuredImageUrl: tourData.Featured_Image?.url
-            ? (tourData.Featured_Image.url.startsWith('http')
-              ? tourData.Featured_Image.url
-              : `${config.STRAPI_URL}${tourData.Featured_Image.url}`)
-            : 'https://picsum.photos/seed/tour/1200/500',
-          galleryImages: (tourData.Gallery || []).map(img => ({
-            url: img.url.startsWith('http') ? img.url : `${config.STRAPI_URL}${img.url}`,
-            alt: img.alternativeText || tourData.Tour_Name,
-          })),
-          categoryName: tourData.tour_category?.Category_Name || '',
+          featuredImageUrl:
+            normalizedTour.featuredImageUrl === 'https://picsum.photos/seed/tour/400/300'
+              ? 'https://picsum.photos/seed/tour/1200/500'
+              : normalizedTour.featuredImageUrl,
         });
       } catch (err) {
         console.error('Failed to fetch tour:', err);

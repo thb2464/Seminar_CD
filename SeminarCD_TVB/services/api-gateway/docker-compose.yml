@@ -9,7 +9,7 @@ version: "3.9"
 
 services:
   kong:
-    image: kong:3.7-alpine
+    image: kong:3.7.1
     container_name: travel-tvb-kong
     environment:
       KONG_DATABASE: "off"

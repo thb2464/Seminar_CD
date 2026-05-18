@@ -343,11 +343,14 @@ services:
                     end
 
 plugins:
-  # Global CORS for the frontend at localhost:5173 plus the production host.
+  # Global CORS for the local frontends plus the production host.
   - name: cors
     config:
       origins:
         - http://localhost:5173
+        - http://127.0.0.1:5173
+        - http://localhost:23841
+        - http://127.0.0.1:23841
         - https://dashboard.lamweb.fun
       methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
       headers: [Authorization, Content-Type, X-Requested-With, X-Forwarded-For, X-Trace-Id, traceparent, baggage]

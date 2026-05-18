@@ -88,6 +88,28 @@ function quoteIdent(name) {
   return `"${name.replace(/"/g, '""')}"`;
 }
 
+function normalizeTimestamp(value) {
+  if (value === null || value === undefined || value === '') return null;
+  if (typeof value === 'number') {
+    return new Date(value > 1_000_000_000_000 ? value : value * 1000);
+  }
+  return value;
+}
+
+function normalizeValue(col, val, row) {
+  if (col === 'created_by_id' || col === 'updated_by_id') {
+    return null;
+  }
+
+  if (col.endsWith('_at')) {
+    const fallbackPublishedAt = row.published_at || row.updated_at || row.created_at;
+    return normalizeTimestamp(col === 'published_at' ? fallbackPublishedAt : val);
+  }
+
+  if (val === null || val === undefined) return null;
+  return val;
+}
+
 // ── Main ─────────────────────────────────────────────────────
 
 async function main() {
@@ -159,26 +181,23 @@ async function main() {
       let skippedRows = 0;
 
       for (const row of rows) {
-        const values = commonCols.map(col => {
-          const val = row[col];
-          // Convert SQLite booleans (0/1) if the value is a strict 0 or 1 number
-          // and the column name suggests boolean semantics
-          if (val === null || val === undefined) return null;
-          return val;
-        });
+        const values = commonCols.map(col => normalizeValue(col, row[col], row));
 
         const colList = commonCols.map(quoteIdent).join(', ');
         const placeholders = commonCols.map((_, i) => `$${i + 1}`).join(', ');
 
         try {
-          await pg.query(
+          const result = await pg.query(
             `INSERT INTO ${quoteIdent(table)} (${colList}) VALUES (${placeholders}) ON CONFLICT DO NOTHING`,
             values
           );
-          inserted++;
+          inserted += result.rowCount;
         } catch (err) {
           // Row-level error — skip and continue
           skippedRows++;
+          if (skippedRows <= 3) {
+            console.log(`    [ROW SKIP] ${table}#${row.id || '?'}: ${err.message}`);
+          }
         }
       }
 

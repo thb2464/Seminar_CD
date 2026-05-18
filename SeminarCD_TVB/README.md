@@ -11,7 +11,7 @@ This README is focused on getting the project running locally.
 Browser
   |
   v
-React frontend, Vite, localhost:5173
+React frontend, Vite, localhost:23841
   |
   v
 Kong API Gateway, localhost:8000
@@ -24,7 +24,7 @@ Kong API Gateway, localhost:8000
   +-- ai-chatbot-service, FastAPI, port 8080
 
 Shared dependencies:
-  PostgreSQL localhost:5432
+  PostgreSQL localhost:5432 by default
   RabbitMQ localhost:5672, management UI localhost:15672
   ChromaDB localhost:8800, container port 8000
   Redis localhost:6379
@@ -71,6 +71,15 @@ Start PostgreSQL, RabbitMQ, ChromaDB, Redis, Pact Broker, and Kong:
 ```powershell
 docker compose -f infra/docker-compose.yml up -d postgres rabbitmq chromadb redis pact-broker kong
 ```
+
+If another local PostgreSQL server already owns host port `5432`, create
+`infra/.env` with a different host port before starting compose:
+
+```env
+POSTGRES_HOST_PORT=55432
+```
+
+Then use that same value for `DATABASE_PORT` in host-run service `.env` files.
 
 Useful local URLs:
 
@@ -592,11 +601,12 @@ npm run dev
 Open:
 
 ```text
-http://localhost:5173
+http://localhost:23841
 ```
 
 The frontend calls Kong at `http://localhost:8000`, and Kong routes requests to
-the six services.
+the six services. Use `23841` for this local setup because Strapi 5's admin
+dev server also uses Vite's default `5173` port.
 
 ## 9. Smoke checks
 
@@ -738,6 +748,16 @@ docker compose -f infra/docker-compose.yml ps postgres
 
 For host-run migrations, `DATABASE_HOST` should be `localhost`. For containers,
 it should be `postgres`.
+
+### PowerShell blocks npm commands
+
+If PowerShell reports that `npm.ps1` cannot be loaded because script execution
+is disabled, use `npm.cmd` in the same command:
+
+```powershell
+npm.cmd --prefix Travel_TVB install
+npm.cmd run start:dev
+```
 
 ### Strapi admin does not load
 

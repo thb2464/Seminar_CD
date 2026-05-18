@@ -50,7 +50,7 @@ Brings up Kong + the AI chatbot service + ChromaDB. The frontend's `VITE_STRAPI_
 ## Validate config
 
 ```bash
-docker run --rm -v $(pwd)/kong.yml:/etc/kong/kong.yml:ro kong:3.7-alpine \
+docker run --rm -v $(pwd)/kong.yml:/etc/kong/kong.yml:ro kong:3.7.1 \
   kong config parse /etc/kong/kong.yml
 ```
 

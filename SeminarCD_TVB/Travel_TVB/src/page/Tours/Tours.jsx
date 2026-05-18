@@ -4,6 +4,7 @@ import config from '../../config/strapi';
 import TourCard from '../../components/TourCard/TourCard';
 import PriceRangeSlider from '../../components/PriceRangeSlider/PriceRangeSlider';
 import AnimateOnScroll from '../../components/AnimateOnScroll/AnimateOnScroll';
+import { normalizeTour } from '../../utils/normalizeTour';
 import './Tours.css';
 
 const SearchIcon = () => (
@@ -159,12 +160,12 @@ const Tours = () => {
         if (!response.ok) throw new Error(`API error! Status: ${response.status}`);
         const json = await response.json();
 
-        let tourList = json.data || [];
+        let tourList = (json.data || []).map(normalizeTour);
 
         // Client-side filtering (fallback for when server ignores query params)
         if (activeCategory !== 'all') {
           const catId = parseInt(activeCategory);
-          tourList = tourList.filter(t => t.tour_category?.id === catId);
+          tourList = tourList.filter(t => t.tour_category?.id === catId || t.tourCategoryId === catId);
         }
         if (searchTerm) {
           const term = searchTerm.toLowerCase();
@@ -188,15 +189,7 @@ const Tours = () => {
           return 0;
         });
 
-        const transformedTours = tourList.map(tour => ({
-          ...tour,
-          featuredImageUrl: tour.Featured_Image?.url
-            ? (tour.Featured_Image.url.startsWith('http') ? tour.Featured_Image.url : `${config.STRAPI_URL}${tour.Featured_Image.url}`)
-            : 'https://picsum.photos/seed/tour/400/300',
-          categoryName: tour.tour_category?.Category_Name || '',
-        }));
-
-        setTours(transformedTours);
+        setTours(tourList);
         if (json.meta?.pagination) {
           setPagination(json.meta.pagination);
         }

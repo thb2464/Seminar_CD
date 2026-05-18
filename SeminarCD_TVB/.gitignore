@@ -10,6 +10,10 @@ migrate-strapi-locales.mjs
 **/coverage/
 .npm-cache/
 .vite-cache/
+.cache/
+.run/
+.env
+.env.local
 
 # Server-specific CD files
 deploy.sh

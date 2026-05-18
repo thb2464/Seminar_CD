@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { Between, ILike, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 
 import { TourQueryDto } from './dto/tour-query.dto';
 import { SupportedLocale } from './entities/tour-category.entity';
@@ -22,6 +22,13 @@ const SORT_WHITELIST = new Set<keyof Tour>([
   'tourName',
   'reviewCount',
 ]);
+
+const SORT_ALIASES: Record<string, keyof Tour> = {
+  Tour_Name: 'tourName',
+  Price: 'price',
+  Rating: 'rating',
+  Review_Count: 'reviewCount',
+};
 
 /**
  * Read-only side of the CQRS split for the catalog.
@@ -87,20 +94,47 @@ export class ToursQueryService {
     const where: Record<string, unknown> = { locale: query.locale };
     const filters = query.filters;
     if (filters?.region) where.region = filters.region;
-    if (filters?.slug) where.slug = filters.slug;
+    const slug = stringValue(readEq(filters?.slug));
+    if (slug) where.slug = slug;
     if (filters?.isFeatured !== undefined) where.isFeatured = filters.isFeatured;
-    if (filters?.categoryId !== undefined) where.tourCategoryId = filters.categoryId;
-    if (filters?.search) where.tourName = ILike(`%${filters.search}%`);
+    const categoryId = filters?.categoryId ?? numberValue(readEq(filters?.tour_category?.id));
+    if (categoryId !== undefined) where.tourCategoryId = categoryId;
+    const search = filters?.search ?? stringValue(filters?.Tour_Name?.$containsi);
+    if (search) where.tourName = ILike(`%${search}%`);
+    const minPrice = numberValue(filters?.Price?.$gte);
+    const maxPrice = numberValue(filters?.Price?.$lte);
+    if (minPrice !== undefined && maxPrice !== undefined) where.price = Between(minPrice, maxPrice);
+    else if (minPrice !== undefined) where.price = MoreThanOrEqual(minPrice);
+    else if (maxPrice !== undefined) where.price = LessThanOrEqual(maxPrice);
     return where;
   }
 
   private buildOrder(sortString?: string): Record<string, 'ASC' | 'DESC'> {
     if (!sortString) return { createdAt: 'DESC' };
     const [rawField, rawDir] = sortString.split(':');
-    if (!rawField || !SORT_WHITELIST.has(rawField as keyof Tour)) {
+    const field = rawField ? SORT_ALIASES[rawField] ?? rawField : undefined;
+    if (!field || !SORT_WHITELIST.has(field as keyof Tour)) {
       return { createdAt: 'DESC' };
     }
     const dir = (rawDir || 'desc').toLowerCase() === 'asc' ? 'ASC' : 'DESC';
-    return { [rawField]: dir };
+    return { [field]: dir };
   }
+}
+
+function readEq(value: unknown): unknown {
+  if (value && typeof value === 'object' && '$eq' in value) {
+    return (value as { $eq?: unknown }).$eq;
+  }
+  return value;
+}
+
+function stringValue(value: unknown): string | undefined {
+  return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+function numberValue(value: unknown): number | undefined {
+  if (typeof value === 'number') return value;
+  if (typeof value !== 'string' || value.length === 0) return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
 }

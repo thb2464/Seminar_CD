@@ -1,0 +1,10 @@
+feat(Sprint 6): complete frontend migration to microservices
+
+- Update API_URL to point to Kong Gateway
+- Update Kong routes for Content API parity
+- Add React ErrorBoundary for graceful degradation
+- Fix payment service route to match Gateway expectations
+- Verify BookingForm and AuthContext integration
+
+Co-authored-by: Tri Van Thai <trivanthai@gmail.com>
+Co-authored-by: Tran Bao <tranbao2464ltk@gmail.com>

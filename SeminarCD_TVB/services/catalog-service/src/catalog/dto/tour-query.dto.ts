@@ -1,5 +1,6 @@
 import { Transform, Type } from 'class-transformer';
 import {
+  Allow,
   IsBoolean,
   IsIn,
   IsInt,
@@ -11,6 +12,10 @@ import {
 
 const LOCALES = ['vi', 'en', 'zh'] as const;
 const REGIONS = ['MienBac', 'MienTrung', 'MienNam', 'TayNguyen', 'NhieuVung'] as const;
+
+type EqFilter<T> = { $eq?: T };
+type ContainsFilter = { $containsi?: string };
+type RangeFilter = { $gte?: number | string; $lte?: number | string };
 
 export class PaginationDto {
   @IsOptional()
@@ -32,9 +37,8 @@ export class TourFilterDto {
   region?: (typeof REGIONS)[number];
 
   @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  slug?: string;
+  @Allow()
+  slug?: string | EqFilter<string>;
 
   @IsOptional()
   @IsString()
@@ -50,6 +54,18 @@ export class TourFilterDto {
   @Type(() => Number)
   @IsInt()
   categoryId?: number;
+
+  @IsOptional()
+  @Allow()
+  tour_category?: { id?: EqFilter<number | string> };
+
+  @IsOptional()
+  @Allow()
+  Tour_Name?: ContainsFilter;
+
+  @IsOptional()
+  @Allow()
+  Price?: RangeFilter;
 }
 
 export class TourQueryDto {
@@ -69,4 +85,8 @@ export class TourQueryDto {
   @IsOptional()
   @Type(() => TourFilterDto)
   filters?: TourFilterDto;
+
+  @IsOptional()
+  @Allow()
+  populate?: unknown;
 }

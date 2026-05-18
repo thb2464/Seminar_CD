@@ -3,7 +3,7 @@ FROM node:20-alpine AS builder
 WORKDIR /srv/app
 
 COPY package.json package-lock.json* ./
-RUN npm ci --ignore-scripts
+RUN npm ci
 
 COPY tsconfig*.json nest-cli.json ./
 COPY src ./src

@@ -32,20 +32,20 @@ export class ToursController {
     return this.toursQuery.list(query);
   }
 
-  @Get(':id')
-  findOne(
-    @Param('id', ParseIntPipe) id: number,
-    @Query('locale') locale: SupportedLocale = 'vi',
-  ): Promise<Tour> {
-    return this.toursQuery.findById(id, locale);
-  }
-
   @Get('slug/:slug')
   findBySlug(
     @Param('slug') slug: string,
     @Query('locale') locale: SupportedLocale = 'vi',
   ): Promise<Tour> {
     return this.toursQuery.findBySlug(slug, locale);
+  }
+
+  @Get(':id')
+  findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('locale') locale: SupportedLocale = 'vi',
+  ): Promise<Tour> {
+    return this.toursQuery.findById(id, locale);
   }
 
   @UseGuards(AdminOnlyGuard)
