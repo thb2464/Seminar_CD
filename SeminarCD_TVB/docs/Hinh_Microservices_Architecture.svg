@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Travel TVB — Microservice Architecture (High-Level Overview)
+  ============================================================
+  Source of truth for the architecture diagram. Keep in sync with
+  MICROSERVICES_PLAN.md and the service folders under services/.
+
+  Layout (1600 x 1000 viewBox, left gutter for layer labels, top-to-bottom):
+    x=  0 - 145   Layer-label gutter (PRESENTATION / API GATEWAY / ...)
+    x=150 -1550   Diagram content area
+
+    y=  20 -  60   Title + subtitle
+    y=  80 - 160   Presentation layer  (React SPA)
+    y= 190 - 270   API Gateway layer   (Kong)
+    y= 310 - 470   Microservices       (6 services in a row, w=200 each)
+    y= 500 - 580   Data layer          (PostgreSQL x5 + ChromaDB + Redis)
+    y= 610 - 770   Messaging layer     (RabbitMQ + 3 exchanges)
+    y= 795 - 885   External systems    (VNPay + Google Gemini)
+    y= 910 - 980   Legend
+
+  Service centres x = 250, 490, 730, 970, 1210, 1450
+  Service widths   = 200, gap = 40.
+
+  Logos: each component gets a simplified, brand-coloured inline SVG icon
+  (defined as <symbol> in <defs> and instantiated with <use>). They are
+  decorative monogram-style hints, not pixel-perfect reproductions of the
+  official logos, to avoid trademark/copyright concerns in a uni report.
+
+  Editing tips:
+    * Components are wrapped in <g id="..."> for easy selection.
+    * Colour roles live in the <style> block in <defs>.
+    * #sync-flows / #async-flows are separate groups — toggle independently.
+    * Layer labels (#layer-labels) render LAST, with a white text halo,
+      so they sit on top of any boxes that bleed into the gutter.
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1600 1000"
+     width="1600" height="1000"
+     font-family="'Segoe UI', 'Inter', system-ui, Arial, sans-serif">
+
+  <title>Travel TVB — Microservice Architecture (High-Level Overview)</title>
+  <desc>
+    High-level architecture: React SPA frontend talks to Kong API Gateway,
+    which routes to six microservices (Identity, Catalog, Booking, Payment,
+    Content, AI Chatbot). Each service owns its data store (PostgreSQL,
+    ChromaDB, or Redis). Domain events flow asynchronously through a
+    RabbitMQ message broker. External integrations: VNPay sandbox and the
+    Google Gemini API.
+  </desc>
+
+  <defs>
+    <!-- Soft drop shadow for every box -->
+    <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+
+    <!-- Arrowheads -->
+    <marker id="arrow-sync" viewBox="0 0 12 12" refX="10" refY="6"
+            markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,1 L11,6 L0,11 z" fill="#334155"/>
+    </marker>
+    <marker id="arrow-async" viewBox="0 0 12 12" refX="10" refY="6"
+            markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,1 L11,6 L0,11 z" fill="#b45309"/>
+    </marker>
+
+    <!-- Gemini logo gradient -->
+    <linearGradient id="gemini-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#4285f4"/>
+      <stop offset="55%"  stop-color="#9b72cb"/>
+      <stop offset="100%" stop-color="#d96570"/>
+    </linearGradient>
+
+    <!-- ========================================================== -->
+    <!-- TECH LOGOS (simplified brand-coloured monograms / shapes)   -->
+    <!-- ========================================================== -->
+
+    <!-- React: atom (3 ellipses around a nucleus) -->
+    <symbol id="logo-react" viewBox="-32 -32 64 64">
+      <circle r="5" fill="#61dafb"/>
+      <g fill="none" stroke="#61dafb" stroke-width="2.5">
+        <ellipse rx="30" ry="11"/>
+        <ellipse rx="30" ry="11" transform="rotate(60)"/>
+        <ellipse rx="30" ry="11" transform="rotate(120)"/>
+      </g>
+    </symbol>
+
+    <!-- Vite: lightning bolt -->
+    <symbol id="logo-vite" viewBox="0 0 24 24">
+      <path d="M 14 2 L 5 13 L 11 13 L 9 22 L 19 9 L 13 9 Z" fill="#646cff"/>
+    </symbol>
+
+    <!-- Kong: dark teal badge with "K" -->
+    <symbol id="logo-kong" viewBox="0 0 24 24">
+      <rect x="2" y="2" width="20" height="20" rx="3" fill="#003459"/>
+      <text x="12" y="17.5" font-size="14" font-weight="900" fill="#00d3a9"
+            text-anchor="middle" font-family="Arial, sans-serif">K</text>
+    </symbol>
+
+    <!-- NestJS: red hexagon with "N" -->
+    <symbol id="logo-nestjs" viewBox="0 0 24 24">
+      <polygon points="12,1.5 22,7 22,17 12,22.5 2,17 2,7" fill="#e0234e"/>
+      <text x="12" y="16" font-size="11" font-weight="900" fill="white"
+            text-anchor="middle" font-family="Arial, sans-serif">N</text>
+    </symbol>
+
+    <!-- Strapi: indigo square with "S" -->
+    <symbol id="logo-strapi" viewBox="0 0 24 24">
+      <rect x="2" y="2" width="20" height="20" rx="3" fill="#4945ff"/>
+      <text x="12" y="17.5" font-size="14" font-weight="900" fill="white"
+            text-anchor="middle" font-family="Arial, sans-serif">S</text>
+    </symbol>
+
+    <!-- FastAPI: teal circle (subtle nod to the framework's signature colour) -->
+    <symbol id="logo-fastapi" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" fill="#009688"/>
+      <path d="M 12 4 L 8.5 13 L 12 13 L 10 20 L 16 11 L 12.5 11 Z" fill="white"/>
+    </symbol>
+
+    <!-- PostgreSQL: blue disc with "Pg" -->
+    <symbol id="logo-postgres" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="11" fill="#336791"/>
+      <text x="12" y="16" font-size="10" font-weight="900" fill="white"
+            text-anchor="middle" font-family="Arial, sans-serif">Pg</text>
+    </symbol>
+
+    <!-- Redis: red stacked cubes -->
+    <symbol id="logo-redis" viewBox="0 0 24 24">
+      <polygon points="2,8 12,3 22,8 12,13" fill="#a41e11"/>
+      <polygon points="2,14 12,9 22,14 12,19" fill="#dc382d"/>
+      <polygon points="12,3 22,8 12,13" fill="#7a1810" fill-opacity="0.4"/>
+      <polygon points="12,9 22,14 12,19" fill="#7a1810" fill-opacity="0.4"/>
+    </symbol>
+
+    <!-- ChromaDB: three overlapping circles -->
+    <symbol id="logo-chromadb" viewBox="0 0 24 24">
+      <circle cx="9"  cy="10" r="6" fill="#ffd400" fill-opacity="0.9"/>
+      <circle cx="15" cy="10" r="6" fill="#ff7043" fill-opacity="0.85"/>
+      <circle cx="12" cy="15" r="6" fill="#42a5f5" fill-opacity="0.85"/>
+    </symbol>
+
+    <!-- RabbitMQ: orange rabbit silhouette -->
+    <symbol id="logo-rabbitmq" viewBox="0 0 24 24">
+      <ellipse cx="8"  cy="6"  rx="2" ry="4" fill="#ff6600"/>
+      <ellipse cx="16" cy="6"  rx="2" ry="4" fill="#ff6600"/>
+      <circle  cx="12" cy="14" r="7"        fill="#ff6600"/>
+      <circle  cx="9.5"  cy="13" r="1.1" fill="white"/>
+      <circle  cx="14.5" cy="13" r="1.1" fill="white"/>
+      <path d="M 10 16 Q 12 18 14 16" stroke="white" stroke-width="1" fill="none" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- VNPay: blue/yellow badge -->
+    <symbol id="logo-vnpay" viewBox="0 0 24 24">
+      <rect x="2" y="2" width="20" height="20" rx="3" fill="#0070c0"/>
+      <text x="12" y="11" font-size="6.5" font-weight="900" fill="white"
+            text-anchor="middle" font-family="Arial, sans-serif">VN</text>
+      <text x="12" y="19" font-size="6"   font-weight="900" fill="#fcca37"
+            text-anchor="middle" font-family="Arial, sans-serif">PAY</text>
+    </symbol>
+
+    <!-- Google Gemini: 4-pointed sparkle with Google gradient -->
+    <symbol id="logo-gemini" viewBox="0 0 24 24">
+      <path d="M 12 1.5 L 13.7 9.3 L 22.5 12 L 13.7 14.7 L 12 22.5 L 10.3 14.7 L 1.5 12 L 10.3 9.3 Z"
+            fill="url(#gemini-grad)"/>
+    </symbol>
+
+    <!-- ========================================================== -->
+    <style><![CDATA[
+      .box-frontend  { fill: #dbeafe; stroke: #2563eb; stroke-width: 2; }
+      .box-gateway   { fill: #fed7aa; stroke: #ea580c; stroke-width: 2; }
+      .box-service   { fill: #bbf7d0; stroke: #16a34a; stroke-width: 2; }
+      .box-db        { fill: #ede9fe; stroke: #7c3aed; stroke-width: 2; }
+      .box-cache     { fill: #fee2e2; stroke: #be123c; stroke-width: 2; }
+      .box-vector    { fill: #fce7f3; stroke: #be185d; stroke-width: 2; }
+      .box-bus       { fill: #fef9c3; stroke: #ca8a04; stroke-width: 2; }
+      .box-exchange  { fill: #fde68a; stroke: #b45309; stroke-width: 1.4; }
+      .box-external  { fill: #fecaca; stroke: #dc2626; stroke-width: 2; }
+      .box-legend    { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1; }
+
+      .t-title       { font-size: 26px; font-weight: 700; fill: #0f172a; }
+      .t-subtitle    { font-size: 14px;                     fill: #475569; }
+      .t-layer-label { font-size: 11px; font-weight: 700;   fill: #475569; letter-spacing: 2px;
+                       paint-order: stroke; stroke: #ffffff; stroke-width: 4px;
+                       stroke-linejoin: round; stroke-linecap: round; }
+      .t-name        { font-size: 15px; font-weight: 700;   fill: #0f172a; }
+      .t-name-small  { font-size: 13px; font-weight: 700;   fill: #0f172a; }
+      .t-stack       { font-size: 11px;                     fill: #334155; }
+      .t-port        { font-size: 11px; font-weight: 600;   fill: #64748b; }
+      .t-desc        { font-size: 11px;                     fill: #475569; }
+      .t-bus-title   { font-size: 18px; font-weight: 700;   fill: #92400e; }
+      .t-exchange    { font-size: 13px; font-weight: 700;   fill: #92400e; }
+      .t-event       { font-size: 11px; font-weight: 500;   fill: #78350f; }
+
+      .arrow-sync     { stroke: #334155; stroke-width: 1.8; fill: none; marker-end: url(#arrow-sync); }
+      .arrow-sync-thin{ stroke: #475569; stroke-width: 1.4; fill: none; marker-end: url(#arrow-sync); }
+      .arrow-async    { stroke: #b45309; stroke-width: 1.8; fill: none;
+                        stroke-dasharray: 7 4; marker-end: url(#arrow-async); }
+      .arrow-async-bi { stroke: #b45309; stroke-width: 1.8; fill: none;
+                        stroke-dasharray: 7 4;
+                        marker-start: url(#arrow-async); marker-end: url(#arrow-async); }
+
+      .divider { stroke: #86efac; stroke-width: 1; }
+    ]]></style>
+  </defs>
+
+  <rect width="1600" height="1000" fill="#ffffff"/>
+
+  <!-- ============================================================ -->
+  <!-- TITLE                                                         -->
+  <!-- ============================================================ -->
+  <g id="title">
+    <text x="850" y="32" text-anchor="middle" class="t-title">Travel TVB — Microservice Architecture</text>
+    <text x="850" y="55" text-anchor="middle" class="t-subtitle">High-level overview · 6 services behind a Kong gateway · RabbitMQ event bus</text>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- PRESENTATION LAYER                                            -->
+  <!-- ============================================================ -->
+  <g id="frontend-layer">
+    <rect class="box-frontend" x="670" y="80" width="360" height="80" rx="10" ry="10" filter="url(#soft-shadow)"/>
+    <use href="#logo-react" x="685" y="92" width="24" height="24"/>
+    <use href="#logo-vite"  x="985" y="93" width="22" height="22"/>
+    <text x="850" y="112" text-anchor="middle" class="t-name">React SPA — Frontend</text>
+    <text x="850" y="132" text-anchor="middle" class="t-stack">Vite 7  ·  React 19  ·  React Router</text>
+    <text x="850" y="150" text-anchor="middle" class="t-port">Port 5173</text>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- API GATEWAY LAYER                                             -->
+  <!-- ============================================================ -->
+  <g id="gateway-layer">
+    <rect class="box-gateway" x="150" y="190" width="1400" height="80" rx="10" ry="10" filter="url(#soft-shadow)"/>
+    <use href="#logo-kong" x="165" y="216" width="28" height="28"/>
+    <text x="850" y="218" text-anchor="middle" class="t-name">Kong API Gateway</text>
+    <text x="850" y="240" text-anchor="middle" class="t-stack">DB-less mode  ·  JWT validation  ·  request routing &amp; rewrites  ·  X-User-Id / X-User-Role injection</text>
+    <text x="850" y="258" text-anchor="middle" class="t-port">Proxy :8000   ·   Admin :8001</text>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- MICROSERVICES LAYER (6 services, w=200, h=160, y=310)         -->
+  <!-- ============================================================ -->
+  <g id="services-layer">
+
+    <!-- Identity -->
+    <g id="svc-identity">
+      <rect class="box-service" x="150" y="310" width="200" height="160" rx="10" ry="10" filter="url(#soft-shadow)"/>
+      <use href="#logo-nestjs" x="160" y="320" width="22" height="22"/>
+      <text x="250" y="338" text-anchor="middle" class="t-name">Identity Service</text>
+      <text x="250" y="358" text-anchor="middle" class="t-stack">NestJS 10  ·  TypeORM</text>
+      <text x="250" y="376" text-anchor="middle" class="t-port">Port 3000</text>
+      <line class="divider" x1="170" y1="388" x2="330" y2="388"/>
+      <text x="250" y="410" text-anchor="middle" class="t-desc">Authentication &amp; JWT</text>
+      <text x="250" y="428" text-anchor="middle" class="t-desc">Users, Roles, Sessions</text>
+      <text x="250" y="446" text-anchor="middle" class="t-desc">bcrypt · Passport-JWT</text>
+    </g>
+
+    <!-- Catalog -->
+    <g id="svc-catalog">
+      <rect class="box-service" x="390" y="310" width="200" height="160" rx="10" ry="10" filter="url(#soft-shadow)"/>
+      <use href="#logo-nestjs" x="400" y="320" width="22" height="22"/>
+      <text x="490" y="338" text-anchor="middle" class="t-name">Catalog Service</text>
+      <text x="490" y="358" text-anchor="middle" class="t-stack">NestJS 10  ·  TypeORM</text>
+      <text x="490" y="376" text-anchor="middle" class="t-port">Port 3001</text>
+      <line class="divider" x1="410" y1="388" x2="570" y2="388"/>
+      <text x="490" y="410" text-anchor="middle" class="t-desc">Tours, Categories, Regions</text>
+      <text x="490" y="428" text-anchor="middle" class="t-desc">Itineraries, Pricing</text>
+      <text x="490" y="446" text-anchor="middle" class="t-desc">i18n: vi · en · zh</text>
+    </g>
+
+    <!-- Booking -->
+    <g id="svc-booking">
+      <rect class="box-service" x="630" y="310" width="200" height="160" rx="10" ry="10" filter="url(#soft-shadow)"/>
+      <use href="#logo-nestjs" x="640" y="320" width="22" height="22"/>
+      <text x="730" y="338" text-anchor="middle" class="t-name">Booking Service</text>
+      <text x="730" y="358" text-anchor="middle" class="t-stack">NestJS 10  ·  TypeORM</text>
+      <text x="730" y="376" text-anchor="middle" class="t-port">Port 3002</text>
+      <line class="divider" x1="650" y1="388" x2="810" y2="388"/>
+      <text x="730" y="410" text-anchor="middle" class="t-desc">Bookings &amp; availability</text>
+      <text x="730" y="428" text-anchor="middle" class="t-desc">Cancellation, refunds</text>
+      <text x="730" y="446" text-anchor="middle" class="t-desc">Saga participant</text>
+    </g>
+
+    <!-- Payment -->
+    <g id="svc-payment">
+      <rect class="box-service" x="870" y="310" width="200" height="160" rx="10" ry="10" filter="url(#soft-shadow)"/>
+      <use href="#logo-nestjs" x="880" y="320" width="22" height="22"/>
+      <text x="970" y="338" text-anchor="middle" class="t-name">Payment Service</text>
+      <text x="970" y="358" text-anchor="middle" class="t-stack">NestJS 10  ·  TypeORM</text>
+      <text x="970" y="376" text-anchor="middle" class="t-port">Port 3003</text>
+      <line class="divider" x1="890" y1="388" x2="1050" y2="388"/>
+      <text x="970" y="410" text-anchor="middle" class="t-desc">VNPay integration</text>
+      <text x="970" y="428" text-anchor="middle" class="t-desc">HMAC-signed callbacks</text>
+      <text x="970" y="446" text-anchor="middle" class="t-desc">Refund orchestration</text>
+    </g>
+
+    <!-- Content -->
+    <g id="svc-content">
+      <rect class="box-service" x="1110" y="310" width="200" height="160" rx="10" ry="10" filter="url(#soft-shadow)"/>
+      <use href="#logo-strapi" x="1120" y="320" width="22" height="22"/>
+      <text x="1210" y="338" text-anchor="middle" class="t-name">Content Service</text>
+      <text x="1210" y="358" text-anchor="middle" class="t-stack">Strapi 5  ·  Headless CMS</text>
+      <text x="1210" y="376" text-anchor="middle" class="t-port">Port 1337</text>
+      <line class="divider" x1="1130" y1="388" x2="1290" y2="388"/>
+      <text x="1210" y="410" text-anchor="middle" class="t-desc">Blogs, FAQ, pages</text>
+      <text x="1210" y="428" text-anchor="middle" class="t-desc">Layouts &amp; sections</text>
+      <text x="1210" y="446" text-anchor="middle" class="t-desc">Newsletter, authors</text>
+    </g>
+
+    <!-- AI Chatbot -->
+    <g id="svc-chatbot">
+      <rect class="box-service" x="1350" y="310" width="200" height="160" rx="10" ry="10" filter="url(#soft-shadow)"/>
+      <use href="#logo-fastapi" x="1360" y="320" width="22" height="22"/>
+      <text x="1450" y="338" text-anchor="middle" class="t-name">AI Chatbot Service</text>
+      <text x="1450" y="358" text-anchor="middle" class="t-stack">FastAPI  ·  Python</text>
+      <text x="1450" y="376" text-anchor="middle" class="t-port">Port 8080</text>
+      <line class="divider" x1="1370" y1="388" x2="1530" y2="388"/>
+      <text x="1450" y="410" text-anchor="middle" class="t-desc">RAG chatbot</text>
+      <text x="1450" y="428" text-anchor="middle" class="t-desc">Tour embeddings + LLM</text>
+      <text x="1450" y="446" text-anchor="middle" class="t-desc">Rate-limited Q&amp;A</text>
+    </g>
+
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- DATA LAYER                                                    -->
+  <!-- ============================================================ -->
+  <g id="data-layer">
+
+    <g id="db-identity">
+      <rect class="box-db" x="170" y="500" width="160" height="80" rx="10" ry="10" filter="url(#soft-shadow)"/>
+      <use href="#logo-postgres" x="178" y="510" width="18" height="18"/>
+      <text x="250" y="524" text-anchor="middle" class="t-name-small">PostgreSQL</text>
+      <text x="250" y="546" text-anchor="middle" class="t-stack" font-style="italic">identity_db</text>
+      <text x="250" y="566" text-anchor="middle" class="t-port">:5432</text>
+    </g>
+
+    <g id="db-catalog">
+      <rect class="box-db" x="410" y="500" width="160" height="80" rx="10" ry="10" filter="url(#soft-shadow)"/>
+      <use href="#logo-postgres" x="418" y="510" width="18" height="18"/>
+      <text x="490" y="524" text-anchor="middle" class="t-name-small">PostgreSQL</text>
+      <text x="490" y="546" text-anchor="middle" class="t-stack" font-style="italic">catalog_db</text>
+      <text x="490" y="566" text-anchor="middle" class="t-port">:5432</text>
+    </g>
+
+    <g id="db-booking">
+      <rect class="box-db" x="650" y="500" width="160" height="80" rx="10" ry="10" filter="url(#soft-shadow)"/>
+      <use href="#logo-postgres" x="658" y="510" width="18" height="18"/>
+      <text x="730" y="524" text-anchor="middle" class="t-name-small">PostgreSQL</text>
+      <text x="730" y="546" text-anchor="middle" class="t-stack" font-style="italic">booking_db</text>
+      <text x="730" y="566" text-anchor="middle" class="t-port">:5432</text>
+    </g>
+
+    <g id="db-payment">
+      <rect class="box-db" x="890" y="500" width="160" height="80" rx="10" ry="10" filter="url(#soft-shadow)"/>
+      <use href="#logo-postgres" x="898" y="510" width="18" height="18"/>
+      <text x="970" y="524" text-anchor="middle" class="t-name-small">PostgreSQL</text>
+      <text x="970" y="546" text-anchor="middle" class="t-stack" font-style="italic">payment_db</text>
+      <text x="970" y="566" text-anchor="middle" class="t-port">:5432</text>
+    </g>
+
+    <g id="db-content">
+      <rect class="box-db" x="1130" y="500" width="160" height="80" rx="10" ry="10" filter="url(#soft-shadow)"/>
+      <use href="#logo-postgres" x="1138" y="510" width="18" height="18"/>
+      <text x="1210" y="524" text-anchor="middle" class="t-name-small">PostgreSQL</text>
+      <text x="1210" y="546" text-anchor="middle" class="t-stack" font-style="italic">content_db</text>
+      <text x="1210" y="566" text-anchor="middle" class="t-port">:5432</text>
+    </g>
+
+    <g id="db-chroma">
+      <rect class="box-vector" x="1355" y="500" width="90" height="80" rx="10" ry="10" filter="url(#soft-shadow)"/>
+      <use href="#logo-chromadb" x="1362" y="508" width="16" height="16"/>
+      <text x="1400" y="522" text-anchor="middle" class="t-name-small">ChromaDB</text>
+      <text x="1400" y="544" text-anchor="middle" class="t-stack" font-style="italic">vectors</text>
+      <text x="1400" y="566" text-anchor="middle" class="t-port">:8800</text>
+    </g>
+
+    <g id="db-redis">
+      <rect class="box-cache" x="1455" y="500" width="90" height="80" rx="10" ry="10" filter="url(#soft-shadow)"/>
+      <use href="#logo-redis" x="1462" y="508" width="16" height="16"/>
+      <text x="1500" y="522" text-anchor="middle" class="t-name-small">Redis</text>
+      <text x="1500" y="544" text-anchor="middle" class="t-stack" font-style="italic">cache</text>
+      <text x="1500" y="566" text-anchor="middle" class="t-port">:6379</text>
+    </g>
+
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- MESSAGING LAYER — RabbitMQ box with exchanges + event lists   -->
+  <!-- ============================================================ -->
+  <g id="messaging-layer">
+    <rect class="box-bus" x="200" y="610" width="1300" height="160" rx="12" ry="12" filter="url(#soft-shadow)"/>
+    <use href="#logo-rabbitmq" x="220" y="624" width="28" height="28"/>
+    <text x="850" y="638" text-anchor="middle" class="t-bus-title">RabbitMQ Message Broker</text>
+    <text x="850" y="657" text-anchor="middle" class="t-stack">AMQP :5672   ·   Management UI :15672   ·   Durable topic exchanges</text>
+
+    <!-- Exchange 1: booking.events -->
+    <g id="exch-booking">
+      <rect class="box-exchange" x="267" y="678" width="300" height="26" rx="8" ry="8"/>
+      <text x="417" y="697" text-anchor="middle" class="t-exchange">booking.events</text>
+      <text x="417" y="722" text-anchor="middle" class="t-event">BookingCreated</text>
+      <text x="417" y="738" text-anchor="middle" class="t-event">BookingCancelled</text>
+    </g>
+
+    <!-- Exchange 2: catalog.events -->
+    <g id="exch-catalog">
+      <rect class="box-exchange" x="700" y="678" width="300" height="26" rx="8" ry="8"/>
+      <text x="850" y="697" text-anchor="middle" class="t-exchange">catalog.events</text>
+      <text x="850" y="722" text-anchor="middle" class="t-event">TourCreated</text>
+      <text x="850" y="738" text-anchor="middle" class="t-event">TourUpdated</text>
+      <text x="850" y="754" text-anchor="middle" class="t-event">TourDeleted</text>
+    </g>
+
+    <!-- Exchange 3: payment.events -->
+    <g id="exch-payment">
+      <rect class="box-exchange" x="1133" y="678" width="300" height="26" rx="8" ry="8"/>
+      <text x="1283" y="697" text-anchor="middle" class="t-exchange">payment.events</text>
+      <text x="1283" y="722" text-anchor="middle" class="t-event">PaymentCompleted</text>
+      <text x="1283" y="738" text-anchor="middle" class="t-event">PaymentFailed</text>
+      <text x="1283" y="754" text-anchor="middle" class="t-event">RefundProcessed</text>
+    </g>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- EXTERNAL SERVICES                                             -->
+  <!-- ============================================================ -->
+  <g id="external-layer">
+
+    <g id="ext-vnpay">
+      <rect class="box-external" x="870" y="795" width="200" height="90" rx="10" ry="10" filter="url(#soft-shadow)"/>
+      <use href="#logo-vnpay" x="880" y="805" width="22" height="22"/>
+      <text x="970" y="823" text-anchor="middle" class="t-name">VNPay Sandbox</text>
+      <text x="970" y="843" text-anchor="middle" class="t-stack">Vietnamese payment gateway</text>
+      <text x="970" y="861" text-anchor="middle" class="t-desc">HTTPS  ·  HMAC-SHA512 signed</text>
+      <text x="970" y="879" text-anchor="middle" class="t-port">External 3rd-party</text>
+    </g>
+
+    <g id="ext-gemini">
+      <rect class="box-external" x="1350" y="795" width="200" height="90" rx="10" ry="10" filter="url(#soft-shadow)"/>
+      <use href="#logo-gemini" x="1360" y="805" width="22" height="22"/>
+      <text x="1450" y="823" text-anchor="middle" class="t-name">Google Gemini API</text>
+      <text x="1450" y="841" text-anchor="middle" class="t-stack">gemini-2.5-flash  (LLM)</text>
+      <text x="1450" y="859" text-anchor="middle" class="t-stack">gemini-embedding-001</text>
+      <text x="1450" y="879" text-anchor="middle" class="t-port">External 3rd-party</text>
+    </g>
+
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- SYNC REST / HTTP FLOWS (solid arrows)                         -->
+  <!-- ============================================================ -->
+  <g id="sync-flows">
+
+    <!-- Frontend → Gateway -->
+    <path class="arrow-sync" d="M 850 160 V 188"/>
+    <text x="862" y="180" class="t-desc" font-size="11">HTTPS · JWT</text>
+
+    <!-- Gateway → 6 services -->
+    <path class="arrow-sync" d="M 250  270 V 308"/>
+    <path class="arrow-sync" d="M 490  270 V 308"/>
+    <path class="arrow-sync" d="M 730  270 V 308"/>
+    <path class="arrow-sync" d="M 970  270 V 308"/>
+    <path class="arrow-sync" d="M 1210 270 V 308"/>
+    <path class="arrow-sync" d="M 1450 270 V 308"/>
+
+    <!-- Service → data store (thin) -->
+    <path class="arrow-sync-thin" d="M 250  470 V 498"/>
+    <path class="arrow-sync-thin" d="M 490  470 V 498"/>
+    <path class="arrow-sync-thin" d="M 730  470 V 498"/>
+    <path class="arrow-sync-thin" d="M 970  470 V 498"/>
+    <path class="arrow-sync-thin" d="M 1210 470 V 498"/>
+    <path class="arrow-sync-thin" d="M 1400 470 V 498"/>   <!-- Chatbot → ChromaDB -->
+    <path class="arrow-sync-thin" d="M 1500 470 V 498"/>   <!-- Chatbot → Redis    -->
+
+    <!-- Payment → VNPay (crosses RabbitMQ vertically, between catalog.events and payment.events chips) -->
+    <path class="arrow-sync" d="M 1070 470 V 781 H 970 V 793"/>
+
+    <!-- AI Chatbot → Google Gemini (routes outside RabbitMQ right edge) -->
+    <path class="arrow-sync" d="M 1550 470 V 781 H 1450 V 793"/>
+
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- ASYNC EVENT FLOWS (dashed)                                    -->
+  <!-- ============================================================ -->
+  <g id="async-flows">
+
+    <!-- Catalog → bus (publishes catalog.events) -->
+    <path class="arrow-async" d="M 590 470 V 608"/>
+
+    <!-- Booking ↔ bus (publishes booking.events; consumes payment.events) -->
+    <path class="arrow-async-bi" d="M 830 460 V 608"/>
+
+    <!-- Payment ↔ bus (publishes payment.events; consumes booking.events) -->
+    <path class="arrow-async-bi" d="M 870 460 V 608"/>
+
+    <!-- Bus → AI Chatbot (consumes catalog.events for re-indexing) -->
+    <!-- Quadratic bezier: rises in the gap between content_db and ChromaDB,
+         then bends right into Chatbot's bottom centre.                     -->
+    <path class="arrow-async" d="M 1320 610 Q 1320 485 1450 472"/>
+
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- LEGEND                                                        -->
+  <!-- ============================================================ -->
+  <g id="legend">
+    <rect class="box-legend" x="150" y="910" width="1400" height="70" rx="8" ry="8"/>
+
+    <line x1="190" y1="945" x2="250" y2="945" stroke="#334155" stroke-width="1.8" marker-end="url(#arrow-sync)"/>
+    <text x="260" y="949" class="t-desc">Synchronous REST / HTTP call</text>
+
+    <line x1="470" y1="945" x2="530" y2="945" stroke="#b45309" stroke-width="1.8"
+          stroke-dasharray="7 4" marker-end="url(#arrow-async)"/>
+    <text x="540" y="949" class="t-desc">Asynchronous event (RabbitMQ topic exchange)</text>
+
+    <g id="legend-swatches" transform="translate(830, 935)">
+      <rect class="box-frontend" x="0"   y="0" width="20" height="20" rx="4"/>
+      <text x="26"  y="15" class="t-desc">Frontend</text>
+
+      <rect class="box-gateway"  x="90"  y="0" width="20" height="20" rx="4"/>
+      <text x="116" y="15" class="t-desc">Gateway</text>
+
+      <rect class="box-service"  x="180" y="0" width="20" height="20" rx="4"/>
+      <text x="206" y="15" class="t-desc">Service</text>
+
+      <rect class="box-db"       x="265" y="0" width="20" height="20" rx="4"/>
+      <text x="291" y="15" class="t-desc">PostgreSQL</text>
+
+      <rect class="box-vector"   x="380" y="0" width="20" height="20" rx="4"/>
+      <text x="406" y="15" class="t-desc">Vectors</text>
+
+      <rect class="box-cache"    x="470" y="0" width="20" height="20" rx="4"/>
+      <text x="496" y="15" class="t-desc">Cache</text>
+
+      <rect class="box-bus"      x="555" y="0" width="20" height="20" rx="4"/>
+      <text x="581" y="15" class="t-desc">Msg bus</text>
+
+      <rect class="box-external" x="650" y="0" width="20" height="20" rx="4"/>
+      <text x="676" y="15" class="t-desc">External</text>
+    </g>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- LAYER LABELS — rendered LAST so they sit on top of every box. -->
+  <!-- White text halo keeps them readable over any colour.          -->
+  <!-- ============================================================ -->
+  <g id="layer-labels">
+    <text x="20" y="120" class="t-layer-label">PRESENTATION</text>
+    <text x="20" y="230" class="t-layer-label">API GATEWAY</text>
+    <text x="20" y="390" class="t-layer-label">MICROSERVICES</text>
+    <text x="20" y="540" class="t-layer-label">DATA STORES</text>
+    <text x="20" y="690" class="t-layer-label">MESSAGING</text>
+    <text x="20" y="840" class="t-layer-label">EXTERNAL</text>
+    <text x="20" y="945" class="t-layer-label">LEGEND</text>
+  </g>
+
+</svg>
