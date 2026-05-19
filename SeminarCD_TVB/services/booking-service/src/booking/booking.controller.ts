@@ -17,7 +17,7 @@ export class BookingController {
   @UseGuards(UserGuard)
   @Post()
   @HttpCode(201)
-  create(@CurrentUser() user: any, @Body('data') dto: CreateBookingDto) {
+  create(@CurrentUser() user: any, @Body() dto: CreateBookingDto) {
     return this.bookingService.create(user, dto);
   }
 

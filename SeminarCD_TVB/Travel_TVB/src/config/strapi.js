@@ -31,8 +31,6 @@ const config = {
     COREVALUES: '/api/about-core-value',
     SERVICE_HERO: '/api/service-hero',
     SERVICE_INSURANCETYPE: '/api/services-insurance-type',
-    CONTACT_MAP: '/api/contact-map',
-    CONTACT_FORM: '/api/contact-form',
     NEWS_HERO: '/api/news-hero',
     COMMUNITY_HERO: '/api/community-hero',
     INDIVIDUAL_SERVICES: '/api/individual-services',

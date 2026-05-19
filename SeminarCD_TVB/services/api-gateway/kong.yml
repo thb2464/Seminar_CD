@@ -236,8 +236,6 @@ services:
           - /api/layout-cta-banner
           - /api/layout-newsletter
           - /api/form-submissions
-          - /api/contact-map
-          - /api/contact-form
           - /api/services-insurance-type
           - /api/individual-services
           - /api/layout-popular-post

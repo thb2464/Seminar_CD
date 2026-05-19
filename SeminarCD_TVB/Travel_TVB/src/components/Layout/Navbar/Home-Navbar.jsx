@@ -65,8 +65,10 @@ const Home_Navbar = () => {
             path: button.path || '/'
           })) || [],
           navctaButton: {
-            text: data.Nav_button?.Text || 'Contact',
-            path: data.Nav_button?.Url || '/contact'
+            text: data.Nav_button?.Text || 'Đặt tour',
+            // Fallback when Strapi hasn't been seeded — the public /contact page
+            // was retired, so we point at the tour catalog instead.
+            path: data.Nav_button?.Url || '/tours'
           }
         };
 
@@ -85,7 +87,7 @@ const Home_Navbar = () => {
             { text: 'News', path: '/' },
             { text: 'Community', path: '/' }
           ],
-          navctaButton: { text: 'Contact Us', path: '/contact' }
+          navctaButton: { text: 'Book a tour', path: '/tours' }
         });
       } finally {
         setLoading(false);

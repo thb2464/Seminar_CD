@@ -2,7 +2,7 @@
 
 import React from 'react';
 // 1. Import useLocation and AnimatePresence
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
 import { LanguageProvider } from './context/LanguageContext';
@@ -23,7 +23,6 @@ import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary.jsx';
 import Home from './page/Home/Home';
 import AboutUs from './page/AboutUS/AboutUs';
 import Service from './page/Service/Service.jsx';
-import Contact from './page/Contact/Contact.jsx';
 import IndividualService from './page/Individual-Service/Individual-Service.jsx';
 import IndividualPost from './page/Individual-Post/Individual-Post.jsx';
 import News from './page/News/News.jsx';
@@ -79,7 +78,9 @@ function AppContent() {
                     <Route path="/" element={<PageLayout><Home /></PageLayout>} />
                     <Route path="/about" element={<PageLayout><AboutUs /></PageLayout>} />
                     <Route path="/service" element={<PageLayout><Service /></PageLayout>} />
-                    <Route path="/contact" element={<PageLayout><Contact /></PageLayout>} />
+                    {/* /contact retired — page + Form + Map widgets deleted. Redirect any
+                        stale Strapi nav links to / so the demo doesn't 404. */}
+                    <Route path="/contact" element={<Navigate to="/" replace />} />
                     <Route path="/news" element={<PageLayout><News /></PageLayout>} />
                     <Route path="/community" element={<PageLayout><Community /></PageLayout>} />
                     <Route path="/service/:slug" element={<PageLayout><IndividualService /></PageLayout>} />

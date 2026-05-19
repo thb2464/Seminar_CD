@@ -83,7 +83,7 @@ const CtaBanner = () => {
     return (
       <section className="cta-banner-container">
         <h2 className="cta-highlight">Bạn Cần Tư Vấn Chuyên Môn?</h2>
-        <Link to="/contact" className="hero-cta-link">
+        <Link to="/tours" className="hero-cta-link">
           <button className="hero-cta-button">
             Đăng kí tư vấn ngay
              <div className="btn-arrow">
@@ -101,7 +101,7 @@ const CtaBanner = () => {
   return (
     <section className="cta-banner-container">
       <h2 className="cta-highlight">{ctaData.highlight}</h2>
-      <Link to={ctaData.buttonUrl || '/contact'} className="hero-cta-link">
+      <Link to={ctaData.buttonUrl || '/tours'} className="hero-cta-link">
         <button className="hero-cta-button">
           {ctaData.buttonText}
           <div className="btn-arrow">

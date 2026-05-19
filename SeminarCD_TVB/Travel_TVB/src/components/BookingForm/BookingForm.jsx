@@ -169,15 +169,13 @@ const BookingForm = ({ tour }) => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          data: {
-            tour: tour.id,
-            adult_count: adultCount,
-            child_count: childCount,
-            travel_date: travelDate,
-            contact_name: contactName,
-            contact_email: contactEmail,
-            contact_phone: contactPhone,
-          },
+          tour: tour.id,
+          adult_count: adultCount,
+          child_count: childCount,
+          travel_date: travelDate,
+          contact_name: contactName,
+          contact_email: contactEmail,
+          contact_phone: contactPhone,
         }),
       });
 

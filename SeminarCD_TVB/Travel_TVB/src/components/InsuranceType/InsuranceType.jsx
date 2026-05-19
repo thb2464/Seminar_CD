@@ -169,7 +169,7 @@ const InsuranceType = () => {
                   <li key={index}>{item}</li>
                 ))}
               </ul>
-              <Link to="/contact" className="IT-cta-button">
+              <Link to="/tours" className="IT-cta-button">
                 {activeTabData.content.ctaText}
                 <span className="arrow">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
