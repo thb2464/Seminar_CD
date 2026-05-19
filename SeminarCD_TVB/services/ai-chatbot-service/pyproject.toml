@@ -9,7 +9,11 @@ dependencies = [
     "pydantic>=2.9.0",
     "pydantic-settings>=2.6.0",
     "google-generativeai>=0.8.3",
-    "chromadb>=0.5.20",
+    # Pin to 0.5.x — the ChromaDB server is on 0.5.20 (infra/docker-compose.yml).
+    # Client 1.x crashes on get_or_create_collection against a 0.5.x server with
+    # `'dict' object has no attribute 'serialize_to_json'`, so we cap below 1.0.0
+    # until the server is bumped (which requires re-indexing the collection).
+    "chromadb>=0.5.20,<1.0.0",
     "httpx>=0.27.0",
     "aio-pika>=9.4.0",
     "python-json-logger>=2.0.7",
