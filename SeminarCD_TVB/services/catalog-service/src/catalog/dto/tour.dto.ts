@@ -8,12 +8,19 @@ import {
   IsObject,
   IsOptional,
   IsString,
-  IsUrl,
   Length,
+  Matches,
   MaxLength,
   Min,
   ValidateNested,
 } from 'class-validator';
+
+// Accept either an absolute http(s) URL OR a relative path that begins with `/`
+// (e.g. `/uploads/foo.jpg` for Strapi-hosted media, `/tour-uploads/foo.png` for
+// Vite-served public assets). The legacy seed rows ship as relative paths, so a
+// strict `@IsUrl` here breaks the admin uploader against the same data shape.
+const URL_OR_PATH = /^(https?:\/\/[^\s]+|\/[^\s]*)$/;
+const URL_OR_PATH_MSG = 'must be an absolute http(s) URL or a path starting with "/"';
 
 const LOCALES = ['vi', 'en', 'zh'] as const;
 const REGIONS = ['MienBac', 'MienTrung', 'MienNam', 'TayNguyen', 'NhieuVung'] as const;
@@ -31,12 +38,16 @@ export class HighlightDto {
   description?: string;
 
   @IsOptional()
-  @IsUrl({ require_tld: false })
+  @IsString()
+  @MaxLength(2048)
+  @Matches(URL_OR_PATH, { message: `iconUrl ${URL_OR_PATH_MSG}` })
   iconUrl?: string;
 }
 
 export class GalleryImageDto {
-  @IsUrl({ require_tld: false })
+  @IsString()
+  @MaxLength(2048)
+  @Matches(URL_OR_PATH, { message: `url ${URL_OR_PATH_MSG}` })
   url!: string;
 
   @IsOptional()
@@ -162,13 +173,10 @@ export class CreateTourDto {
   gallery?: GalleryImageDto[];
 
   @IsOptional()
-  @IsUrl({ require_tld: false })
+  @IsString()
+  @MaxLength(2048)
+  @Matches(URL_OR_PATH, { message: `featuredImageUrl ${URL_OR_PATH_MSG}` })
   featuredImageUrl?: string;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  tourCategoryId?: number;
 }
 
 export class UpdateTourDto extends CreateTourDto {}

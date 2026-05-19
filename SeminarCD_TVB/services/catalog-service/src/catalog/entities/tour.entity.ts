@@ -4,13 +4,11 @@ import {
   DeleteDateColumn,
   Entity,
   Index,
-  JoinColumn,
-  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-import { SupportedLocale, TourCategory } from './tour-category.entity';
+import { SupportedLocale } from '../locales';
 
 export type Region = 'MienBac' | 'MienTrung' | 'MienNam' | 'TayNguyen' | 'NhieuVung';
 export type TransportType = 'XeKhach' | 'MayBay' | 'Tau' | 'XeMay' | 'KetHop';
@@ -105,13 +103,6 @@ export class Tour {
 
   @Column({ type: 'text', nullable: true, name: 'featured_image_url' })
   featuredImageUrl!: string | null;
-
-  @Column({ type: 'integer', nullable: true, name: 'tour_category_id' })
-  tourCategoryId!: number | null;
-
-  @ManyToOne(() => TourCategory, (cat) => cat.tours, { onDelete: 'SET NULL', nullable: true })
-  @JoinColumn({ name: 'tour_category_id' })
-  category!: TourCategory | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;

@@ -49,7 +49,6 @@ function makeTour(partial: Partial<Tour> = {}): Tour {
       itinerary: null,
       gallery: [],
       featuredImageUrl: null,
-      tourCategoryId: null,
       publishedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),

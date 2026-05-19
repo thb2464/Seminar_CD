@@ -5,7 +5,6 @@ import { LoggerModule } from 'nestjs-pino';
 
 import { CatalogModule } from './catalog/catalog.module';
 import { Tour } from './catalog/entities/tour.entity';
-import { TourCategory } from './catalog/entities/tour-category.entity';
 import { envValidationSchema } from './config/env.validation';
 import { HealthModule } from './health/health.module';
 
@@ -50,7 +49,7 @@ import { HealthModule } from './health/health.module';
         database: config.get<string>('DATABASE_NAME'),
         ssl:
           config.get<boolean>('DATABASE_SSL') === true ? { rejectUnauthorized: false } : false,
-        entities: [Tour, TourCategory],
+        entities: [Tour],
         synchronize: config.get<boolean>('DATABASE_SYNCHRONIZE') === true,
         autoLoadEntities: true,
       }),

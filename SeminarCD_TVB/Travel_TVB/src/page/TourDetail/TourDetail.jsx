@@ -184,9 +184,20 @@ const TourDetail = () => {
           return;
         }
 
-        // Resolve relative /uploads/... URLs against the gateway origin.
+        // Resolve image URLs:
+        //   - Absolute http(s)://... — pass through.
+        //   - /uploads/* — Strapi-hosted media, route through the API gateway.
+        //   - Other relative paths (e.g. /tour-uploads/*) — leave as-is so the
+        //     browser resolves them against the current origin (the frontend
+        //     bundle, which serves /Travel_TVB/public/* at the same host).
         const resolveUrl = (u) =>
-          !u ? '' : (u.startsWith('http') ? u : `${config.STRAPI_URL}${u}`);
+          !u
+            ? ''
+            : u.startsWith('http')
+              ? u
+              : u.startsWith('/uploads/')
+                ? `${config.STRAPI_URL}${u}`
+                : u;
 
         const processedDescription = (tourData.description || []).map(block => {
           if (block.type === 'image' && block.image?.url) {
@@ -202,34 +213,20 @@ const TourDetail = () => {
           return block;
         });
 
-        // Map catalog-service camelCase shape -> legacy fields the JSX renders.
+        // catalog-service already returns camelCase; just patch the image URLs
+        // and pre-process the rich-text blocks.
         setTour({
           ...tourData,
-          Tour_Name: tourData.tourName,
-          Short_Description: tourData.shortDescription,
-          Price: tourData.price,
-          Original_Price: tourData.originalPrice,
-          Child_Price: tourData.childPrice,
-          Duration_Days: tourData.durationDays,
-          Duration_Nights: tourData.durationNights,
-          Max_Participants: tourData.maxParticipants,
-          Rating: tourData.rating,
-          Review_Count: tourData.reviewCount,
-          Region: tourData.region,
-          Location: tourData.location,
-          Departure_Location: tourData.departureLocation,
-          Transport_Type: tourData.transportType,
-          Highlights: tourData.highlights || [],
-          Description: processedDescription,
-          Itinerary: processedItinerary,
+          description: processedDescription,
+          itinerary: processedItinerary,
+          highlights: tourData.highlights || [],
           featuredImageUrl: tourData.featuredImageUrl
             ? resolveUrl(tourData.featuredImageUrl)
             : 'https://picsum.photos/seed/tour/1200/500',
-          galleryImages: (tourData.gallery || []).map(img => ({
+          galleryImages: (tourData.gallery || []).map((img) => ({
             url: resolveUrl(img.url),
             alt: img.alternativeText || tourData.tourName,
           })),
-          categoryName: '',
         });
       } catch (err) {
         console.error('Failed to fetch tour:', err);
@@ -255,7 +252,8 @@ const TourDetail = () => {
     );
   }
 
-  const hasDiscount = tour.Original_Price && parseInt(tour.Original_Price) > parseInt(tour.Price);
+  const hasDiscount =
+    tour.originalPrice && parseInt(tour.originalPrice) > parseInt(tour.price);
 
   return (
     <motion.div variants={pageVariants} initial="hidden" animate="visible">
@@ -265,11 +263,11 @@ const TourDetail = () => {
           <div className="tour-detail-hero-overlay">
             <Link to="/tours" className="tour-back-link-hero">{TEXT.backToTours}</Link>
             <div className="tour-detail-hero-content">
-              {tour.categoryName && <span className="tour-detail-category">{tour.categoryName}</span>}
-              <h1 className="tour-detail-title">{tour.Tour_Name}</h1>
+              {tour.regionLabel && <span className="tour-detail-category">{tour.regionLabel}</span>}
+              <h1 className="tour-detail-title">{tour.tourName}</h1>
               <div className="tour-detail-hero-meta">
-                <span>{tour.Duration_Days}{TEXT.days} {tour.Duration_Nights}{TEXT.nights}</span>
-                <span>{tour.Location}</span>
+                <span>{tour.durationDays}{TEXT.days} {tour.durationNights}{TEXT.nights}</span>
+                <span>{tour.location}</span>
               </div>
             </div>
           </div>
@@ -279,14 +277,14 @@ const TourDetail = () => {
         <div className="tour-detail-container">
           <div className="tour-detail-main">
             {/* Highlights */}
-            {tour.Highlights && tour.Highlights.length > 0 && (
+            {tour.highlights && tour.highlights.length > 0 && (
               <section className="tour-detail-section">
                 <h2>{TEXT.highlights}</h2>
                 <div className="tour-highlights-list">
-                  {tour.Highlights.map((h, i) => (
+                  {tour.highlights.map((h, i) => (
                     <div key={i} className="tour-highlight-item">
                       <CheckIcon />
-                      <span>{h.Highlight_Text}</span>
+                      <span>{h.title}</span>
                     </div>
                   ))}
                 </div>
@@ -294,21 +292,21 @@ const TourDetail = () => {
             )}
 
             {/* Description */}
-            {tour.Description && tour.Description.length > 0 && (
+            {tour.description && tour.description.length > 0 && (
               <section className="tour-detail-section">
                 <h2>{TEXT.description}</h2>
                 <div className="rich-text-content">
-                  {renderContent(tour.Description)}
+                  {renderContent(tour.description)}
                 </div>
               </section>
             )}
 
             {/* Itinerary */}
-            {tour.Itinerary && tour.Itinerary.length > 0 && (
+            {tour.itinerary && tour.itinerary.length > 0 && (
               <section className="tour-detail-section">
                 <h2>{TEXT.itinerary}</h2>
                 <div className="rich-text-content tour-itinerary">
-                  {renderContent(tour.Itinerary)}
+                  {renderContent(tour.itinerary)}
                 </div>
               </section>
             )}
@@ -334,9 +332,9 @@ const TourDetail = () => {
               {/* Price */}
               <div className="tour-sidebar-price">
                 {hasDiscount && (
-                  <span className="tour-sidebar-original-price">{formatPrice(tour.Original_Price)}</span>
+                  <span className="tour-sidebar-original-price">{formatPrice(tour.originalPrice)}</span>
                 )}
-                <span className="tour-sidebar-current-price">{formatPrice(tour.Price)}</span>
+                <span className="tour-sidebar-current-price">{formatPrice(tour.price)}</span>
                 <span className="tour-sidebar-per-person">/ {langCode === 'vi' ? 'người' : langCode === 'zh' ? '人' : 'person'}</span>
               </div>
 
@@ -344,31 +342,31 @@ const TourDetail = () => {
               <div className="tour-sidebar-info">
                 <div className="tour-sidebar-row">
                   <span className="tour-sidebar-label">{TEXT.duration}</span>
-                  <span className="tour-sidebar-value">{tour.Duration_Days} {TEXT.days} {tour.Duration_Nights} {TEXT.nights}</span>
+                  <span className="tour-sidebar-value">{tour.durationDays} {TEXT.days} {tour.durationNights} {TEXT.nights}</span>
                 </div>
-                {tour.Departure_Location && (
+                {tour.departureLocation && (
                   <div className="tour-sidebar-row">
                     <span className="tour-sidebar-label">{TEXT.departure}</span>
-                    <span className="tour-sidebar-value">{tour.Departure_Location}</span>
+                    <span className="tour-sidebar-value">{tour.departureLocation}</span>
                   </div>
                 )}
-                {tour.Transport_Type && (
+                {tour.transportType && (
                   <div className="tour-sidebar-row">
                     <span className="tour-sidebar-label">{TEXT.transport}</span>
-                    <span className="tour-sidebar-value">{transports[tour.Transport_Type] || tour.Transport_Type}</span>
+                    <span className="tour-sidebar-value">{transports[tour.transportType] || tour.transportType}</span>
                   </div>
                 )}
-                {tour.Max_Participants && (
+                {tour.maxParticipants && (
                   <div className="tour-sidebar-row">
                     <span className="tour-sidebar-label">{TEXT.maxParticipants}</span>
-                    <span className="tour-sidebar-value">{tour.Max_Participants} {TEXT.people}</span>
+                    <span className="tour-sidebar-value">{tour.maxParticipants} {TEXT.people}</span>
                   </div>
                 )}
-                {tour.Rating && (
+                {tour.rating && (
                   <div className="tour-sidebar-row">
                     <span className="tour-sidebar-label">{TEXT.rating}</span>
                     <span className="tour-sidebar-value tour-sidebar-rating">
-                      <StarIcon /> {tour.Rating} ({tour.Review_Count} {TEXT.reviews})
+                      <StarIcon /> {tour.rating} ({tour.reviewCount} {TEXT.reviews})
                     </span>
                   </div>
                 )}

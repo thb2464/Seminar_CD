@@ -16,9 +16,9 @@ vi.mock('../../components/AnimateOnScroll/AnimateOnScroll', () => ({
   default: ({ children }) => <div>{children}</div>,
 }));
 
-// Mock TourCard component
+// Mock TourCard component — surface tourName so we can assert on it.
 vi.mock('../../components/TourCard/TourCard', () => ({
-  default: ({ tour }) => <div data-testid="tour-card">{tour.Tour_Name}</div>,
+  default: ({ tour }) => <div data-testid="tour-card">{tour.tourName}</div>,
 }));
 
 // Mock PriceRangeSlider
@@ -27,59 +27,33 @@ vi.mock('../../components/PriceRangeSlider/PriceRangeSlider', () => ({
 }));
 
 describe('Tours page', () => {
-  const mockCategories = {
-    data: [
-      { id: 1, Category_Name: 'Adventure', Category_Slug: 'adventure' },
-      { id: 2, Category_Name: 'Nature', Category_Slug: 'nature' },
-    ],
-  };
-
-  beforeEach(() => {
-    global.fetch = vi.fn((url) => {
-      if (url.includes('/api/tour-categories')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockCategories),
-        });
-      }
-      // Default: return a pending promise (for tests that override tours fetch)
-      return new Promise(() => {});
-    });
-  });
-
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
   it('should show loading state initially', () => {
+    // fetch never resolves so we stay in loading
+    global.fetch = vi.fn(() => new Promise(() => {}));
     renderWithRouter(<Tours />);
     expect(screen.getByText('Loading tours...')).toBeInTheDocument();
   });
 
-  it('should render tour cards after successful fetch', async () => {
+  it('should render tour cards after a successful fetch (camelCase shape)', async () => {
     const mockTours = [
-      { id: 1, Tour_Name: 'Ha Long Bay', Price: '5000000', slug: 'ha-long', Rating: 4.5, Review_Count: 10, tour_category: { Category_Name: 'Adventure', Category_Slug: 'adventure' } },
-      { id: 2, Tour_Name: 'Da Lat', Price: '3000000', slug: 'da-lat', Rating: 4.2, Review_Count: 5, tour_category: { Category_Name: 'Nature', Category_Slug: 'nature' } },
+      { id: 1, tourName: 'Ha Long Bay', price: '5000000', slug: 'ha-long', rating: 4.5, reviewCount: 10, region: 'MienBac' },
+      { id: 2, tourName: 'Da Lat',      price: '3000000', slug: 'da-lat',  rating: 4.2, reviewCount: 5,  region: 'TayNguyen' },
     ];
-
-    global.fetch = vi.fn((url) => {
-      if (url.includes('/api/tour-categories')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockCategories),
-        });
-      }
-      return Promise.resolve({
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
         ok: true,
         json: () => Promise.resolve({
           data: mockTours,
           meta: { pagination: { page: 1, pageCount: 1, pageSize: 9, total: 2 } },
         }),
-      });
-    });
+      }),
+    );
 
     renderWithRouter(<Tours />);
-
     await waitFor(() => {
       expect(screen.queryByText('Loading tours...')).not.toBeInTheDocument();
     });
@@ -89,43 +63,47 @@ describe('Tours page', () => {
     expect(screen.getByText('Da Lat')).toBeInTheDocument();
   });
 
+  it('should render the static region chips without any API call', async () => {
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ data: [], meta: { pagination: { page: 1, pageCount: 0, pageSize: 9, total: 0 } } }),
+      }),
+    );
+    renderWithRouter(<Tours />);
+    await waitFor(() => {
+      expect(screen.getByText('No tours found.')).toBeInTheDocument();
+    });
+    // English labels are defined in displayData.en.regions
+    expect(screen.getByText('All')).toBeInTheDocument();
+    expect(screen.getByText('Northern')).toBeInTheDocument();
+    expect(screen.getByText('Central')).toBeInTheDocument();
+    expect(screen.getByText('Southern')).toBeInTheDocument();
+    expect(screen.getByText('Central Highlands')).toBeInTheDocument();
+    expect(screen.getByText('Multi-Region')).toBeInTheDocument();
+    // No /api/tour-categories request — the chips are static now.
+    expect(global.fetch.mock.calls.some(([u]) => String(u).includes('/api/tour-categories'))).toBe(false);
+  });
+
   it('should show "No tours found" for empty results', async () => {
-    global.fetch = vi.fn((url) => {
-      if (url.includes('/api/tour-categories')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockCategories),
-        });
-      }
-      return Promise.resolve({
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
         ok: true,
         json: () => Promise.resolve({
           data: [],
           meta: { pagination: { page: 1, pageCount: 0, pageSize: 9, total: 0 } },
         }),
-      });
-    });
-
+      }),
+    );
     renderWithRouter(<Tours />);
-
     await waitFor(() => {
       expect(screen.getByText('No tours found.')).toBeInTheDocument();
     });
   });
 
   it('should show error message on fetch failure', async () => {
-    global.fetch = vi.fn((url) => {
-      if (url.includes('/api/tour-categories')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockCategories),
-        });
-      }
-      return Promise.reject(new Error('Network error'));
-    });
-
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
     renderWithRouter(<Tours />);
-
     await waitFor(() => {
       expect(screen.getByText('Could not load tours.')).toBeInTheDocument();
     });

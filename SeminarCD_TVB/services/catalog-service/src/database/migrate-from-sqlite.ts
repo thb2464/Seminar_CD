@@ -1,5 +1,5 @@
 /**
- * One-shot migration: copy tours + tour_categories from the legacy Strapi SQLite
+ * One-shot migration: copy tours from the legacy Strapi SQLite
  * database into the new Catalog Service PostgreSQL.
  *
  * Usage:
@@ -27,12 +27,10 @@ import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialE
 
 import { AppDataSource } from './data-source';
 import { Tour, TourHighlight, GalleryImage } from '../catalog/entities/tour.entity';
-import { TourCategory } from '../catalog/entities/tour-category.entity';
 
 export interface MigrationResult {
-  categories: { read: number; inserted: number; skipped: number; failed: number };
   tours: { read: number; inserted: number; skipped: number; failed: number };
-  errors: { table: 'tour_categories' | 'tours'; id: number; reason: string }[];
+  errors: { table: 'tours'; id: number; reason: string }[];
 }
 
 interface SqliteRow {
@@ -52,12 +50,10 @@ export async function migrateCatalogFromSqlite(sqlitePath: string): Promise<Migr
     }
 
     const result: MigrationResult = {
-      categories: { read: 0, inserted: 0, skipped: 0, failed: 0 },
       tours: { read: 0, inserted: 0, skipped: 0, failed: 0 },
       errors: [],
     };
 
-    await migrateCategories(sqlite, result);
     await migrateTours(sqlite, result);
 
     return result;
@@ -67,54 +63,6 @@ export async function migrateCatalogFromSqlite(sqlitePath: string): Promise<Migr
       await AppDataSource.destroy();
     }
   }
-}
-
-async function migrateCategories(
-  sqlite: DatabaseType,
-  result: MigrationResult,
-): Promise<void> {
-  if (!tableExists(sqlite, 'tour_categories')) {
-    return;
-  }
-
-  const rows = sqlite.prepare(`SELECT * FROM tour_categories`).all() as SqliteRow[];
-  result.categories.read = rows.length;
-
-  const repo = AppDataSource.getRepository(TourCategory);
-  for (const row of rows) {
-    try {
-      const id = Number(row.id);
-      if (!Number.isFinite(id)) {
-        throw new Error('missing id');
-      }
-      const existing = await repo.findOne({ where: { id } });
-      if (existing) {
-        result.categories.skipped += 1;
-        continue;
-      }
-      await repo.insert({
-        id,
-        documentId: String(row.document_id ?? `legacy-cat-${id}`),
-        locale: (row.locale as TourCategory['locale']) ?? 'vi',
-        slug: String(row.slug ?? `legacy-${id}`),
-        name: String(row.name ?? row.Category_Name ?? row.title ?? `Category ${id}`),
-        description: stringOrNull(row.description ?? row.Description ?? null),
-        publishedAt: dateOrNull(row.published_at),
-        createdAt: dateOrNull(row.created_at) ?? new Date(),
-        updatedAt: dateOrNull(row.updated_at) ?? new Date(),
-      });
-      result.categories.inserted += 1;
-    } catch (err) {
-      result.categories.failed += 1;
-      result.errors.push({
-        table: 'tour_categories',
-        id: Number(row.id) || -1,
-        reason: err instanceof Error ? err.message : String(err),
-      });
-    }
-  }
-
-  await alignSequence('tour_categories', rows);
 }
 
 async function migrateTours(sqlite: DatabaseType, result: MigrationResult): Promise<void> {
@@ -165,7 +113,6 @@ async function migrateTours(sqlite: DatabaseType, result: MigrationResult): Prom
         itinerary: parseJson(row.Itinerary ?? row.itinerary) as QueryDeepPartialEntity<Tour>['itinerary'],
         gallery: [] satisfies GalleryImage[], // Gallery URLs come from Strapi's `files` join; out of scope for the seminar.
         featuredImageUrl: stringOrNull(row.featured_image_url),
-        tourCategoryId: numberOrNull(row.tour_category_id),
         publishedAt: dateOrNull(row.published_at),
         createdAt: dateOrNull(row.created_at) ?? new Date(),
         updatedAt: dateOrNull(row.updated_at) ?? new Date(),

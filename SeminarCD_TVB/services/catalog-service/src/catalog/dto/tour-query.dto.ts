@@ -45,11 +45,6 @@ export class TourFilterDto {
   @Transform(({ value }) => value === 'true' || value === true || value === 1 || value === '1')
   @IsBoolean()
   isFeatured?: boolean;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  categoryId?: number;
 }
 
 export class TourQueryDto {

@@ -27,42 +27,47 @@ const ClockIcon = () => (
   </svg>
 );
 
+// TourCard reads the catalog-service camelCase shape directly. The legacy
+// Strapi PascalCase fields (Tour_Name / Original_Price / Featured_Image / ...)
+// were monolith-era and have been retired together with the Strangler Fig cut
+// over to catalog-service.
 const TourCard = ({ tour }) => {
-  const hasDiscount = tour.Original_Price && parseInt(tour.Original_Price) > parseInt(tour.Price);
+  const hasDiscount =
+    tour.originalPrice && parseInt(tour.originalPrice) > parseInt(tour.price);
 
   return (
     <Link to={`/tours/${tour.slug}`} className="tour-card">
       <div className="tour-card-image">
-        <img src={tour.featuredImageUrl} alt={tour.Tour_Name} loading="lazy" />
+        <img src={tour.featuredImageUrl} alt={tour.tourName} loading="lazy" />
         {hasDiscount && <span className="tour-card-badge">SALE</span>}
-        {tour.categoryName && (
-          <span className="tour-card-region">{tour.categoryName}</span>
+        {tour.regionLabel && (
+          <span className="tour-card-region">{tour.regionLabel}</span>
         )}
       </div>
       <div className="tour-card-content">
-        <h3 className="tour-card-title">{tour.Tour_Name}</h3>
-        <p className="tour-card-description">{tour.Short_Description}</p>
+        <h3 className="tour-card-title">{tour.tourName}</h3>
+        <p className="tour-card-description">{tour.shortDescription}</p>
         <div className="tour-card-info">
           <span className="tour-card-info-item">
             <ClockIcon />
-            {tour.Duration_Days}N{tour.Duration_Nights}D
+            {tour.durationDays}N{tour.durationNights}D
           </span>
           <span className="tour-card-info-item">
             <LocationIcon />
-            {tour.Location}
+            {tour.location}
           </span>
         </div>
         <div className="tour-card-footer">
           <div className="tour-card-rating">
             <StarIcon />
-            <span>{tour.Rating}</span>
-            <span className="tour-card-reviews">({tour.Review_Count})</span>
+            <span>{tour.rating}</span>
+            <span className="tour-card-reviews">({tour.reviewCount})</span>
           </div>
           <div className="tour-card-price">
             {hasDiscount && (
-              <span className="tour-card-original-price">{formatPrice(tour.Original_Price)}</span>
+              <span className="tour-card-original-price">{formatPrice(tour.originalPrice)}</span>
             )}
-            <span className="tour-card-current-price">{formatPrice(tour.Price)}</span>
+            <span className="tour-card-current-price">{formatPrice(tour.price)}</span>
           </div>
         </div>
       </div>

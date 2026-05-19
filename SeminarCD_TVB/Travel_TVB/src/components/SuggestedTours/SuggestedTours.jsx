@@ -38,42 +38,39 @@ const SuggestedTours = () => {
       setLoading(true);
       setError(null);
 
-      const populateQuery = 'populate[Featured_Image]=true&populate[tour_category]=true';
-      const paginationQuery = 'pagination[pageSize]=3';
-      const sortQuery = 'sort=Rating:desc';
-      const localeQuery = `locale=${currentLanguage.code}`;
+      // catalog-service ranks reads with `sort=<field>:<dir>` (no Strapi populate=).
+      const base = `${config.STRAPI_URL}${config.API_ENDPOINTS.TOURS}`;
+      const common = `locale=${currentLanguage.code}&pagination[pageSize]=3&sort=rating:desc`;
+
+      // Resolve image URL the same way Tours.jsx does so legacy /uploads/* keep
+      // going through the gateway while /tour-uploads/* and absolute URLs work.
+      const resolveImg = (u) =>
+        !u
+          ? 'https://picsum.photos/seed/tour/400/300'
+          : u.startsWith('http')
+            ? u
+            : u.startsWith('/uploads/')
+              ? `${config.STRAPI_URL}${u}`
+              : u;
 
       try {
-        // First try: featured tours, highest-rated
-        const featuredUrl = `${config.STRAPI_URL}${config.API_ENDPOINTS.TOURS}?${populateQuery}&${paginationQuery}&${sortQuery}&filters[Is_Featured][$eq]=true&${localeQuery}`;
-        const response = await fetch(featuredUrl);
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
+        // First try: featured tours, highest-rated.
+        let res = await fetch(`${base}?${common}&filters[isFeatured]=true`);
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
+        let tourList = (await res.json()).data || [];
 
-        const json = await response.json();
-        let tourList = json.data || [];
-
-        // Fallback: if fewer than 3 featured tours, fetch top-rated without filter
+        // Fallback: if fewer than 3 featured, top-rated without filter.
         if (tourList.length < 3) {
-          const fallbackUrl = `${config.STRAPI_URL}${config.API_ENDPOINTS.TOURS}?${populateQuery}&${paginationQuery}&${sortQuery}&${localeQuery}`;
-          const fallbackResponse = await fetch(fallbackUrl);
-          if (fallbackResponse.ok) {
-            const fallbackJson = await fallbackResponse.json();
-            tourList = fallbackJson.data || [];
-          }
+          res = await fetch(`${base}?${common}`);
+          if (res.ok) tourList = (await res.json()).data || tourList;
         }
 
-        // Transform tour data (same pattern as Tours.jsx)
-        const transformedTours = tourList.slice(0, 3).map(tour => ({
-          ...tour,
-          featuredImageUrl: tour.Featured_Image?.url
-            ? (tour.Featured_Image.url.startsWith('http')
-                ? tour.Featured_Image.url
-                : `${config.STRAPI_URL}${tour.Featured_Image.url}`)
-            : 'https://picsum.photos/seed/tour/400/300',
-          categoryName: tour.tour_category?.Category_Name || '',
-        }));
-
-        setTours(transformedTours);
+        setTours(
+          tourList.slice(0, 3).map((tour) => ({
+            ...tour,
+            featuredImageUrl: resolveImg(tour.featuredImageUrl),
+          })),
+        );
       } catch (err) {
         console.error('Failed to fetch suggested tours:', err);
         setError(err.message);

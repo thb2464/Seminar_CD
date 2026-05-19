@@ -15,7 +15,7 @@ import {
 import { AdminOnlyGuard } from './admin-only.guard';
 import { TourQueryDto } from './dto/tour-query.dto';
 import { CreateTourDto, UpdateTourDto } from './dto/tour.dto';
-import { SupportedLocale } from './entities/tour-category.entity';
+import { SupportedLocale } from './locales';
 import { Tour } from './entities/tour.entity';
 import { PaginatedTours, ToursQueryService } from './tours-query.service';
 import { ToursService } from './tours.service';

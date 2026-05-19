@@ -13,6 +13,8 @@ const SearchIcon = () => (
   </svg>
 );
 
+// Display labels for every locale we support. `regions` mirrors the catalog
+// service's REGIONS enum (services/catalog-service/src/catalog/dto/tour-query.dto.ts).
 const displayData = {
   vi: {
     pageTitle: 'Tour Du Lịch',
@@ -30,6 +32,13 @@ const displayData = {
     error: 'Không thể tải tour.',
     prevButton: 'TRƯỚC',
     nextButton: 'TIẾP',
+    regions: {
+      MienBac: 'Miền Bắc',
+      MienTrung: 'Miền Trung',
+      MienNam: 'Miền Nam',
+      TayNguyen: 'Tây Nguyên',
+      NhieuVung: 'Nhiều Vùng',
+    },
   },
   en: {
     pageTitle: 'Tours',
@@ -47,6 +56,13 @@ const displayData = {
     prevButton: 'PREV',
     nextButton: 'NEXT',
     priceRange: 'Price Range',
+    regions: {
+      MienBac: 'Northern',
+      MienTrung: 'Central',
+      MienNam: 'Southern',
+      TayNguyen: 'Central Highlands',
+      NhieuVung: 'Multi-Region',
+    },
   },
   zh: {
     pageTitle: '旅游线路',
@@ -64,8 +80,19 @@ const displayData = {
     prevButton: '上一页',
     nextButton: '下一页',
     priceRange: '价格范围',
+    regions: {
+      MienBac: '北部',
+      MienTrung: '中部',
+      MienNam: '南部',
+      TayNguyen: '中部高地',
+      NhieuVung: '多区域',
+    },
   },
 };
+
+// Region codes are a fixed enum on the Tour entity — no reason to round-trip
+// through a database table for the filter chips.
+const REGION_CODES = ['MienBac', 'MienTrung', 'MienNam', 'TayNguyen', 'NhieuVung'];
 
 const generatePaginationItems = (currentPage, totalPages) => {
   if (totalPages <= 5) {
@@ -90,44 +117,20 @@ const Tours = () => {
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [categories, setCategories] = useState([]);
+  // activeRegion is 'all' or one of REGION_CODES.
+  const [activeRegion, setActiveRegion] = useState('all');
   const [pagination, setPagination] = useState({ page: 1, pageCount: 1 });
   const [inputValue, setInputValue] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortValue, setSortValue] = useState('createdAt:desc');
   const [priceRange, setPriceRange] = useState([0, 50000000]);
 
-  // Fetch tour categories dynamically
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const localeQuery = `locale=${currentLanguage.code}`;
-        const apiUrl = `${config.STRAPI_URL}${config.API_ENDPOINTS.TOUR_CATEGORIES}?${localeQuery}`;
-        const response = await fetch(apiUrl);
-        if (!response.ok) throw new Error(`API error! Status: ${response.status}`);
-        const json = await response.json();
-        // catalog-service uses `name`/`slug` (camelCase). Old Strapi used Category_Name/Category_Slug.
-        const categoryList = (json.data || [])
-          .map(cat => ({
-            id: cat.id,
-            name: cat.name || cat.Category_Name,
-            slug: cat.slug || cat.Category_Slug ||
-              ((cat.name || cat.Category_Name || '').toLowerCase().replace(/\s+/g, '-')),
-          }))
-          .filter(cat => cat.name);
-        setCategories(categoryList);
-      } catch (err) {
-        console.error('Failed to fetch tour categories:', err);
-      }
-    };
-
-    fetchCategories();
-  }, [currentLanguage]);
-
-  const categoryTabs = [
+  // Filter chips: "All" + one chip per region enum value, labelled in the
+  // current locale. No DB round-trip required — REGION_CODES mirrors the
+  // catalog-service enum.
+  const regionTabs = [
     { key: 'all', label: TEXT.allCategories },
-    ...categories.map(cat => ({ key: String(cat.id), slug: cat.slug, label: cat.name })),
+    ...REGION_CODES.map((code) => ({ key: code, label: TEXT.regions[code] || code })),
   ];
 
   useEffect(() => {
@@ -135,82 +138,46 @@ const Tours = () => {
       setLoading(true);
       setError(null);
 
-      const populateQuery = 'populate[Featured_Image]=true&populate[tour_category]=true&populate[Highlights]=true';
-      const paginationQuery = `pagination[page]=${pagination.page}&pagination[pageSize]=${TOURS_PER_PAGE}`;
-      const sortQuery = `sort=${sortValue}`;
-      const localeQuery = `locale=${currentLanguage.code}`;
+      const params = new URLSearchParams();
+      params.set('locale', currentLanguage.code);
+      params.set('sort', sortValue);
+      params.set('pagination[page]', String(pagination.page));
+      params.set('pagination[pageSize]', String(TOURS_PER_PAGE));
+      if (activeRegion !== 'all') params.set('filters[region]', activeRegion);
+      if (searchTerm) params.set('filters[search]', searchTerm);
 
-      let filterQuery = '';
-      if (activeCategory !== 'all') {
-        filterQuery += `&filters[tourCategoryId][$eq]=${activeCategory}`;
-      }
-      if (searchTerm) {
-        filterQuery += `&filters[tourName][$containsi]=${encodeURIComponent(searchTerm)}`;
-      }
-      if (priceRange[0] > 0) {
-        filterQuery += `&filters[price][$gte]=${priceRange[0]}`;
-      }
-      if (priceRange[1] < 50000000) {
-        filterQuery += `&filters[price][$lte]=${priceRange[1]}`;
-      }
-
-      const apiUrl = `${config.STRAPI_URL}${config.API_ENDPOINTS.TOURS}?${populateQuery}&${paginationQuery}&${sortQuery}&${localeQuery}${filterQuery}`;
+      const apiUrl = `${config.STRAPI_URL}${config.API_ENDPOINTS.TOURS}?${params.toString()}`;
 
       try {
         const response = await fetch(apiUrl);
         if (!response.ok) throw new Error(`API error! Status: ${response.status}`);
         const json = await response.json();
-
         let tourList = json.data || [];
 
-        // Client-side filtering (fallback for when server ignores query params)
-        if (activeCategory !== 'all') {
-          const catId = parseInt(activeCategory);
-          tourList = tourList.filter(t => t.tourCategoryId === catId);
-        }
-        if (searchTerm) {
-          const term = searchTerm.toLowerCase();
-          tourList = tourList.filter(t => (t.tourName || '').toLowerCase().includes(term));
-        }
-        // Price range filter
-        tourList = tourList.filter(t => {
+        // Price filter is the only one the catalog-service doesn't accept yet,
+        // so we still filter it client-side.
+        tourList = tourList.filter((t) => {
           const p = parseInt(t.price) || 0;
           return p >= priceRange[0] && p <= priceRange[1];
         });
 
-        // Client-side sorting (for mock data fallback)
-        const [sortField, sortDir] = sortValue.split(':');
-        tourList.sort((a, b) => {
-          let valA = a[sortField];
-          let valB = b[sortField];
-          if (sortField === 'price') { valA = parseInt(valA) || 0; valB = parseInt(valB) || 0; }
-          if (typeof valA === 'string') { valA = valA.toLowerCase(); valB = (valB || '').toLowerCase(); }
-          if (valA < valB) return sortDir === 'asc' ? -1 : 1;
-          if (valA > valB) return sortDir === 'asc' ? 1 : -1;
-          return 0;
-        });
+        // Image-URL resolver (kept inline to avoid drifting from TourDetail's copy).
+        const resolveImg = (u) =>
+          !u
+            ? 'https://picsum.photos/seed/tour/400/300'
+            : u.startsWith('http')
+              ? u
+              : u.startsWith('/uploads/')
+                ? `${config.STRAPI_URL}${u}`
+                : u;
 
-        // Map catalog-service (camelCase) shape -> legacy Strapi shape the TourCard reads.
-        const transformedTours = tourList.map(tour => {
-          const imgUrl = tour.featuredImageUrl;
-          const resolvedImg = imgUrl
-            ? (imgUrl.startsWith('http') ? imgUrl : `${config.STRAPI_URL}${imgUrl}`)
-            : 'https://picsum.photos/seed/tour/400/300';
-          return {
+        setTours(
+          tourList.map((tour) => ({
             ...tour,
-            // Legacy field aliases used by TourCard / TourDetail / search
-            Tour_Name: tour.tourName,
-            Price: tour.price,
-            Rating: tour.rating,
-            Review_Count: tour.reviewCount,
-            Short_Description: tour.shortDescription,
-            Highlights: tour.highlights,
-            featuredImageUrl: resolvedImg,
-            categoryName: '', // Tour-category name comes from a separate endpoint now
-          };
-        });
-
-        setTours(transformedTours);
+            featuredImageUrl: resolveImg(tour.featuredImageUrl),
+            regionLabel: tour.region ? TEXT.regions[tour.region] || tour.region : '',
+          })),
+        );
         if (json.meta?.pagination) {
           setPagination(json.meta.pagination);
         }
@@ -223,11 +190,11 @@ const Tours = () => {
     };
 
     fetchTours();
-  }, [activeCategory, searchTerm, pagination.page, sortValue, priceRange, currentLanguage]);
+  }, [activeRegion, searchTerm, pagination.page, sortValue, priceRange, currentLanguage]);
 
-  const handleCategoryClick = (categorySlug) => {
-    setActiveCategory(categorySlug);
-    setPagination(prev => ({ ...prev, page: 1 }));
+  const handleCategoryClick = (regionKey) => {
+    setActiveRegion(regionKey);
+    setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   const handleSearchSubmit = (e) => {
@@ -266,10 +233,10 @@ const Tours = () => {
       <div className="tours-container">
         <div className="tours-controls">
           <div className="tours-tabs">
-            {categoryTabs.map(tab => (
+            {regionTabs.map((tab) => (
               <button
                 key={tab.key}
-                className={`tours-tab-btn ${activeCategory === tab.key ? 'active' : ''}`}
+                className={`tours-tab-btn ${activeRegion === tab.key ? 'active' : ''}`}
                 onClick={() => handleCategoryClick(tab.key)}
               >
                 {tab.label}
@@ -298,9 +265,9 @@ const Tours = () => {
               <label>{TEXT.sortLabel}</label>
               <select value={sortValue} onChange={handleSortChange}>
                 <option value="createdAt:desc">{TEXT.sortDefault}</option>
-                <option value="Price:asc">{TEXT.sortPriceLow}</option>
-                <option value="Price:desc">{TEXT.sortPriceHigh}</option>
-                <option value="Rating:desc">{TEXT.sortRating}</option>
+                <option value="price:asc">{TEXT.sortPriceLow}</option>
+                <option value="price:desc">{TEXT.sortPriceHigh}</option>
+                <option value="rating:desc">{TEXT.sortRating}</option>
               </select>
             </div>
           </div>

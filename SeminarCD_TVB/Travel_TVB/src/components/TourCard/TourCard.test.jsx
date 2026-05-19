@@ -6,17 +6,17 @@ import TourCard from './TourCard';
 const mockTour = {
   id: 1,
   slug: 'ha-long-bay',
-  Tour_Name: 'Ha Long Bay Adventure',
-  Short_Description: 'Explore the stunning karst landscapes',
-  Duration_Days: 3,
-  Duration_Nights: 2,
-  Location: 'Ha Long, Quang Ninh',
-  Rating: 4.8,
-  Review_Count: 120,
-  Price: '5000000',
-  Original_Price: null,
+  tourName: 'Ha Long Bay Adventure',
+  shortDescription: 'Explore the stunning karst landscapes',
+  durationDays: 3,
+  durationNights: 2,
+  location: 'Ha Long, Quang Ninh',
+  rating: 4.8,
+  reviewCount: 120,
+  price: '5000000',
+  originalPrice: null,
   featuredImageUrl: 'https://example.com/halong.jpg',
-  categoryName: 'Adventure',
+  regionLabel: 'Northern',
 };
 
 describe('TourCard', () => {
@@ -51,9 +51,9 @@ describe('TourCard', () => {
       expect(screen.getByText('(120)')).toBeInTheDocument();
     });
 
-    it('should render category name when available', () => {
+    it('should render region label badge when provided', () => {
       renderWithRouter(<TourCard tour={mockTour} />);
-      expect(screen.getByText('Adventure')).toBeInTheDocument();
+      expect(screen.getByText('Northern')).toBeInTheDocument();
     });
 
     it('should link to /tours/{slug}', () => {
@@ -64,52 +64,51 @@ describe('TourCard', () => {
   });
 
   describe('discount detection', () => {
-    it('should show SALE badge when Original_Price > Price', () => {
-      const discountTour = { ...mockTour, Original_Price: '7000000' };
+    it('should show SALE badge when originalPrice > price', () => {
+      const discountTour = { ...mockTour, originalPrice: '7000000' };
       renderWithRouter(<TourCard tour={discountTour} />);
       expect(screen.getByText('SALE')).toBeInTheDocument();
     });
 
-    it('should NOT show SALE badge when no Original_Price', () => {
+    it('should NOT show SALE badge when no originalPrice', () => {
       renderWithRouter(<TourCard tour={mockTour} />);
       expect(screen.queryByText('SALE')).not.toBeInTheDocument();
     });
 
-    it('should NOT show SALE badge when Original_Price <= Price', () => {
-      const noDiscountTour = { ...mockTour, Original_Price: '5000000' };
+    it('should NOT show SALE badge when originalPrice <= price', () => {
+      const noDiscountTour = { ...mockTour, originalPrice: '5000000' };
       renderWithRouter(<TourCard tour={noDiscountTour} />);
       expect(screen.queryByText('SALE')).not.toBeInTheDocument();
     });
 
     it('should show original price struck through when discounted', () => {
-      const discountTour = { ...mockTour, Original_Price: '7000000' };
+      const discountTour = { ...mockTour, originalPrice: '7000000' };
       renderWithRouter(<TourCard tour={discountTour} />);
       expect(screen.getByText('7.000.000 ₫')).toBeInTheDocument();
     });
   });
 
-  describe('category badge', () => {
-    it('should display category name on the card image', () => {
+  describe('region badge', () => {
+    it('should display the region label on the card image', () => {
       renderWithRouter(<TourCard tour={mockTour} />);
       const badge = document.querySelector('.tour-card-region');
       expect(badge).toBeInTheDocument();
-      expect(badge.textContent).toBe('Adventure');
+      expect(badge.textContent).toBe('Northern');
     });
 
-    it('should not render category badge when categoryName is empty', () => {
-      const noCategoryTour = { ...mockTour, categoryName: '' };
-      renderWithRouter(<TourCard tour={noCategoryTour} />);
+    it('should not render the region badge when regionLabel is empty', () => {
+      const noRegionTour = { ...mockTour, regionLabel: '' };
+      renderWithRouter(<TourCard tour={noRegionTour} />);
       const badge = document.querySelector('.tour-card-region');
       expect(badge).not.toBeInTheDocument();
     });
   });
 
   describe('formatPrice edge cases', () => {
-    it('should handle empty Price gracefully', () => {
-      const noPriceTour = { ...mockTour, Price: null };
+    it('should handle empty price gracefully', () => {
+      const noPriceTour = { ...mockTour, price: null };
       renderWithRouter(<TourCard tour={noPriceTour} />);
       // formatPrice returns '' for falsy values
-      // The price span should be empty
       const priceEl = document.querySelector('.tour-card-current-price');
       expect(priceEl).toBeInTheDocument();
     });

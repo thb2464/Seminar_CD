@@ -158,21 +158,6 @@ services:
         methods: [GET, OPTIONS]
         strip_path: false
 
-      - name: catalog-categories
-        protocols: [http, https]
-        paths:
-          - /api/tour-categories
-          - /api/tour-categories/
-        methods: [GET, OPTIONS]
-        strip_path: false
-
-      - name: catalog-categories-by-id
-        protocols: [http, https]
-        paths:
-          - ~/api/tour-categories/\d+$
-        methods: [GET, OPTIONS]
-        strip_path: false
-
       # Writes — JWT-protected. Same plugin pair as /api/users/me; the catalog
       # service trusts the X-User-Id / X-User-Role headers set by post-function.
       - name: catalog-tours-write

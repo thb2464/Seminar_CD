@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 
 import { CatalogEventsPublisher } from '../events/catalog-events.publisher';
 import { CreateTourDto, UpdateTourDto } from './dto/tour.dto';
-import { SupportedLocale } from './entities/tour-category.entity';
+import { SupportedLocale } from './locales';
 import { Tour } from './entities/tour.entity';
 
 /**
@@ -47,7 +47,6 @@ export class ToursService {
       itinerary: dto.itinerary ?? null,
       gallery: dto.gallery ?? [],
       featuredImageUrl: dto.featuredImageUrl ?? null,
-      tourCategoryId: dto.tourCategoryId ?? null,
       publishedAt: new Date(),
     });
     const saved = await this.tours.save(tour);
@@ -82,7 +81,6 @@ export class ToursService {
       itinerary: dto.itinerary ?? tour.itinerary,
       gallery: dto.gallery ?? tour.gallery,
       featuredImageUrl: dto.featuredImageUrl ?? tour.featuredImageUrl,
-      tourCategoryId: dto.tourCategoryId ?? tour.tourCategoryId,
     });
     const saved = await this.tours.save(tour);
     await this.events.publishTourUpdated(saved);

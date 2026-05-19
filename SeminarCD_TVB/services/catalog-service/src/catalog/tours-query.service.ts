@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 
 import { TourQueryDto } from './dto/tour-query.dto';
-import { SupportedLocale } from './entities/tour-category.entity';
+import { SupportedLocale } from './locales';
 import { Tour } from './entities/tour.entity';
 
 export interface PaginatedTours {
@@ -92,7 +92,6 @@ export class ToursQueryService {
     if (filters?.region) where.region = filters.region;
     if (filters?.slug) where.slug = filters.slug;
     if (filters?.isFeatured !== undefined) where.isFeatured = filters.isFeatured;
-    if (filters?.categoryId !== undefined) where.tourCategoryId = filters.categoryId;
     if (filters?.search) where.tourName = ILike(`%${filters.search}%`);
     return where;
   }

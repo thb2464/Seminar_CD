@@ -57,13 +57,12 @@ describe('ToursQueryService (read side)', () => {
 
     await service.list({
       locale: 'en',
-      filters: { region: 'MienBac', isFeatured: true, categoryId: 7 },
+      filters: { region: 'MienBac', isFeatured: true },
     } as any);
     expect(repo.findAndCount.mock.calls[0][0].where).toMatchObject({
       locale: 'en',
       region: 'MienBac',
       isFeatured: true,
-      tourCategoryId: 7,
     });
   });
 

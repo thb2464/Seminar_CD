@@ -3,7 +3,6 @@ import { config as loadEnv } from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
 import { Tour } from '../catalog/entities/tour.entity';
-import { TourCategory } from '../catalog/entities/tour-category.entity';
 
 loadEnv();
 
@@ -17,7 +16,7 @@ export const dataSourceOptions: DataSourceOptions = {
   ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
   synchronize: false,
   logging: false,
-  entities: [Tour, TourCategory],
+  entities: [Tour],
   migrations: [`${__dirname}/migrations/*.{ts,js}`],
 };
 

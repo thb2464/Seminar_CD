@@ -53,7 +53,6 @@ const config = {
 
     // --- Catalog Service ---
     TOURS: '/api/tours',
-    TOUR_CATEGORIES: '/api/tour-categories',
 
     // --- Booking Service ---
     BOOKINGS: '/api/bookings',
