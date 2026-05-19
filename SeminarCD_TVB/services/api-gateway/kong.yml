@@ -210,6 +210,52 @@ services:
         methods: [GET, OPTIONS]
         strip_path: false
 
+      # Admin tour-image upload. Strapi's /api/upload is enabled for the Public
+      # role at the Strapi layer (so it accepts any caller it sees), but Kong
+      # gates the path with JWT validation so only authenticated users from the
+      # identity-service actually reach it. Defense in depth, no Strapi token
+      # leaked to the browser.
+      - name: content-upload
+        protocols: [http, https]
+        paths:
+          - /api/upload
+        methods: [POST, OPTIONS]
+        strip_path: false
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify: [exp]
+              key_claim_name: iss
+              run_on_preflight: false
+          - name: post-function
+            config:
+              access:
+                - |
+                    local jwt_decoder = require "kong.plugins.jwt.jwt_parser"
+                    local token = kong.ctx.shared.authenticated_jwt_token
+                          or ngx.ctx.authenticated_jwt_token
+                    if token then
+                      local parsed = jwt_decoder:new(token)
+                      if parsed then
+                        local claims = parsed.claims
+                        if claims and claims.sub then
+                          kong.service.request.set_header("X-User-Id", tostring(claims.sub))
+                        end
+                        if claims and claims.role then
+                          kong.service.request.set_header("X-User-Role", tostring(claims.role))
+                        end
+                      end
+                    end
+          # After Kong validates the identity-service JWT, strip the Authorization
+          # header so Strapi doesn't try to re-validate it against its own JWT
+          # secret (which would fail — different issuer). The upload endpoint is
+          # enabled for Strapi's Public role; Kong is the security boundary here.
+          - name: request-transformer
+            config:
+              remove:
+                headers:
+                  - Authorization
+
       - name: content-api
         protocols: [http, https]
         paths:

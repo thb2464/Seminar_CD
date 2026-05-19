@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { FiEdit2, FiTrash2, FiPlus, FiX, FiSave } from 'react-icons/fi';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FiEdit2, FiTrash2, FiPlus, FiX, FiSave, FiUpload, FiLoader } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import config from '../../config/strapi';
 
@@ -40,6 +40,48 @@ const AdminTours = () => {
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState(null);
+
+  // Image upload state — drives the picker button next to the URL field.
+  const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+
+  const handleImageFile = async (file) => {
+    if (!file) return;
+    setUploadError(null);
+    setUploading(true);
+    try {
+      const body = new FormData();
+      body.append('files', file);
+      const res = await fetch(`${config.STRAPI_URL}/api/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body,
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error?.message || `Upload failed (${res.status})`);
+      }
+      const arr = await res.json();
+      const url = Array.isArray(arr) && arr[0]?.url;
+      if (!url) throw new Error('Upload succeeded but no URL was returned.');
+      updateField('featuredImageUrl', url);
+    } catch (e) {
+      setUploadError(e.message);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  // Resolve a stored image path to a fully-qualified URL the browser can fetch
+  // (the same three-armed logic the public Tours.jsx uses).
+  const resolvePreviewSrc = (u) => {
+    if (!u) return null;
+    if (u.startsWith('http')) return u;
+    if (u.startsWith('/uploads/')) return `${config.STRAPI_URL}${u}`;
+    return u;
+  };
 
   const fetchTours = useCallback(async () => {
     setLoading(true);
@@ -321,13 +363,66 @@ const AdminTours = () => {
               />
             </div>
             <div className="admin-form-group full">
-              <label>Featured image URL</label>
-              <input
-                type="text"
-                value={form.featuredImageUrl}
-                onChange={(e) => updateField('featuredImageUrl', e.target.value)}
-                placeholder="/uploads/foo.jpg or https://..."
-              />
+              <label>Featured image</label>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                {/* Live thumbnail preview */}
+                {form.featuredImageUrl && (
+                  <img
+                    src={resolvePreviewSrc(form.featuredImageUrl)}
+                    alt="preview"
+                    data-testid="tour-image-preview"
+                    style={{ width: 96, height: 72, objectFit: 'cover', borderRadius: 6, border: '1px solid #ccc', flexShrink: 0 }}
+                  />
+                )}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <input
+                      type="text"
+                      value={form.featuredImageUrl}
+                      onChange={(e) => updateField('featuredImageUrl', e.target.value)}
+                      placeholder="/uploads/foo.jpg, https://..., or click Upload"
+                      style={{ flex: 1 }}
+                      data-testid="form-featuredImageUrl"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="admin-btn secondary"
+                      disabled={uploading}
+                      data-testid="tour-image-upload-btn"
+                    >
+                      {uploading ? (
+                        <>
+                          <FiLoader style={{ verticalAlign: 'middle', marginRight: 6 }} />
+                          Uploading…
+                        </>
+                      ) : (
+                        <>
+                          <FiUpload style={{ verticalAlign: 'middle', marginRight: 6 }} />
+                          Upload
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  {/* Hidden file input — driven by the Upload button above */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    onChange={(e) => handleImageFile(e.target.files?.[0])}
+                    style={{ display: 'none' }}
+                    data-testid="tour-image-file-input"
+                  />
+                  {uploadError && (
+                    <span className="admin-error" data-testid="tour-image-upload-error" style={{ padding: '4px 8px', fontSize: 13 }}>
+                      {uploadError}
+                    </span>
+                  )}
+                  <small style={{ color: '#888' }}>
+                    Pick a file to upload (Strapi handles resizing), or paste a URL/path manually.
+                  </small>
+                </div>
+              </div>
             </div>
             <div className="admin-form-group full" style={{ flexDirection: 'row', alignItems: 'center' }}>
               <input
