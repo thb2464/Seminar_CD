@@ -139,8 +139,8 @@ flowchart TD
     MB((RabbitMQ))
 
     BOOK -- BookingCreated --> MB
-    MB -- InitiatePayment --> PAY
-    PAY -- PaymentResult --> MB
+    MB -- BookingCreated --> PAY
+    PAY -- PaymentCompleted/Failed --> MB
     MB -- UpdateBookingStatus --> BOOK
     CAT -- TourUpdated --> MB
     MB -- ReindexTours --> BOT
@@ -154,9 +154,10 @@ flowchart TD
 | **Database-per-Service** | Each service has its own PostgreSQL schema/instance | Loose coupling, independent schema evolution |
 | **Strangler Fig** | Migration strategy | Incrementally route traffic from monolith to new services |
 | **Saga (Choreography)** | Booking ↔ Payment | Distributed transaction management via events |
-| **CQRS** | Catalog Service | Separate read-optimized queries from write operations |
-| **Circuit Breaker** | Payment → VNPay calls | Prevent cascade failures when VNPay is down |
+| **CQRS** | Catalog Service | Separate read-optimized queries (ToursQueryService) from write operations |
+| **Circuit Breaker** | Payment → VNPay calls | Prevent cascade failures when VNPay is down using `opossum` |
 | **Event Sourcing** | Booking status transitions | Audit trail for Pending→Paid→Cancelled state machine |
+| **Contract Testing** | CI/CD Pipeline | Pact Broker integration for consumer-driven contracts between Frontend and Services |
 
 ### 3.3 Inter-Service Communication
 
@@ -183,6 +184,7 @@ The React SPA requires minimal changes:
 - Replace `VITE_API_URL=http://localhost:1337` with API Gateway URL
 - All existing API paths remain the same (gateway routes transparently)
 - Add retry logic for transient failures
+- Implement ErrorBoundary components for graceful UI degradation when a specific microservice is unavailable
 
 ---
 
@@ -279,18 +281,20 @@ gantt
 **Payment Service:**
 1. Create NestJS project with Payment module
 2. Port VNPay logic: `createPaymentUrl`, `vnpayReturn`, `processVnpayRefund`
-3. Port `vnpay-helpers.js` utilities
-4. Subscribe to `BookingCreated` → no action (payment initiated by frontend)
+3. Port `vnpay-helpers.js` utilities with `opossum` circuit breakers
+4. Subscribe to `BookingCreated` → maintain local Payment entity replica for URL generation (Saga Event-Carried State Transfer)
 5. Publish `PaymentCompleted` / `PaymentFailed` after VNPay callback verification
 
 **Saga Flow:**
 ```
 1. Frontend → Booking Service: POST /api/bookings (creates booking, status=Pending)
-2. Frontend → Payment Service: POST /api/payments/create-url {bookingId}
-3. Payment Service → VNPay: redirect user
-4. VNPay → Payment Service: GET /api/payments/vnpay-return (callback)
-5. Payment Service → RabbitMQ: PaymentCompleted {bookingId, transactionNo}
-6. Booking Service ← RabbitMQ: updates status to Paid
+2. Booking Service → RabbitMQ: BookingCreated {booking details}
+3. Payment Service ← RabbitMQ: saves local Payment replica for fast lookup
+4. Frontend → Payment Service: POST /api/payments/create-url {bookingId}
+5. Payment Service → VNPay: redirect user (protected by circuit breaker)
+6. VNPay → Payment Service: GET /api/payments/vnpay-return (callback)
+7. Payment Service → RabbitMQ: PaymentCompleted {bookingId, transactionNo}
+8. Booking Service ← RabbitMQ: updates status to Paid
 ```
 
 ### 4.8 Sprint 6 — Frontend Migration (Weeks 17–18)

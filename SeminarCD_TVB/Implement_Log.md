@@ -93,22 +93,23 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 ### Phase 5 — Testing Strategy (parallel with Phase 4)
 - [x] **T1** PostgreSQL testcontainers wired into Jest/PyTest configs.
 - [x] **T2** Pact broker (self-hosted) + CI integration.
-- [ ] **T3** Playwright workspace under `tests/e2e/` covering the six E2E scenarios.
-- [ ] **T4** Chaos scenarios — Payment crash, RabbitMQ outage, Catalog DB slowdown, AI OOM (Toxiproxy/Litmus).
+- [x] **T3** Playwright workspace under `tests/e2e/` covering the six E2E scenarios.
+- [x] **T4** Chaos scenarios — Payment crash, RabbitMQ outage, Catalog DB slowdown, AI OOM (Toxiproxy/Litmus).
 
 ### Phase 6 — Deployment & CI/CD (parallel with Phase 4)
 - [x] **D1** Per-service `Dockerfile` + `.dockerignore`.
 - [x] **D2** GitHub Actions workflow per service (uses the reusable workflow from F0.6).
-- [ ] **D3** Kubernetes manifests — Deployment, Service, Ingress per service.
-- [ ] **D4** HPA configs for Catalog (2–5) and AI Chatbot (2–4).
-- [ ] **D5** `staging` and `production` namespaces with secrets management (Sealed Secrets or External Secrets).
+- [x] **D3** Kubernetes manifests — Deployment, Service, Ingress per service.
+- [x] **D4** HPA configs for Catalog (2–5) and AI Chatbot (2–4).
+- [x] **D5** `staging` and `production` namespaces with secrets management (Sealed Secrets or External Secrets).
 
 ### Phase 7 — Maintenance & Operations
-- [ ] **M1** ELK stack — Fluentbit DaemonSet → Elasticsearch → Kibana.
-- [ ] **M2** OpenTelemetry SDK in each service; Jaeger collector; `trace_id` propagated via gateway.
-- [ ] **M3** Prometheus scrape configs + Grafana dashboards (Service Health, Booking Pipeline, AI Chatbot, Infra).
-- [ ] **M4** Grafana alerting rules — error rate, P99 latency, service down.
-- [ ] **M5** Runbooks in `docs/runbooks/` for the four scenarios in plan §7.3.
+- [x] **M1** ELK stack — Fluentbit DaemonSet → Elasticsearch → Kibana.
+- [x] **M2** OpenTelemetry SDK in each service; Jaeger collector; `trace_id` propagated via gateway.
+- [x] **M3** Prometheus scrape configs + Grafana dashboards (Service Health, Booking Pipeline, AI Chatbot, Infra).
+- [x] **M4** Grafana alerting rules — error rate, P99 latency, service down.
+- [x] **M5** Runbooks in `docs/runbooks/` for the four scenarios in plan §7.3.
+- [x] **M6** Backup/restore jobs for PostgreSQL `pg_dump` and ChromaDB snapshots.
 
 ---
 
@@ -1787,79 +1788,539 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 ---
 
-### A1 — Post-cutover stabilisation: 5 silent bugs + first full E2E sweep — 2026-05-17
+### T3 — Playwright E2E workspace scaffold — 2026-05-13 — Blocked
 
 **What was done**
-- Brought the entire microservices stack up under Docker Desktop end-to-end. Migrated 87 uploads + Strapi snapshot from the legacy `Data/` dump into content-service.
-- Identified and fixed 5 production-blocking bugs that survived the F7.x cutover.
-- Wrote a Playwright + MS Edge browser sweep covering Home, Tours, all tour detail pages, Register/Login, Profile, About/News/Community/Service/Contact, the chatbot widget, and the authenticated booking form. 44/44 checks green.
-
-**Bugs fixed**
-1. `GET /api/bookings/availability` returned 404 for any tour the user browsed in EN. Root cause: catalog `findById(id, locale)` filtered by `locale`, but tour `id` is a per-locale row PK — `id=1` only exists in EN, `id=3` is the same canonical tour in VI. Fixed by dropping the locale filter on direct id lookups (catalog `tours-query.service.ts`).
-2. Booking-service expected `{data: ...}` wrapper from catalog but catalog `/api/tours/:id` returns the flat object. Result was 500 on availability and on the `myBookings` enrichment. Fixed by accepting both shapes (`json?.data ?? json`).
-3. `POST /api/bookings` returned 504 (Kong write_timeout hit at 10s) because `await eventsPublisher.publishBookingCreated(...)` blocked forever. The booking row was being saved to Postgres but the response never reached the client. Fixed by changing all event publishes to fire-and-forget (`void publisher.publish().catch(...)`) in both booking-service and payment-service.
-4. Root cause for (3): every service's RabbitMQ connection was failing with `PLAIN login refused: user 'guest' - invalid credentials`. `definitions.json` shipped with a bad `password_hash` for the `guest` user, which overrides the `RABBITMQ_DEFAULT_PASS` env var. Replaced with plain `"password": "guest"`. All 4 subscribers now register consumers; cross-service event flow restored.
-5. Payment-service had the same `await this.publisher.publish(...)` pattern in `processVnpayReturn` and `markPaymentFailed`. Same fix applied.
+- Added a standalone `tests/e2e/` Playwright workspace with package scripts, config, README, ignored generated artifacts, and gateway-level mocks.
+- Added six browser workflow specs matching plan §5.3:
+  - `E2E-01 / BW-01`: browse tours, filter by category/region, open tour detail.
+  - `E2E-02 / BW-02`: register and verify session persistence.
+  - `E2E-03 / BW-03`: login, book a tour, create payment URL, land on payment success.
+  - `E2E-04 / BW-04`: profile booking history, cancel paid booking, verify refund state.
+  - `E2E-05 / BW-05`: chatbot question and grounded tour source response.
+  - `E2E-06 / BW-07`: language switch reloads localized content.
+- Added a Playwright preview launcher that builds the frontend into a fresh ignored `tests/e2e/.frontend-dist/run-*` directory, then starts Vite preview on `127.0.0.1:5173`.
+- Moved Vite's frontend cache to an ignored repo-level `.vite-cache/Travel_TVB` path so dev/test runs do not need to write under `node_modules`.
 
 **Files touched**
-- `services/catalog-service/src/catalog/tours-query.service.ts`
-- `services/booking-service/src/booking/booking.service.ts`
-- `services/payment-service/src/payment/payment.service.ts`
-- `infra/rabbitmq/definitions.json`
-- `services/api-gateway/kong.yml` (Kong sandbox needed `KONG_UNTRUSTED_LUA_SANDBOX_REQUIRES=kong.plugins.jwt.jwt_parser` so the post-function plugin could decode JWTs for `X-User-Id` / `X-User-Role` headers; `KONG_UNTRUSTED_LUA=sandbox` set in compose env)
-- `infra/docker-compose.yml`, `infra/docker-compose.services.yml` (orchestration for all 6 services on the shared `travel-tvb-local` network)
+- `.gitignore`
+- `Travel_TVB/vite.config.js`
+- `tests/e2e/.gitignore`
+- `tests/e2e/package.json`
+- `tests/e2e/package-lock.json`
+- `tests/e2e/playwright.config.ts`
+- `tests/e2e/README.md`
+- `tests/e2e/fixtures/gateway.ts`
+- `tests/e2e/scripts/start-preview.mjs`
+- `tests/e2e/specs/bw-flows.spec.ts`
+- `Implement_Log.md`
 
 **Decisions**
-- RabbitMQ definitions live in version control; password regression in plain-password form is acceptable for a dev/seminar stack — production should switch to a hashed secret loaded via environment substitution.
-- Event publishes were already wrapped in `.catch()` — the missing piece was the `await`. Keeping the call as `void publisher.publish().catch(() => undefined)` documents that the publish is non-blocking by design.
+- Browser tests mock the Kong gateway at the Playwright route layer, giving deterministic workflow coverage without requiring all six services, RabbitMQ, ChromaDB, or the VNPay sandbox to be running.
+- The E2E preview uses production build output instead of the Vite dev server, avoiding optimizer cache writes and matching deploy behavior more closely.
+- Added `PLAYWRIGHT_USE_SYSTEM_CHROME=1` for local validation when Chrome is already installed and the bundled Playwright browser cannot be downloaded.
 
 **Issues / unknowns**
-- Kong's 502 on `/api/tours` list endpoint during the very first sweep was a cold-start artefact; could not reproduce afterwards. Left as a footnote.
-- HEAD on `/uploads/*` returns 404 because the Kong route only enables `GET, OPTIONS`. Browsers always use GET for `<img>`, so users are unaffected. Not fixing.
+- `npm.cmd exec playwright -- test --list` passed and lists all six scenarios.
+- `npm.cmd run build -- --configLoader runner --outDir ../tests/e2e/.frontend-dist --emptyOutDir` can build on a fresh output directory, but repeated local attempts hit sandbox file ownership on prior generated output.
+- Full `npm.cmd test` is blocked in this session: downloading Playwright Chromium was rejected by the approval reviewer due the session usage limit, and running with system Chrome reaches the app but fails cleanup with `browserContext.close: spawn EPERM` unless elevated cleanup is allowed.
+- T3 is therefore **not marked complete** and was not committed.
 
 **Next**
-- See A2 (admin console) below.
+- Re-run after approval quota resets: `cd tests/e2e && npm install && npx playwright install chromium && npm test`.
+- If using system Chrome locally, run `PLAYWRIGHT_USE_SYSTEM_CHROME=1 npm test`.
+- Once the six scenarios pass, mark T3 `[x]`, commit, and push.
 
 ---
 
-### A2 — Admin console (Dashboard, Tours CRUD, Bookings) — 2026-05-17
+### T3 — Playwright E2E workspace completion — 2026-05-14
 
 **What was done**
-- Added a self-contained `/admin/*` console to the React frontend. Admin routes bypass the public Navbar/Footer/Newsletter/Chatbot for a dedicated console look.
-- Added 2 admin endpoints to booking-service: `GET /api/bookings/admin/all` (list every booking enriched with tour name/slug) and `GET /api/bookings/admin/stats` (totals by status, monthly aggregate, upcoming departures). Both behind a new `AdminGuard` that requires `X-User-Role: admin`.
-- New Kong route `booking-admin` matches `/api/bookings/admin` (more specific path; Kong picks it before the `/api/bookings` JWT-protected wildcard).
-- Installed Recharts in the frontend. Dashboard renders 4 stat cards, a Bar chart (last 12 months of bookings + revenue in millions ₫), a Pie chart (status breakdown), a recent-bookings table, an upcoming-tours table, and two CSV-export buttons.
-- Tours tab pulls inventory from all 3 locales and exposes Create / Edit / Delete using catalog-service's existing `POST/PUT/DELETE /api/tours` admin endpoints (already JWT + `AdminOnlyGuard`-protected pre-A2).
-- Bookings tab is a searchable + status-filterable table over the same admin/all endpoint with CSV export for the filtered set.
-- Admin guard component: redirects to `/login` when anonymous, renders a 403 page when role ≠ admin.
-
-**Files added**
-- `services/booking-service/src/common/admin.guard.ts`
-- `Travel_TVB/src/components/AdminRoute/AdminRoute.jsx`
-- `Travel_TVB/src/page/Admin/{AdminLayout,AdminDashboard,AdminTours,AdminBookings}.jsx`
-- `Travel_TVB/src/page/Admin/Admin.css`
+- Fixed the Playwright web server launcher so `tests/e2e/scripts/start-preview.mjs` runs from the E2E workspace instead of the frontend directory.
+- Updated the preview launcher to spawn Windows `npm.cmd` through the shell, avoiding `spawn EINVAL` on `.cmd` files.
+- Verified all six Phase 5 browser workflows pass against mocked Kong gateway responses.
 
 **Files touched**
-- `services/booking-service/src/booking/booking.{controller,service}.ts` — admin endpoints
-- `services/api-gateway/kong.yml` — `booking-admin` route
-- `Travel_TVB/src/App.jsx` — split admin vs public layout via `location.pathname.startsWith('/admin')`
-- `Travel_TVB/src/config/strapi.js` — `ADMIN_BOOKINGS_ALL`, `ADMIN_BOOKINGS_STATS`
-- `Travel_TVB/package.json` — added `recharts`
-
-**Test coverage**
-- 24/24 Playwright tests pass on the admin console: unauthenticated → `/login`, non-admin → 403, admin login → dashboard, all four stat cards rendered, both chart SVGs rendered, CSV download triggered, sidebar nav, full Tour create→edit→delete lifecycle, Bookings search + status filter, zero console errors, zero `/api/*` 5xx across the whole admin session.
-
-**Admin credentials (dev/seminar only)**
-- `admin@traveltvb.com` / `AdminTVB!2026` — promoted via SQL after registering through `/api/auth/local/register`.
+- `.gitignore`
+- `Travel_TVB/vite.config.js`
+- `tests/e2e/.gitignore`
+- `tests/e2e/package.json`
+- `tests/e2e/package-lock.json`
+- `tests/e2e/playwright.config.ts`
+- `tests/e2e/README.md`
+- `tests/e2e/fixtures/gateway.ts`
+- `tests/e2e/scripts/start-preview.mjs`
+- `tests/e2e/specs/bw-flows.spec.ts`
+- `Implement_Log.md`
 
 **Decisions**
-- Tour CRUD lives in catalog-service (already there from F3). The new admin endpoints are only what *was missing*: a way to read all bookings + stats. No "thin proxy" tour content type was added back to Strapi.
-- Stats are computed in the booking-service (one round-trip; predictable cost) rather than aggregated client-side. The frontend still does the recent-bookings + filter UI in-memory because the dataset is small (<1k rows in this project).
-- Recharts chosen over Chart.js because it integrates better with React 19 component composition.
+- Kept the deterministic gateway mocks for E2E flow coverage; full live-service E2E remains a later environment-level validation once staging orchestration is available.
+- Used `PLAYWRIGHT_USE_SYSTEM_CHROME=1` for local sandbox verification because Google Chrome is already installed and avoids a bundled browser download.
+
+**Issues / unknowns**
+- `PLAYWRIGHT_USE_SYSTEM_CHROME=1 npm.cmd test` passed: 6 tests, 6 passed.
+- The frontend build emits Vite's existing chunk-size warning for the main bundle; no runtime failure.
+- `MICROSERVICES_PLAN.md` has pre-existing unstaged changes that were not made or staged as part of T3.
 
 **Next**
-- Could add a Settings tab (admin password reset, payment provider toggle).
-- Could expose admin endpoints for catalog `tour-categories` CRUD (currently the Tours form references region/transport enums; categories aren't editable from the UI).
+- **D3**: add Kubernetes Deployment, Service, and Ingress manifests per service.
+- **T4**: add chaos scenario definitions for Payment crash, RabbitMQ outage, Catalog DB slowdown, and AI OOM.
+
+---
+
+### D3 — Kubernetes base manifests — 2026-05-14
+
+**What was done**
+- Added a Kustomize base under `infra/k8s/base/` for the six microservices plus the Kong API Gateway.
+- Added Deployments and ClusterIP Services for Identity, Catalog, Booking, Payment, Content, AI Chatbot, and API Gateway.
+- Added a public Ingress that routes only to the Kong API Gateway, preserving the gateway trust boundary for JWT validation and downstream `X-User-*` headers.
+- Added shared runtime ConfigMap values and a `runtime-secrets.example.yaml` reference file for the Secret names expected by the base Deployments.
+- Updated Kubernetes README docs and the infrastructure README with the base-manifest layout.
+
+**Files touched**
+- `infra/README.md`
+- `infra/k8s/README.md`
+- `infra/k8s/base/kustomization.yaml`
+- `infra/k8s/base/runtime-config.yaml`
+- `infra/k8s/base/runtime-secrets.example.yaml`
+- `infra/k8s/base/ai-chatbot-service.yaml`
+- `infra/k8s/base/api-gateway.yaml`
+- `infra/k8s/base/identity-service.yaml`
+- `infra/k8s/base/catalog-service.yaml`
+- `infra/k8s/base/booking-service.yaml`
+- `infra/k8s/base/payment-service.yaml`
+- `infra/k8s/base/content-service.yaml`
+- `infra/k8s/base/ingress.yaml`
+- Removed `infra/k8s/.gitkeep`
+- `Implement_Log.md`
+
+**Decisions**
+- Downstream service Services are `ClusterIP` only. The only public Ingress points to Kong because exposing each service directly would bypass the established gateway auth contract.
+- D3 includes Secret references and an example Secret file, but not staging/production namespace or sealed/external secret management; those remain D5.
+- Booking and Payment use TCP probes for now because those NestJS services do not expose a dedicated `/health` route yet.
+
+**Issues / unknowns**
+- `kubectl kustomize infra/k8s/base` passed.
+- `kubectl apply --dry-run=client --validate=false -k infra/k8s/base` could not run without a reachable local Kubernetes API server; `kubectl` tried `localhost:8080` and connection was refused.
+- Image references use the GHCR path produced by the D2 workflows: `ghcr.io/thb2464/seminar_cd/<service>:latest`.
+
+**Next**
+- **D4**: add HPA configs for Catalog (2-5) and AI Chatbot (2-4).
+- **D5**: add staging/production namespaces and real secret-management overlays.
+- **T4**: add chaos scenario definitions.
+
+---
+
+### D4 — Catalog and AI Chatbot HPA configs — 2026-05-14
+
+**What was done**
+- Added autoscaling/v2 HPAs for `catalog-service` and `ai-chatbot-service` to the Kubernetes base.
+- Configured Catalog scaling from 2 to 5 replicas.
+- Configured AI Chatbot scaling from 2 to 4 replicas.
+- Added CPU and memory utilization targets plus conservative scale-down stabilization windows.
+
+**Files touched**
+- `infra/k8s/base/hpa.yaml`
+- `infra/k8s/base/kustomization.yaml`
+- `infra/k8s/README.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Kept HPAs in the base because Catalog and AI Chatbot are the two services explicitly called out for independent scaling in the plan.
+- Used CPU 70% and memory 75% targets as pragmatic defaults; production tuning should use real traffic metrics once Prometheus/Grafana lands in Phase 7.
+
+**Issues / unknowns**
+- `kubectl kustomize infra/k8s/base` passed and renders both HPAs.
+- HPA behavior requires metrics-server or equivalent cluster metrics APIs in the target cluster.
+
+**Next**
+- **D5**: add staging/production namespaces and real secret-management overlays.
+- **T4**: add chaos scenario definitions.
+
+---
+
+### D5 — Staging/production overlays and External Secrets — 2026-05-14
+
+**What was done**
+- Added Kustomize overlays for `staging` and `production` namespaces.
+- Patched each environment's public Kong Ingress host and VNPay return URL.
+- Added ExternalSecret resources for all service runtime secrets plus the shared RabbitMQ connection secret.
+- Documented the overlay layout and External Secrets Operator prerequisite.
+
+**Files touched**
+- `infra/k8s/README.md`
+- `infra/k8s/overlays/staging/namespace.yaml`
+- `infra/k8s/overlays/staging/kustomization.yaml`
+- `infra/k8s/overlays/staging/ingress-host.patch.yaml`
+- `infra/k8s/overlays/staging/payment-return-url.patch.yaml`
+- `infra/k8s/overlays/staging/external-secrets.yaml`
+- `infra/k8s/overlays/production/namespace.yaml`
+- `infra/k8s/overlays/production/kustomization.yaml`
+- `infra/k8s/overlays/production/ingress-host.patch.yaml`
+- `infra/k8s/overlays/production/payment-return-url.patch.yaml`
+- `infra/k8s/overlays/production/external-secrets.yaml`
+- `Implement_Log.md`
+
+**Decisions**
+- Used External Secrets instead of committing encrypted Secret manifests, keeping runtime secret material outside the repo and aligned with per-environment secret backends.
+- Required a cluster-scoped `ClusterSecretStore` named `travel-tvb-cluster-secret-store` so staging and production overlays can share provider wiring while keeping provider keys environment-specific.
+- Kept only environment-specific hostnames and VNPay callback URLs in overlays; all shared service shape stays in the base.
+
+**Issues / unknowns**
+- `kubectl kustomize infra/k8s/overlays/staging` passed.
+- `kubectl kustomize infra/k8s/overlays/production` passed.
+- `git diff --check` passed with only Git's existing LF-to-CRLF working-copy warnings.
+- A real cluster must install External Secrets Operator CRDs and create the `ClusterSecretStore` before applying these overlays.
+
+**Next**
+- **T4**: add chaos scenario definitions for Payment crash, RabbitMQ outage, Catalog DB slowdown, and AI OOM.
+
+---
+
+### T4 — Litmus chaos scenario definitions — 2026-05-14
+
+**What was done**
+- Added a Phase 5 chaos-test workspace under `tests/chaos/`.
+- Added shared Litmus RBAC for running chaos experiments in the `staging` namespace.
+- Added stopped-by-default `ChaosEngine` definitions for Payment pod crashes, RabbitMQ egress outage, Catalog DB latency, and AI Chatbot memory pressure.
+- Documented prerequisites, render commands, one-scenario run commands, and expected behavior for each fault.
+
+**Files touched**
+- `tests/chaos/README.md`
+- `tests/chaos/litmus/kustomization.yaml`
+- `tests/chaos/litmus/rbac.yaml`
+- `tests/chaos/litmus/payment-service-crash.yaml`
+- `tests/chaos/litmus/rabbitmq-outage.yaml`
+- `tests/chaos/litmus/catalog-db-slow.yaml`
+- `tests/chaos/litmus/ai-service-oom.yaml`
+- `Implement_Log.md`
+
+**Decisions**
+- Used Litmus `ChaosEngine` manifests instead of Toxiproxy because the Phase 6 Kubernetes deployment path is now available and is the right environment for service-fault isolation checks.
+- Kept every engine at `engineState: "stop"` so committing or applying definitions cannot start destructive fault injection without an explicit patch to `active`.
+- Targeted RabbitMQ and Catalog DB faults with destination-host network chaos to keep the blast radius on the dependency path being tested.
+
+**Issues / unknowns**
+- `kubectl kustomize tests/chaos/litmus` passed.
+- Static render check confirmed four stopped `ChaosEngine` resources and the expected Litmus experiments: `pod-delete`, `pod-network-loss`, `pod-network-latency`, and `pod-memory-hog`.
+- `git diff --check` passed with only Git's existing LF-to-CRLF working-copy warning on `Implement_Log.md`.
+- `kubectl apply --dry-run=client --validate=false -k tests/chaos/litmus` could not run without a reachable local Kubernetes API server; `kubectl` again tried `localhost:8080` and connection was refused.
+- A real staging cluster still needs Litmus Operator plus the four ChaosExperiment CRDs installed before execution.
+
+**Next**
+- Phase 5 and Phase 6 are complete. The next pending work is **M1**: ELK stack with Fluentbit, Elasticsearch, and Kibana.
+
+---
+
+### M1 — ELK logging stack manifests — 2026-05-14
+
+**What was done**
+- Added a Kubernetes logging workspace under `infra/k8s/observability/logging`.
+- Added the `logging` namespace, single-node Elasticsearch StatefulSet, Kibana Deployment, and Fluent Bit DaemonSet.
+- Configured Fluent Bit to tail Kubernetes container stdout logs, enrich records with Kubernetes metadata, and write daily `travel-tvb-*` indices to Elasticsearch.
+- Documented render/apply commands and the Kibana port-forward workflow.
+
+**Files touched**
+- `infra/README.md`
+- `infra/k8s/README.md`
+- `infra/k8s/observability/logging/README.md`
+- `infra/k8s/observability/logging/kustomization.yaml`
+- `infra/k8s/observability/logging/namespace.yaml`
+- `infra/k8s/observability/logging/elasticsearch.yaml`
+- `infra/k8s/observability/logging/kibana.yaml`
+- `infra/k8s/observability/logging/fluent-bit-rbac.yaml`
+- `infra/k8s/observability/logging/fluent-bit-config.yaml`
+- `infra/k8s/observability/logging/fluent-bit-daemonset.yaml`
+- `Implement_Log.md`
+
+**Decisions**
+- Used Fluent Bit directly as the cluster log collector because the plan's logging path is service stdout → Fluentbit DaemonSet → Elasticsearch.
+- Kept Elasticsearch single-node and Kibana ClusterIP-only for the seminar/staging baseline; production should move to managed Elastic or ECK with TLS/auth and backups before public exposure.
+- Used `travel-tvb-*` daily indices so Kibana can start with a simple index pattern while dashboards mature in M3.
+
+**Issues / unknowns**
+- `kubectl kustomize infra/k8s/observability/logging` passed.
+- Static render check confirmed Fluent Bit DaemonSet, Elasticsearch StatefulSet, Kibana Deployment, and Elasticsearch output config.
+- `git diff --check` passed with Git's existing LF-to-CRLF working-copy warnings.
+- `kubectl apply --dry-run=client --validate=false -k infra/k8s/observability/logging` could not run without a reachable local Kubernetes API server; `kubectl` tried `localhost:8080` and connection was refused.
+
+**Next**
+- **M2**: add OpenTelemetry SDK wiring in services, Jaeger collector manifests, and trace-id propagation validation.
+
+---
+
+### M2 — OpenTelemetry and Jaeger tracing — 2026-05-14
+
+**What was done**
+- Added OpenTelemetry Node SDK bootstraps to Identity, Catalog, Booking, Payment, and Content services.
+- Added OpenTelemetry FastAPI/HTTPX instrumentation to the AI Chatbot service.
+- Added a Jaeger all-in-one Kustomize workspace under `infra/k8s/observability/tracing`.
+- Added shared OTLP trace exporter settings to the Kubernetes runtime ConfigMap and per-service `OTEL_SERVICE_NAME` values to the Deployments.
+- Updated Kong CORS to allow and expose tracing headers (`X-Trace-Id`, `traceparent`, `baggage`) while preserving the existing correlation-id plugin.
+- Added AI Chatbot tests for tracing configuration and kept unit tests from exporting spans to a missing local collector.
+
+**Files touched**
+- `infra/README.md`
+- `infra/k8s/README.md`
+- `infra/k8s/base/runtime-config.yaml`
+- `infra/k8s/base/identity-service.yaml`
+- `infra/k8s/base/catalog-service.yaml`
+- `infra/k8s/base/booking-service.yaml`
+- `infra/k8s/base/payment-service.yaml`
+- `infra/k8s/base/content-service.yaml`
+- `infra/k8s/base/ai-chatbot-service.yaml`
+- `infra/k8s/observability/tracing/README.md`
+- `infra/k8s/observability/tracing/kustomization.yaml`
+- `infra/k8s/observability/tracing/namespace.yaml`
+- `infra/k8s/observability/tracing/jaeger.yaml`
+- `services/api-gateway/kong.yml`
+- `services/identity-service/package.json`, `package-lock.json`, `src/tracing.ts`, `src/main.ts`, `src/app.module.ts`
+- `services/catalog-service/package.json`, `package-lock.json`, `src/tracing.ts`, `src/main.ts`, `src/app.module.ts`
+- `services/booking-service/package.json`, `package-lock.json`, `src/tracing.ts`, `src/main.ts`, `src/app.module.ts`
+- `services/payment-service/package.json`, `package-lock.json`, `src/tracing.ts`, `src/main.ts`, `src/app.module.ts`
+- `services/content-service/package.json`, `package-lock.json`, `Dockerfile`, `src/tracing.js`
+- `services/ai-chatbot-service/pyproject.toml`, `app/tracing.py`, `app/main.py`, `app/controllers/chat.py`, `tests/conftest.py`, `tests/test_tracing.py`
+- `Implement_Log.md`
+
+**Decisions**
+- Used OTLP/HTTP (`:4318/v1/traces`) directly to Jaeger all-in-one because Jaeger accepts OTLP natively and keeps the seminar tracing path small.
+- Kept Jaeger in-memory and ClusterIP-only; production needs durable storage, sampling policy, and UI access controls.
+- Preserved `X-Trace-Id` as the gateway correlation header for logs, while allowing W3C `traceparent`/`baggage` to flow through Kong for OpenTelemetry propagation.
+- Used service-local tracing bootstraps rather than a new shared runtime package so each service can start tracing before its framework imports execute.
+
+**Issues / unknowns**
+- `npm install` reported existing dependency vulnerabilities in Identity, Catalog, and Content Service lockfiles. They were not fixed in M2 to avoid unrelated breaking dependency churn.
+- Content Service `npm run build` passed after refreshing `node_modules` with `npm ci`; Strapi still emits the existing local config `EPERM` warning for `C:\Users\Bao\AppData\Roaming\xdg.config\com.strapi`.
+- `kubectl apply --dry-run=client --validate=false -k infra/k8s/observability/tracing` could not run without a reachable local Kubernetes API server; `kubectl` tried `localhost:8080` and connection was refused.
+
+**Validation**
+- `npm.cmd run build` passed for Identity, Catalog, Booking, Payment, and Content.
+- `npm.cmd test -- --runInBand` passed for Identity (28 tests), Catalog (32), Booking (7), Payment (13), and Content (22).
+- `C:\Users\Bao\AppData\Local\Microsoft\WindowsApps\python.exe -m pytest` passed for AI Chatbot: 80 tests, 81.43% coverage.
+- `kubectl kustomize` passed for `infra/k8s/base`, `infra/k8s/overlays/staging`, `infra/k8s/overlays/production`, and `infra/k8s/observability/tracing`.
+- Static render checks confirmed six `OTEL_SERVICE_NAME` values, the shared Jaeger OTLP endpoint, and Jaeger collector/query ports.
+- `git diff --check` passed with Git's existing LF-to-CRLF working-copy warnings.
+
+**Next**
+- **M3**: add Prometheus scrape configs and Grafana dashboards for service health, booking pipeline, AI chatbot, and infrastructure.
+
+---
+
+### M3 — Prometheus and Grafana metrics — 2026-05-14
+
+**What was done**
+- Added Prometheus `/metrics` endpoints to Identity, Catalog, Booking, Payment, Content, and AI Chatbot services.
+- Added HTTP request counters/duration histograms for all service runtimes.
+- Added domain-event publish counters/duration histograms for Catalog, Booking, and Payment event publishers.
+- Added AI Chatbot catalog-consumer counters and event-lag histograms for projection freshness.
+- Enabled Kong's global `prometheus` plugin so gateway metrics can be scraped from the admin listener.
+- Added `infra/k8s/observability/metrics` with Prometheus service discovery, Grafana datasource provisioning, and four dashboards: Service Health, Booking Pipeline, AI Chatbot, and Infrastructure.
+
+**Files touched**
+- `infra/README.md`
+- `infra/k8s/README.md`
+- `infra/k8s/observability/metrics/README.md`
+- `infra/k8s/observability/metrics/kustomization.yaml`
+- `infra/k8s/observability/metrics/namespace.yaml`
+- `infra/k8s/observability/metrics/prometheus-rbac.yaml`
+- `infra/k8s/observability/metrics/prometheus-config.yaml`
+- `infra/k8s/observability/metrics/prometheus.yaml`
+- `infra/k8s/observability/metrics/grafana-provisioning.yaml`
+- `infra/k8s/observability/metrics/grafana-dashboards.yaml`
+- `infra/k8s/observability/metrics/grafana.yaml`
+- `services/api-gateway/kong.yml`
+- `services/identity-service/package.json`, `package-lock.json`, `src/app.module.ts`, `src/main.ts`, `src/metrics/metrics.module.ts`, `src/metrics/metrics.module.spec.ts`
+- `services/catalog-service/package.json`, `package-lock.json`, `src/app.module.ts`, `src/main.ts`, `src/events/catalog-events.publisher.ts`, `src/metrics/metrics.module.ts`, `src/metrics/metrics.module.spec.ts`
+- `services/booking-service/package.json`, `package-lock.json`, `src/app.module.ts`, `src/events/booking-events.publisher.ts`, `src/metrics/metrics.module.ts`, `src/metrics/metrics.module.spec.ts`
+- `services/payment-service/package.json`, `package-lock.json`, `src/app.module.ts`, `src/events/payment-events.publisher.ts`, `src/metrics/metrics.module.ts`, `src/metrics/metrics.module.spec.ts`
+- `services/content-service/package.json`, `package-lock.json`, `config/middlewares.js`, `src/middlewares/prometheus-metrics.js`, `tests/prometheus-metrics.test.js`
+- `services/ai-chatbot-service/pyproject.toml`, `app/main.py`, `app/metrics.py`, `app/services/event_consumer.py`, `tests/test_metrics.py`
+- `Implement_Log.md`
+
+**Decisions**
+- Used `prom-client` and `prometheus-client` directly instead of introducing another shared runtime package; the metrics surface is small and service-local bootstrapping keeps each runtime independent.
+- Standardised core HTTP metric names across Node, Strapi, and FastAPI: `http_requests_total` and `http_request_duration_seconds`.
+- Prometheus discovers Travel TVB services by Kubernetes Service labels and `http` port names, so staging/production namespaces can reuse the same scrape config.
+- Grafana stays ClusterIP-only with anonymous viewer access for the seminar baseline; production should put it behind authenticated ingress or SSO.
+
+**Issues / unknowns**
+- `npm install prom-client` reported existing dependency vulnerabilities in Identity (27), Catalog (24), and Content (48). They were not fixed in M3 to avoid unrelated dependency churn.
+- Content Service `npm run build` passed but still emits the existing local Strapi config `EPERM` warning for `C:\Users\Bao\AppData\Roaming\xdg.config\com.strapi`.
+- Broad `ruff check app tests` and `mypy app` still fail on pre-existing lint/type issues outside the M3 scope; targeted `ruff` for touched files and `mypy app/metrics.py` passed.
+
+**Validation**
+- `npm.cmd run build` passed for Identity, Catalog, Booking, Payment, and Content.
+- `npm.cmd test -- --runInBand` passed for Identity (29 tests), Catalog (33), Booking (8), Payment (14), and Content (24).
+- `C:\Users\Bao\AppData\Local\Microsoft\WindowsApps\python.exe -m pytest` passed for AI Chatbot: 82 tests, 82.04% coverage.
+- Targeted `ruff check app/main.py app/metrics.py app/services/event_consumer.py tests/test_metrics.py` passed.
+- `mypy app/metrics.py` passed.
+- `kubectl kustomize` passed for `infra/k8s/base`, `infra/k8s/overlays/staging`, `infra/k8s/overlays/production`, and `infra/k8s/observability/metrics`.
+- `git diff --check` passed with Git's existing LF-to-CRLF working-copy warnings.
+
+**Next**
+- **M4**: add Grafana alerting rules for error rate, P99 latency, and service-down conditions.
+
+---
+
+### M4 — Grafana alerting rules — 2026-05-14
+
+**What was done**
+- Added Grafana unified alerting provisioning under the metrics workspace.
+- Provisioned a Prometheus datasource UID (`prometheus`) so alert rules can reference the datasource deterministically.
+- Added three Grafana-managed alert rules:
+  - service target down for 2 minutes
+  - HTTP 5xx ratio above 5% for 5 minutes
+  - P99 HTTP latency above 2 seconds for 5 minutes
+- Added an email contact point and notification policy so alert routing is visible in the seminar environment.
+- Mounted the alerting provisioning files into the Grafana Deployment.
+
+**Files touched**
+- `infra/k8s/README.md`
+- `infra/k8s/observability/metrics/README.md`
+- `infra/k8s/observability/metrics/kustomization.yaml`
+- `infra/k8s/observability/metrics/grafana-provisioning.yaml`
+- `infra/k8s/observability/metrics/grafana-alerting.yaml`
+- `infra/k8s/observability/metrics/grafana.yaml`
+- `Implement_Log.md`
+
+**Decisions**
+- Used Grafana file provisioning instead of Prometheus-native alert rules because M4 explicitly calls for Grafana alerting.
+- Kept rules multi-dimensional by `service`, using the M3 `http_requests_total`, `http_request_duration_seconds`, and `up` metrics.
+- Used a placeholder email contact point for the seminar baseline; production needs SMTP or a real incident-management receiver.
+
+**Issues / unknowns**
+- Alert rules were not live-smoke-tested through the Grafana API because no local Kubernetes/Grafana instance is running in this workspace.
+- Alert annotations point at runbook paths that will be created in M5.
+
+**Validation**
+- `kubectl kustomize infra/k8s/observability/metrics` passed.
+- Static inspection confirmed the three alert rule UIDs and PromQL expressions are present.
+- `git diff --check` passed with Git's existing LF-to-CRLF working-copy warnings.
+
+**Next**
+- **M5**: add runbooks in `docs/runbooks/` for the four scenarios in plan §7.3.
+
+---
+
+### M5 — Operational runbooks — 2026-05-14
+
+**What was done**
+- Added the four plan §7.3 operational runbooks:
+  - Service won't start / service target down
+  - RabbitMQ queue backlog
+  - Database migration failure
+  - VNPay callback failures
+- Added a runbook index under `docs/runbooks/README.md`.
+- Added alert-triage pages for M4 Grafana alerts (`high-error-rate.md`, `high-latency.md`) so the provisioned alert `runbook_url` annotations resolve.
+
+**Files touched**
+- `docs/runbooks/README.md`
+- `docs/runbooks/service-down.md`
+- `docs/runbooks/rabbitmq-queue-backlog.md`
+- `docs/runbooks/database-migration-failure.md`
+- `docs/runbooks/vnpay-callback-failures.md`
+- `docs/runbooks/high-error-rate.md`
+- `docs/runbooks/high-latency.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Used Kubernetes-first commands because Phase 7 operations are defined around the deployed microservices stack.
+- Kept the four plan scenarios as the primary runbooks and made the alert-specific pages short routers into those scenario docs.
+- Left existing Sprint 7 cutover/decommission runbooks untouched.
+
+**Issues / unknowns**
+- Commands use `<namespace>`, `<service-name>`, and provider credentials placeholders because environment-specific namespaces and secret backends vary between staging and production.
+- The VNPay runbook references provider status checks but does not embed provider credentials or private URLs.
+
+**Validation**
+- `rg` confirmed the M4 alert `runbook_url` targets and local runbook links exist.
+- `rg` found no non-ASCII arrows/dashes added to the new runbook files.
+- `git diff --check` passed with Git's existing LF-to-CRLF working-copy warning for `Implement_Log.md`.
+
+**Next**
+- **M6**: define backup/restore jobs for PostgreSQL and ChromaDB snapshots.
+
+---
+
+### M6 — Backup and restore jobs — 2026-05-14
+
+**What was done**
+- Added a Kubernetes maintenance workspace for database backups and restores.
+- Added a daily PostgreSQL `pg_dump` CronJob that exports all service databases to S3-compatible storage with checksum and manifest files.
+- Added a weekly ChromaDB snapshot CronJob that exports collections as JSONL plus a manifest.
+- Added suspended PostgreSQL and ChromaDB restore Jobs that operators can patch with a concrete backup prefix before running.
+- Documented secret setup, apply commands, restore commands, and verification checks.
+
+**Files touched**
+- `infra/k8s/maintenance/backups/kustomization.yaml`
+- `infra/k8s/maintenance/backups/namespace.yaml`
+- `infra/k8s/maintenance/backups/backup-config.yaml`
+- `infra/k8s/maintenance/backups/backup-secrets.example.yaml`
+- `infra/k8s/maintenance/backups/scripts-config.yaml`
+- `infra/k8s/maintenance/backups/postgres-backup-cronjob.yaml`
+- `infra/k8s/maintenance/backups/postgres-restore-job.yaml`
+- `infra/k8s/maintenance/backups/chromadb-backup-cronjob.yaml`
+- `infra/k8s/maintenance/backups/chromadb-restore-job.yaml`
+- `infra/k8s/maintenance/backups/README.md`
+- `infra/k8s/README.md`
+- `infra/README.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Used S3-compatible object storage through `backup-target-secret` so staging and production can point at different buckets without manifest changes.
+- Kept restore Jobs suspended by default to avoid accidental destructive runs.
+- Exported ChromaDB through its HTTP API into JSONL files so snapshots remain inspectable and independent of Chroma's local storage layout.
+- Left retention enforcement to the bucket lifecycle policy while writing the desired retention window into the backup manifest.
+
+**Issues / unknowns**
+- Jobs were not live-smoke-tested against real PostgreSQL, ChromaDB, and S3 endpoints in this workspace.
+- ChromaDB jobs install Python dependencies at runtime; production can harden this with a pinned backup image.
+- Environments must create `backup-target-secret` with real object-store and PostgreSQL credentials before applying the jobs.
+
+**Validation**
+- `kubectl kustomize infra/k8s/maintenance/backups` passed.
+- `rg` found no non-ASCII arrows/dashes added to the M6 backup manifests and docs.
+- `git diff --check` passed with Git's existing LF-to-CRLF working-copy warnings for touched Markdown files.
+
+**Next**
+- Phase 7 maintenance and operations checklist is complete.
+
+---
+
+### DOCS-PH1 - Prompt history archive - 2026-05-18
+
+**What was done**
+- Added a new `Prompt_History/` documentation archive for AI-assisted build prompts and implementation reports.
+- Organized the archive by the 7 SDLC phases requested by the user.
+- Added separate task Markdown files inside every phase folder.
+- Wrote the archive in a greenfield system-build voice: starting from the Travel TVB business description, then moving through planning, analysis, architecture, implementation, testing, deployment, and operations.
+
+**Files touched**
+- `Prompt_History/README.md`
+- `Prompt_History/Phase_1_Planning_Requirements/*.md`
+- `Prompt_History/Phase_2_System_Analysis/*.md`
+- `Prompt_History/Phase_3_Architecture_Design/*.md`
+- `Prompt_History/Phase_4_Development_Implementation/*.md`
+- `Prompt_History/Phase_5_Testing_Strategy/*.md`
+- `Prompt_History/Phase_6_Deployment_CICD/*.md`
+- `Prompt_History/Phase_7_Maintenance_Operations/*.md`
+- `Implement_Log.md`
+
+**Decisions**
+- Used one consistent format per task: User Prompt, AI Understanding, AI Work Report, Deliverables, Validation Notes, and Next Prompt.
+- Kept the new documentation presentation-focused instead of changing the master project plan.
+- Used phase folders and numbered task files so the archive can be read in SDLC order.
+
+**Issues / unknowns**
+- The archive is a reconstructed prompt/report narrative based on the project plan and implementation log, not a raw export of every historical chat message.
+- Git status required a temporary `safe.directory` override because the sandbox user differs from the repository owner.
+
+**Validation**
+- New Markdown files were created under `Prompt_History/`.
+- Each SDLC phase folder contains separate task files.
+
+**Next**
+- Use `Prompt_History/README.md` as the index when presenting the AI build history in reports or slides.
 
 ---
 
