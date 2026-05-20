@@ -2324,6 +2324,162 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[!]` blocked
 
 ---
 
+### PM1 — Catalog cleanup: drop tour_categories, fix /tours sort, retire field aliases — 2026-05-19
+
+**What was done**
+- Removed the dead `tour_categories` taxonomy — it survived the monolith migration only as unused "Category 1…9" placeholder rows.
+- Fixed the `/tours` sort dropdown, which silently fell back to `createdAt:desc`: option values were PascalCase (`Price:asc`) while the catalog sort whitelist expects camelCase (`price:asc`).
+- Swapped the `/tours` category filter chips for region chips with vi/en/zh labels.
+- Retired the Strapi-era PascalCase field aliases so the catalog API exposes a single camelCase contract.
+
+**Files touched**
+- `services/catalog-service/src/catalog/` — deleted `tour-categories.*` and `entities/tour-category.entity.*`; added `locales.ts`; relaxed `tour.dto.ts` URL validation to accept relative paths
+- `services/catalog-service/src/database/migrations/1747700000000-DropTourCategories.ts`
+- `services/api-gateway/kong.yml` — removed catalog-categories routes
+- `Travel_TVB/src/page/Tours/Tours.jsx`, `Travel_TVB/src/config/strapi.js`
+
+**Decisions**
+- Kept region (`MienBac`/`MienTrung`/…) as the public taxonomy instead of a separate category table — region is already on every tour and needs no extra service.
+- Applied the column-drop migration directly via `psql` against the running database.
+
+**Issues / unknowns**
+- None outstanding.
+
+**Validation**
+- Sort, region filter, and tour detail verified end-to-end against the running stack.
+
+**Next**
+- PM2 retires the dead `/contact` page.
+
+---
+
+### PM2 — Retire /contact page + fix booking request envelope — 2026-05-19
+
+**What was done**
+- Deleted the unused `/contact` page and its monolith-era `Form` and `Map` components; `/contact` now redirects to `/`.
+- Dropped the leftover Strapi `@Body('data')` envelope from the booking controller — it caused a 500 ("Cannot destructure property 'tour'") because the NestJS service receives a flat body.
+
+**Files touched**
+- `Travel_TVB/src/page/Contact/`, `Travel_TVB/src/components/Form/`, `Travel_TVB/src/components/Map/` — deleted
+- `Travel_TVB/src/App.jsx` — `/contact` → `<Navigate to="/" replace />`
+- `Travel_TVB/src/config/strapi.js` — removed CONTACT_FORM / CONTACT_MAP entries
+- `services/booking-service/src/booking/booking.controller.ts` — `@Body('data')` → `@Body()`
+- `Travel_TVB/src/components/BookingForm/BookingForm.jsx` — request body flattened
+
+**Decisions**
+- Redirected `/contact` rather than 404ing it, so stale links and bookmarks still land somewhere sensible.
+
+**Issues / unknowns**
+- None outstanding.
+
+**Validation**
+- Booking create flow verified end-to-end after the envelope fix.
+
+**Next**
+- PM3 addresses the chatbot's ChromaDB client mismatch.
+
+---
+
+### PM3 — Pin ChromaDB client to the 0.5.x server — 2026-05-19
+
+**What was done**
+- Pinned the chatbot's `chromadb` dependency to `>=0.5.20,<1.0.0`. The unpinned client resolved to 1.x against the 0.5.20 server and raised `AttributeError: 'dict' object has no attribute 'serialize_to_json'` on every query.
+
+**Files touched**
+- `services/ai-chatbot-service/pyproject.toml`
+
+**Decisions**
+- Pinned the client rather than upgrading the ChromaDB server, to avoid a vector-store data migration before the demo.
+
+**Issues / unknowns**
+- A `--clear` collection rebuild can leave the running service holding a stale collection UUID — restart the chatbot container after such a re-index.
+
+**Validation**
+- Container rebuilt on chromadb 0.6.3; tour embeddings re-indexed and queried successfully.
+
+**Next**
+- PM4 replaces the URL-only tour image field with a real uploader.
+
+---
+
+### PM4 — AdminTours Strapi media-library uploader — 2026-05-19
+
+**What was done**
+- Replaced the admin tour form's URL-only image field with a real file picker that uploads through Strapi's media library.
+- Flow: admin picks a file → multipart POST to `/api/upload` → Kong validates the identity JWT and strips the Authorization header → Strapi stores the original plus thumbnail/small/medium variants → catalog stores the returned `/uploads/<hash>` path.
+- Added an idempotent Strapi bootstrap that grants the Public role the upload permission, so fresh clones need no manual SQL.
+
+**Files touched**
+- `Travel_TVB/src/page/Admin/AdminTours.jsx` — file picker, preview, upload state
+- `services/content-service/src/index.js` — `bootstrap()` grants `plugin::upload.content-api.upload` to the Public role
+- `services/api-gateway/kong.yml` — `content-upload` route (JWT + request-transformer to strip auth)
+
+**Decisions**
+- Routed uploads through Strapi's media library rather than storing files under `Travel_TVB/public/` — variants, hashing, and CDN-readiness come for free.
+- Stripped the Authorization header at Kong so Strapi accepts the request as Public without a Strapi-issued JWT.
+
+**Issues / unknowns**
+- Strapi-generated `public/uploads/*` files are runtime artifacts and stay out of git.
+
+**Validation**
+- Playwright e2e drove file picker → upload → tour create → public-site render: 8/8 checks passed.
+
+**Next**
+- PM5 refreshes project documentation.
+
+---
+
+### PM5 — Documentation refresh: architecture diagram + markdown archive — 2026-05-19
+
+**What was done**
+- Added a microservices architecture diagram.
+- Synced the `Prompt_History/` archive, `docs/runbooks/`, Kubernetes/observability READMEs, and refreshed `README` / `AGENTS` / `MICROSERVICES_PLAN` from the documentation feature branch (markdown only — no code pulled).
+
+**Files touched**
+- `docs/Hinh_Microservices_Architecture.svg`
+- `Prompt_History/**`, `docs/runbooks/**`, `infra/k8s/**/README.md`, `tests/**/README.md`, `.serena/memories/**`
+- `README.md`, `AGENTS.md`, `MICROSERVICES_PLAN.md`, `Implement_Log.md`
+
+**Decisions**
+- Cherry-picked only `*.md` files (and the diagram) from the feature branch to avoid reverting the PM1–PM4 work that the branch predates.
+
+**Issues / unknowns**
+- The feature branch carries newer infra/code (K8s, observability, chaos tests) not yet merged to `main`.
+
+**Validation**
+- Confirmed no non-markdown files changed during the cherry-pick.
+
+**Next**
+- PM6 fixes chatbot retrieval after the PM1 field-alias change.
+
+---
+
+### PM6 — Chatbot indexer camelCase + bilingual region labels — 2026-05-20
+
+**What was done**
+- Fixed the chatbot tour indexer, which PM1 left reading Strapi PascalCase keys (`Tour_Name`, `Region`, `Short_Description`, …). After PM1's camelCase switch every tour embedded as an empty `"Tour: "` chunk, so the bot retrieved nothing and answered ungrounded with empty `sources`.
+- `build_chunks` / `_tour_metadata` now read the camelCase catalog contract.
+- Added bilingual region/transport label maps (`MienBac` → "Miền Bắc (Northern Vietnam)", etc.) so semantic search matches natural queries like "northern tours" or "miền nam".
+
+**Files touched**
+- `services/ai-chatbot-service/app/scripts/index_tours.py`
+
+**Decisions**
+- Embedded human-readable bilingual labels rather than raw enum codes so retrieval works across all three languages.
+- Re-indexed without `--clear` (deterministic chunk IDs → upsert overwrites) to avoid the stale-collection-UUID restart noted in PM3.
+
+**Issues / unknowns**
+- The fix lives only in `index_tours.py`; the `.env` model override (`gemini-2.5-flash-lite`, used to dodge the `gemini-2.5-flash` free-tier daily cap) stays gitignored.
+
+**Validation**
+- Rebuilt + recreated the chatbot container; re-indexed 38 chunks across vi/en/zh.
+- "find northern tours" (en) and "tìm tour ở miền nam" (vi) both return real tours with populated `sources`.
+
+**Next**
+- Fresh clones must re-index after boot: `docker exec travel-tvb-ai-chatbot-service python -m app.scripts.index_tours`.
+
+---
+
 ## How to update this log
 After each feature:
 1. Mark the checkbox `[x]` next to the feature ID above.
