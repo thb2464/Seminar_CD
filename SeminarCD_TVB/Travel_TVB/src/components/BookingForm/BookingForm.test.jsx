@@ -22,8 +22,8 @@ const { useLanguage } = await import('../../context/LanguageContext');
 
 const mockTour = {
   id: 1,
-  Price: '5000000',
-  Child_Price: '3000000',
+  price: '5000000',
+  childPrice: '3000000',
 };
 
 const mockUser = {
@@ -110,13 +110,13 @@ describe('BookingForm', () => {
       expect(screen.getByText('3.000.000 ₫')).toBeInTheDocument();
     });
 
-    it('should show child section when tour has Child_Price', () => {
+    it('should show child section when tour has childPrice', () => {
       renderWithRouter(<BookingForm tour={mockTour} />);
       expect(screen.getByText('Children')).toBeInTheDocument();
     });
 
-    it('should NOT show child section when tour has no Child_Price', () => {
-      const noChildPriceTour = { id: 1, Price: '5000000' };
+    it('should NOT show child section when tour has no childPrice', () => {
+      const noChildPriceTour = { id: 1, price: '5000000' };
       renderWithRouter(<BookingForm tour={noChildPriceTour} />);
       expect(screen.queryByText('Children')).not.toBeInTheDocument();
     });
@@ -295,7 +295,7 @@ describe('BookingForm', () => {
     });
 
     it('should show "0 ₫" for zero price', () => {
-      const zeroPriceTour = { id: 1, Price: '0' };
+      const zeroPriceTour = { id: 1, price: '0' };
       renderWithRouter(<BookingForm tour={zeroPriceTour} />);
       // Total should show 0 ₫
       const totalEl = document.querySelector('.booking-total-price');

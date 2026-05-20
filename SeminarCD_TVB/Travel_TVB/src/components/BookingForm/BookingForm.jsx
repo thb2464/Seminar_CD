@@ -94,9 +94,9 @@ const BookingForm = ({ tour }) => {
   const [availability, setAvailability] = useState(null);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
 
-  const adultPrice = parseInt(tour?.Price) || 0;
-  const childPrice = parseInt(tour?.Child_Price) || adultPrice;
-  const hasChildPrice = !!tour?.Child_Price;
+  const adultPrice = parseInt(tour?.price) || 0;
+  const childPrice = parseInt(tour?.childPrice) || adultPrice;
+  const hasChildPrice = !!tour?.childPrice;
 
   const totalPrice = useMemo(() => {
     return (adultCount * adultPrice) + (childCount * childPrice);
