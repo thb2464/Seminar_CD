@@ -1,0 +1,45 @@
+LAB 4.1 - PROMPT IMPROVEMENT
+Example task: ask ChatGPT how to commit files to GitHub from the
+PyCharm terminal, expressed as CLI commands.
+
+====================================================================
+[1] INITIAL PROMPT  (weak - vague, no context, no structure)
+====================================================================
+How can I commit my files to GitHub from PyCharm terminal?
+
+--------------------------------------------------------------------
+Problems:
+- No context: the model does not know what input it will receive.
+- The goal ("CLI commands") is not stated explicitly.
+- No separation between instruction and data.
+- The desired output format is not primed.
+
+====================================================================
+[2] IMPROVED PROMPT  (structured - context, task, delimiters)
+====================================================================
+CONTEXT: You will be provided with PyCharm GUI steps enclosed with
+{{{ STEPS }}} to execute a process enclosed with {{{ PROCESS }}}.
+TASK: Convert the steps to CLI commands.
+
+PROCESS: {{{ Commit and push files to a remote git branch }}}
+
+STEPS: {{{
+1. Review changed files
+2. Stage the desired files
+3. Add a commit message
+4. Commit the files
+5. Validate branch name
+6. Push the changes to the remote branch
+}}}
+
+CLI COMMANDS:
+
+====================================================================
+WHY THE IMPROVED PROMPT IS BETTER
+====================================================================
+- CONTEXT  : tells the model exactly what input to expect.
+- TASK     : states a single, explicit goal.
+- {{{ }}}  : delimiters separate instructions from data, so the model
+             never confuses the step list with commands to run.
+- STEPS    : breaks the request into clear, ordered sub-items.
+- "CLI COMMANDS:" at the end primes the answer format.
