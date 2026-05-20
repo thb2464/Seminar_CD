@@ -28,6 +28,37 @@ logger = logging.getLogger(__name__)
 _SUPPORTED_LANGUAGES = ("vi", "en", "zh")
 _PAGE_SIZE = 50
 
+# Catalog-service serves region/transport as raw enum codes. Embed
+# human-readable bilingual labels so semantic search matches natural queries
+# like "northern tours", "miền nam", "tours by flight", etc.
+_REGION_LABELS: dict[str, str] = {
+    "MienBac": "Miền Bắc (Northern Vietnam)",
+    "MienTrung": "Miền Trung (Central Vietnam)",
+    "MienNam": "Miền Nam (Southern Vietnam)",
+    "TayNguyen": "Tây Nguyên (Central Highlands)",
+    "NhieuVung": "Nhiều vùng (Multiple regions)",
+}
+
+_TRANSPORT_LABELS: dict[str, str] = {
+    "XeKhach": "Xe khách (Coach bus)",
+    "MayBay": "Máy bay (Flight)",
+    "Tau": "Tàu (Train)",
+    "XeMay": "Xe máy (Motorbike)",
+    "KetHop": "Kết hợp (Combined transport)",
+}
+
+
+def _region_label(code: Any) -> str:
+    if not code:
+        return ""
+    return _REGION_LABELS.get(str(code), str(code))
+
+
+def _transport_label(code: Any) -> str:
+    if not code:
+        return ""
+    return _TRANSPORT_LABELS.get(str(code), str(code))
+
 
 @dataclass(frozen=True)
 class TourChunk:
@@ -52,50 +83,55 @@ def _tour_metadata(tour: dict[str, Any], language: str) -> dict[str, Any]:
     return {
         "tourId": str(tour.get("id", attrs.get("id", ""))),
         "tourSlug": attrs.get("slug") or "",
-        "tourName": attrs.get("Tour_Name") or "",
+        "tourName": attrs.get("tourName") or "",
         "language": language,
-        "price": _format_price(attrs.get("Price")),
-        "location": attrs.get("Location") or attrs.get("Departure_Location") or "",
-        "region": attrs.get("Region") or "",
-        "durationDays": attrs.get("Duration_Days"),
-        "rating": attrs.get("Rating"),
+        "price": _format_price(attrs.get("price")),
+        "location": attrs.get("location") or attrs.get("departureLocation") or "",
+        "region": _region_label(attrs.get("region")),
+        "transportType": _transport_label(attrs.get("transportType")),
+        "durationDays": attrs.get("durationDays"),
+        "rating": attrs.get("rating"),
     }
 
 
 def build_chunks(tour: dict[str, Any]) -> list[TourChunk]:
     """Split a tour into 4 chunk types: overview, description, highlights, itinerary."""
     attrs = tour.get("attributes", tour)
-    name = attrs.get("Tour_Name") or ""
+    name = attrs.get("tourName") or ""
     parts: list[TourChunk] = []
 
     overview_lines = [f"Tour: {name}"]
-    if short := attrs.get("Short_Description"):
+    if short := attrs.get("shortDescription"):
         overview_lines.append(f"Summary: {short}")
-    if loc := attrs.get("Location"):
+    if loc := attrs.get("location"):
         overview_lines.append(f"Location: {loc}")
-    if region := attrs.get("Region"):
+    if departure := attrs.get("departureLocation"):
+        overview_lines.append(f"Departure from: {departure}")
+    if region := _region_label(attrs.get("region")):
         overview_lines.append(f"Region: {region}")
-    if price := _format_price(attrs.get("Price")):
+    if transport := _transport_label(attrs.get("transportType")):
+        overview_lines.append(f"Transport: {transport}")
+    if price := _format_price(attrs.get("price")):
         overview_lines.append(f"Price: {price}")
-    if (days := attrs.get("Duration_Days")) and (nights := attrs.get("Duration_Nights")):
+    if (days := attrs.get("durationDays")) and (nights := attrs.get("durationNights")):
         overview_lines.append(f"Duration: {days} days / {nights} nights")
-    elif days := attrs.get("Duration_Days"):
+    elif days := attrs.get("durationDays"):
         overview_lines.append(f"Duration: {days} days")
-    if rating := attrs.get("Rating"):
+    if rating := attrs.get("rating"):
         overview_lines.append(f"Rating: {rating}/5")
     parts.append(TourChunk("overview", "\n".join(overview_lines)))
 
-    if description := render_blocks(attrs.get("Description")):
+    if description := render_blocks(attrs.get("description")):
         parts.append(TourChunk("description", f"Tour: {name}\nDescription:\n{description}"))
 
-    highlights = attrs.get("Highlights") or []
+    highlights = attrs.get("highlights") or []
     if isinstance(highlights, list) and highlights:
         bullets: list[str] = []
         for entry in highlights:
             if not isinstance(entry, dict):
                 continue
-            title = entry.get("Title") or entry.get("title")
-            body = entry.get("Description") or entry.get("description")
+            title = entry.get("title") or entry.get("Title")
+            body = entry.get("description") or entry.get("Description")
             if title and body:
                 bullets.append(f"• {title}: {body}")
             elif title:
@@ -103,7 +139,7 @@ def build_chunks(tour: dict[str, Any]) -> list[TourChunk]:
         if bullets:
             parts.append(TourChunk("highlights", f"Tour: {name}\nHighlights:\n" + "\n".join(bullets)))
 
-    if itinerary := render_blocks(attrs.get("Itinerary")):
+    if itinerary := render_blocks(attrs.get("itinerary")):
         parts.append(TourChunk("itinerary", f"Tour: {name}\nItinerary:\n{itinerary}"))
 
     return parts
